@@ -5,7 +5,7 @@ namespace App\Model;
 class RacaModel {
 
     private $id;
-    private $raca_nome;
+    private $nome;
     private $fk_especie_id;
 
     public function __get($nome) {
