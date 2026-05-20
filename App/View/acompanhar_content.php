@@ -4,36 +4,40 @@
  * Localização: ~/App/View/acompanhar_content.php
  */
 
-// Simulação de dados do utilizador (Substituir por SELECT * FROM reportes WHERE usuario_id = :id)
-$meusReportes = [
-    [
-        'protocolo' => 'REP-2024-001',
-        'tipo' => 'Maus-tratos',
-        'assunto' => 'Cachorro acorrentado sem água',
-        'data' => '12/05/2024',
-        'status' => 'Pendente',
-        'status_classe' => 'bg-warning',
-        'urgencia' => 'Alta'
-    ],
-    [
-        'protocolo' => 'REP-2024-005',
-        'tipo' => 'Animal Perdido',
-        'assunto' => 'Gato Siamês desaparecido no Centro',
-        'data' => '10/05/2024',
-        'status' => 'Em Análise',
-        'status_classe' => 'bg-info',
-        'urgencia' => 'Média'
-    ],
-    [
-        'protocolo' => 'REP-2024-009',
-        'tipo' => 'Animal Abandonado',
-        'assunto' => 'Ninhada de gatos abandonada em caixa',
-        'data' => '05/05/2024',
-        'status' => 'Resolvido',
-        'status_classe' => 'bg-success',
-        'urgencia' => 'Alta'
-    ]
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../Data/denuncias_mock.php';
+
+// Usuário ativo para filtrar denúncias próprias
+$simUserId = $_SESSION['sim_user_id'] ?? ($_SESSION['sim_user_name'] ?? 'usuario_anonym');
+
+$denuncias = $denunciasMock ?? [];
+if (isset($_SESSION['denuncias']) && is_array($_SESSION['denuncias']) && !empty($_SESSION['denuncias'])) {
+    $denuncias = $_SESSION['denuncias'];
+}
+
+$meusReportes = array_values(array_filter($denuncias, function($item) use ($simUserId) {
+    return isset($item['reporter_id']) && $item['reporter_id'] === $simUserId;
+}));
+
+$statusTotais = [
+    'Pendente' => 0,
+    'Resolvido' => 0,
+    'Em Análise' => 0
 ];
+foreach ($meusReportes as $rel) {
+    $status = $rel['status'] ?? 'Pendente';
+    if (!isset($statusTotais[$status])) {
+        $statusTotais[$status] = 0;
+    }
+    $statusTotais[$status]++;
+}
+
+if (empty($meusReportes)) {
+    $meusReportes = [];
+}
 ?>
 
 <style>
@@ -125,13 +129,13 @@ $meusReportes = [
             <div class="col-md-4">
                 <div class="card-amigopet p-3 text-center">
                     <h6 class="text-muted small text-uppercase mb-2">Em Resolução</h6>
-                    <h3 class="mb-0 text-warning">1</h3>
+                    <h3 class="mb-0 text-warning"><?php echo $statusTotais['Em Análise'] ?? 0; ?></h3>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card-amigopet p-3 text-center">
                     <h6 class="text-muted small text-uppercase mb-2">Casos Resolvidos</h6>
-                    <h3 class="mb-0 text-success">1</h3>
+                    <h3 class="mb-0 text-success"><?php echo $statusTotais['Resolvido'] ?? 0; ?></h3>
                 </div>
             </div>
         </div>
@@ -151,32 +155,50 @@ $meusReportes = [
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($meusReportes as $reporte): ?>
-                        <tr>
-                            <td><span class="protocol-text"><?php echo $reporte['protocolo']; ?></span></td>
-                            <td>
-                                <div class="fw-bold"><?php echo $reporte['tipo']; ?></div>
-                                <small class="text-muted d-block" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    <?php echo $reporte['assunto']; ?>
-                                </small>
-                            </td>
-                            <td class="text-muted small"><?php echo $reporte['data']; ?></td>
-                            <td>
-                                <span class="urgency-indicator urgency-<?php echo strtolower($reporte['urgencia']); ?>"></span>
-                                <small class="fw-bold"><?php echo $reporte['urgencia']; ?></small>
-                            </td>
-                            <td>
-                                <span class="status-badge <?php echo $reporte['status_classe']; ?>">
-                                    <?php echo $reporte['status']; ?>
-                                </span>
-                            </td>
-                            <td class="text-end">
-                                <button class="btn btn-outline-light border text-muted btn-view-details">
-                                    <i data-lucide="eye" class="me-1" style="width: 14px;"></i> Detalhes
-                                </button>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                        <?php if (empty($meusReportes)): ?>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">Nenhuma denúncia encontrada para o usuário ativo.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($meusReportes as $reporte): ?>
+                            <tr>
+                                <td><span class="protocol-text"><?php echo htmlspecialchars($reporte['protocolo'] ?? '#'. $reporte['id']); ?></span></td>
+                                <td>
+                                    <div class="fw-bold"><?php echo htmlspecialchars($reporte['tipo']); ?></div>
+                                    <small class="text-muted d-block" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        <?php echo htmlspecialchars($reporte['assunto']); ?>
+                                    </small>
+                                </td>
+                                <td class="text-muted small"><?php echo htmlspecialchars($reporte['data'] ?? $reporte['criado_em']); ?></td>
+                                <td>
+                                    <span class="urgency-indicator urgency-<?php echo strtolower(htmlspecialchars($reporte['urgencia'])); ?>"></span>
+                                    <small class="fw-bold"><?php echo htmlspecialchars($reporte['urgencia']); ?></small>
+                                </td>
+                                <td>
+                                    <?php
+                                        $statusClasse = $reporte['status_classe'] ?? 'bg-warning';
+                                        if (!isset($reporte['status_classe'])) {
+                                            if (($reporte['status'] ?? '') === 'Resolvido') {
+                                                $statusClasse = 'bg-success';
+                                            } elseif (($reporte['status'] ?? '') === 'Em Análise') {
+                                                $statusClasse = 'bg-info';
+                                            } else {
+                                                $statusClasse = 'bg-warning';
+                                            }
+                                        }
+                                    ?>
+                                    <span class="status-badge <?php echo $statusClasse; ?>">
+                                        <?php echo htmlspecialchars($reporte['status'] ?? 'Pendente'); ?>
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-outline-light border text-muted btn-view-details">
+                                        <i data-lucide="eye" class="me-1" style="width: 14px;"></i> Detalhes
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

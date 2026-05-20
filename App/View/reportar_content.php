@@ -3,6 +3,78 @@
  * AmigoPet - Conteúdo do Formulário de Reporte
  * Localização: ~/App/View/reportar_content.php
  */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../Data/denuncias_mock.php';
+$mockFile = __DIR__ . '/../Data/denuncias_mock.php';
+
+// Inicializa denúncias a partir do mock e sincroniza com sessão
+$denuncias = $denunciasMock ?? [];
+if (!isset($_SESSION['denuncias']) || !is_array($_SESSION['denuncias']) || empty($_SESSION['denuncias'])) {
+    $_SESSION['denuncias'] = $denuncias;
+} else {
+    $denuncias = $_SESSION['denuncias'];
+}
+
+// Garantir identificador de usuário ativo para filtrar denúncias pessoais
+$simUserId = $_SESSION['sim_user_id'] ?? ($_SESSION['sim_user_name'] ?? 'usuario_anonym');
+$simUserName = $_SESSION['sim_user_name'] ?? 'Usuário';
+
+// Handler de criação de denúncias (envio do formulário)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && $_POST['action'] === 'create_report') {
+    $tipo = $_POST['tipo_ocorrecia'] ?? '';
+    $urgencia = $_POST['urgencia'] ?? '';
+    $assunto = $_POST['assunto'] ?? '';
+    $local = $_POST['localizacao'] ?? '';
+    $descricao = $_POST['descricao'] ?? '';
+    $fotos = [];
+
+    // Processar uploads simples (move para resources/uploads/denuncias)
+    if (!empty($_FILES['fotos']) && is_array($_FILES['fotos']['name'])) {
+        $uploadDir = __DIR__ . '/../../resources/uploads/denuncias/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+        for ($i = 0; $i < count($_FILES['fotos']['name']); $i++) {
+            if ($_FILES['fotos']['error'][$i] === UPLOAD_ERR_OK) {
+                $tmp = $_FILES['fotos']['tmp_name'][$i];
+                $orig = basename($_FILES['fotos']['name'][$i]);
+                $ext = pathinfo($orig, PATHINFO_EXTENSION);
+                $filename = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
+                $target = $uploadDir . $filename;
+                if (move_uploaded_file($tmp, $target)) {
+                    $fotos[] = '/resources/uploads/denuncias/' . $filename;
+                }
+            }
+        }
+    }
+
+    $new = [
+        'id' => time(),
+        'tipo' => $tipo,
+        'urgencia' => $urgencia,
+        'assunto' => $assunto,
+        'localizacao' => $local,
+        'descricao' => $descricao,
+        'fotos' => $fotos,
+        'criado_em' => date('d/m/Y H:i'),
+        'status' => 'Pendente',
+        'respostas' => [],
+        'reporter_id' => $simUserId,
+        'reporter_name' => $simUserName
+    ];
+
+    array_unshift($denuncias, $new);
+    $_SESSION['denuncias'] = $denuncias;
+
+    // Persistir no mock file
+    $export = "<?php\n\$denunciasMock = " . var_export($denuncias, true) . ";\n?>\n";
+    @file_put_contents($mockFile, $export);
+
+    header('Location: verificar_denuncias.php');
+    exit;
+}
+
 ?>
 
 <style>
@@ -99,7 +171,8 @@
             </div>
 
             <div class="form-card">
-                <form id="reportForm" action="#" method="POST" enctype="multipart/form-data">
+                <form id="reportForm" action="" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="action" value="create_report">
                     <div class="row g-4">
                         
                         <!-- Tipo de Reporte -->
@@ -206,11 +279,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Simulação de envio
-    document.getElementById('reportForm').onsubmit = function(e) {
-        e.preventDefault();
-        alert('Reporte enviado com sucesso! Nossa equipe de moderadores e campo já foram notificados.');
-        window.location.href = 'dashboard.php';
-    }
+    // Nenhuma interceptação do envio — formulário envia para o servidor e é processado por PHP
 });
 </script>

@@ -22,7 +22,93 @@ $isAcompanharAdocao = ($currentPage == 'acompanhar_adocao.php');
 $isPerfil = ($currentPage == 'perfil.php');
 ?>
 
+<style>
+    /* ==========================================================================
+       Correções Locais da Sidebar (Garante o funcionamento do Botão e Animações)
+       ========================================================================== */
+    .sidebar-amigopet {
+        overflow: visible !important; /* Crucial: Permite que o botão vaze para fora da barra */
+        z-index: 1020 !important; /* Corrigido: Mantém a barra lateral ABAIXO da navbar (1030) */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .sidebar-nav {
+        overflow-x: hidden; /* Corta apenas os textos internamente ao encolher */
+        height: 100%;
+    }
+
+    /* Estilo do Botão Flutuante (Hambúrguer |||) */
+    .sidebar-toggle-btn-inner {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: -36px; /* Fica 36px para fora da barra */
+        width: 36px;
+        height: 50px;
+        background-color: #ffffff;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-left: none;
+        border-radius: 0 12px 12px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 4px 2px 10px rgba(0,0,0,0.05);
+        color: var(--primary-green);
+        z-index: 1050; /* O botão continua ACIMA da navbar e da sidebar */
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-toggle-btn-inner:hover {
+        background-color: #fcfcfc;
+        color: var(--secondary-orange);
+        width: 42px; /* Pequeno efeito de esticar ao passar o rato */
+        right: -42px;
+    }
+
+    /* ==========================================================================
+       Lógica do Mini Menu (Aplica-se independentemente do style.css externo)
+       ========================================================================== */
+    
+    /* Computador: Alterna entre Menu Completo (260px) e Mini Menu (80px) */
+    @media (min-width: 992px) {
+        body.sidebar-toggled .sidebar-amigopet {
+            width: 80px !important;
+        }
+        body.sidebar-toggled .main-content {
+            margin-left: 80px !important;
+        }
+        body.sidebar-toggled .sidebar-heading,
+        body.sidebar-toggled .nav-item-amigopet span {
+            display: none !important;
+        }
+        body.sidebar-toggled .nav-item-amigopet {
+            justify-content: center;
+            padding: 0.8rem 0;
+        }
+    }
+
+    /* Telemóvel: Alterna entre Fora do Ecrã e Menu Completo */
+    @media (max-width: 991px) {
+        .sidebar-amigopet {
+            left: -260px !important;
+            width: 260px !important;
+        }
+        /* No telemóvel, o botão fica visível à direita da barra escondida */
+        body.sidebar-toggled .sidebar-amigopet {
+            left: 0 !important;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.15);
+        }
+    }
+</style>
+
 <aside class="sidebar-amigopet">
+    
+    <!-- Botão de Abas para Esconder/Mostrar Menu (Ícone fixo de menu) -->
+    <div id="sidebarToggleMenu" class="sidebar-toggle-btn-inner" title="Recolher/Mostrar Menu">
+        <i data-lucide="menu"></i>
+    </div>
+
     <div class="sidebar-nav">
 
         <?php if ($role == 'admin'): ?>
@@ -40,11 +126,11 @@ $isPerfil = ($currentPage == 'perfil.php');
             <a href="relatorios.php" class="nav-item-amigopet">
                 <i data-lucide="file-text"></i> <span>Relatórios Gerais</span>
             </a>
-            <a href="analytics.php" class="nav-item-amigopet">
+            <!--<a href="analytics.php" class="nav-item-amigopet">
                 <i data-lucide="bar-chart"></i> <span>Analytics</span>
-            </a>
-            <a href="permissoes.php" class="nav-item-amigopet">
-                <i data-lucide="shield-check"></i> <span>Permissões</span>
+            </a> -->
+            <a href="verificar_denuncias.php" class="nav-item-amigopet">
+                <i data-lucide="shield-check"></i> <span>Verificar Denuncias</span>
             </a>
 
         <?php elseif ($role == 'ong'): ?>
@@ -168,10 +254,35 @@ $isPerfil = ($currentPage == 'perfil.php');
     </div>
 </aside>
 
-<!-- Inicialização de Ícones Lucide -->
+<!-- Inicialização de Ícones Lucide e Lógica do Toggle -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleMenuBtn = document.getElementById('sidebarToggleMenu');
+
+    // Inicializa o estado com base na preferência salva no navegador do usuário
+    const savedState = localStorage.getItem('sidebar-collapsed') === 'true';
+    if (savedState) {
+        document.body.classList.add('sidebar-toggled');
+    }
+
+    // Evento de clique para ocultar/mostrar a barra lateral
+    if (toggleMenuBtn) {
+        toggleMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Alterna a classe no body
+            document.body.classList.toggle('sidebar-toggled');
+            
+            // Salva a nova preferência
+            const isCurrentlyCollapsed = document.body.classList.contains('sidebar-toggled');
+            localStorage.setItem('sidebar-collapsed', isCurrentlyCollapsed);
+        });
+    }
+
+    // Inicialização geral dos ícones Lucide do Menu
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
+});
 </script>
