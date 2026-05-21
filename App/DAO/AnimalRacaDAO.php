@@ -3,12 +3,11 @@
 namespace App\DAO;
 
 use App\DAO;
-use App\Model\AnimalRaca;
+use App\Model\AnimalRacaModel;
 use FW\Controller\FuncoesGlobais;
 
 class AnimalRacaDAO extends DAO
 {
-    // Métodos abstratos obrigatórios da classe DAO base
     public function inserir($obj)
     {
         $sql  = "INSERT INTO animal_raca (fk_animal_id, fk_raca_id)
@@ -30,15 +29,13 @@ class AnimalRacaDAO extends DAO
 
     public function alterar($obj)
     {
-        // Pivot não tem alteração — método implementado apenas para satisfazer a classe base
+        // Pivot não tem alteração
     }
 
     public function buscarPorId($id)
     {
         try {
-            $sql  = "SELECT id, fk_animal_id, fk_raca_id
-                     FROM   animal_raca
-                     WHERE  id = :id";
+            $sql  = "SELECT id, fk_animal_id, fk_raca_id FROM animal_raca WHERE id = :id";
             $stmt = $this->getConn()->prepare($sql);
             $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
             $stmt->execute();
@@ -46,7 +43,7 @@ class AnimalRacaDAO extends DAO
             $resultado = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             if ($resultado !== false) {
-                $model  = new AnimalRaca();
+                $model  = new AnimalRacaModel();
                 $global = new FuncoesGlobais();
                 $global->popularModel($model, $resultado);
                 return $model;
@@ -72,7 +69,7 @@ class AnimalRacaDAO extends DAO
             $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($resultado as $row) {
-                $model  = new AnimalRaca();
+                $model  = new AnimalRacaModel();
                 $global = new FuncoesGlobais();
                 $global->popularModel($model, $row);
                 array_push($lista, $model);
@@ -85,10 +82,6 @@ class AnimalRacaDAO extends DAO
             die();
         }
     }
-
-    // ------------------------------------------------------------------ //
-    //  Métodos específicos do pivot
-    // ------------------------------------------------------------------ //
 
     public function vincular(int $animalId, int $racaId): bool
     {
@@ -119,7 +112,7 @@ class AnimalRacaDAO extends DAO
     {
         $novos  = array_map('intval', $novosRacaIds);
         $atuais = array_map(
-            fn(AnimalRaca $ar) => (int) $ar->fk_raca_id,
+            fn(AnimalRacaModel $ar) => (int) $ar->fk_raca_id,
             $this->listarPorAnimal($animalId)
         );
 
@@ -147,7 +140,7 @@ class AnimalRacaDAO extends DAO
             $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($resultado as $row) {
-                $model  = new AnimalRaca();
+                $model  = new AnimalRacaModel();
                 $global = new FuncoesGlobais();
                 $global->popularModel($model, $row);
                 array_push($lista, $model);
@@ -177,7 +170,7 @@ class AnimalRacaDAO extends DAO
             $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($resultado as $row) {
-                $model  = new AnimalRaca();
+                $model  = new AnimalRacaModel();
                 $global = new FuncoesGlobais();
                 $global->popularModel($model, $row);
                 array_push($lista, $model);

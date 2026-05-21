@@ -1,6 +1,8 @@
 <?php
-$animal  = $this->getView()->animal;
-$especies = $this->getView()->especies;
+$animal          = $this->getView()->animal;
+$especies        = $this->getView()->especies;
+$racas           = $this->getView()->racas           ?? [];
+$racasVinculadas = $this->getView()->racasVinculadas ?? [];
 ?>
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -129,4 +131,45 @@ $especies = $this->getView()->especies;
             </form>
         </div>
     </div>
+
+    <!-- Card Raças -->
+    <div class="card shadow mt-4">
+        <div class="card-header">
+            <h5 class="mb-0 text-primary">Raças</h5>
+        </div>
+        <div class="card-body">
+            <?php if (empty($racas)): ?>
+                <p class="text-muted mb-0">Nenhuma raça cadastrada para a espécie deste animal.</p>
+            <?php else: ?>
+                <form method="POST" action="/dashboard/animal-raca/sincronizar">
+                    <input type="hidden" name="fk_animal_id" value="<?= (int) $animal->__get('id') ?>">
+
+                    <div class="row g-2 mb-3">
+                        <?php foreach ($racas as $raca): ?>
+                            <div class="col-md-3 col-sm-4 col-6">
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="fk_raca_id[]"
+                                        id="raca_<?= (int) $raca->__get('id') ?>"
+                                        value="<?= (int) $raca->__get('id') ?>"
+                                        <?= in_array((int) $raca->__get('id'), $racasVinculadas, true) ? 'checked' : '' ?>
+                                    >
+                                    <label class="form-check-label" for="raca_<?= (int) $raca->__get('id') ?>">
+                                        <?= htmlspecialchars($raca->__get('nome')) ?>
+                                    </label>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Raças
+                    </button>
+                </form>
+            <?php endif; ?>
+        </div>
+    </div>
+
 </div>

@@ -17,6 +17,7 @@
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Espécie</th>
+                            <th>Raças</th>
                             <th>Sexo</th>
                             <th>Porte</th>
                             <th>Localização</th>
@@ -32,6 +33,7 @@
                                     <td><?= htmlspecialchars($animal->__get('id')) ?></td>
                                     <td><?= htmlspecialchars($animal->__get('nome')) ?></td>
                                     <td><?= htmlspecialchars($animal->__get('especie_nome') ?? '—') ?></td>
+                                    <td><?= htmlspecialchars($animal->__get('racas') ?? '—') ?></td>
                                     <td>
                                         <?= $animal->__get('sexo') === 'm' ? 'Macho' : 'Fêmea' ?>
                                     </td>
@@ -87,11 +89,9 @@
 <script>
     $(document).ready(function() {
         $('#tabela-animais').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json"
-            },
-            "pageLength": 10,
-            "responsive": true
+            language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
+            pageLength: 10,
+            responsive: true
         });
     });
 </script>
