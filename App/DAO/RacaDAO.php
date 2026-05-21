@@ -71,7 +71,10 @@ class RacaDAO extends DAO
     public function buscarPorId($id)
     {
         try {
-            $sql = "SELECT * FROM raca WHERE id = :id";
+            $sql = "SELECT r.id, r.nome, r.fk_especie_id, e.nome AS especie_nome
+                    FROM   raca r
+                    INNER JOIN especie e ON e.id = r.fk_especie_id
+                    WHERE  r.id = :id";
 
             $stmt = $this->getConn()->prepare($sql);
             $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
@@ -99,7 +102,10 @@ class RacaDAO extends DAO
         try {
             $racas = array();
 
-            $sql = "SELECT * FROM raca ORDER BY nome ASC";
+            $sql = "SELECT r.id, r.nome, r.fk_especie_id, e.nome AS especie_nome
+                    FROM   raca r
+                    INNER JOIN especie e ON e.id = r.fk_especie_id
+                    ORDER  BY r.nome ASC";
 
             $stmt = $this->getConn()->prepare($sql);
             $stmt->execute();
@@ -126,9 +132,11 @@ class RacaDAO extends DAO
         try {
             $racas = array();
 
-            $sql = "SELECT * FROM raca
-                    WHERE fk_especie_id = :fk_especie_id
-                    ORDER BY nome ASC";
+            $sql = "SELECT r.id, r.nome, r.fk_especie_id, e.nome AS especie_nome
+                    FROM   raca r
+                    INNER JOIN especie e ON e.id = r.fk_especie_id
+                    WHERE  r.fk_especie_id = :fk_especie_id
+                    ORDER  BY r.nome ASC";
 
             $stmt = $this->getConn()->prepare($sql);
             $stmt->bindValue(':fk_especie_id', $fk_especie_id, \PDO::PARAM_INT);

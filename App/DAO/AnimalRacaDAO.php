@@ -2,20 +2,92 @@
 
 namespace App\DAO;
 
+use App\DAO;
 use App\Model\AnimalRaca;
-use PDO;
+use FW\Controller\FuncoesGlobais;
 
-class AnimalRacaDAO
+class AnimalRacaDAO extends DAO
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
+    // Métodos abstratos obrigatórios da classe DAO base
+    public function inserir($obj)
     {
-        $this->pdo = $pdo;
+        $sql  = "INSERT INTO animal_raca (fk_animal_id, fk_raca_id)
+                 VALUES (:fk_animal_id, :fk_raca_id)";
+        $stmt = $this->getConn()->prepare($sql);
+        $stmt->bindValue(':fk_animal_id', $obj->__get('fk_animal_id'), \PDO::PARAM_INT);
+        $stmt->bindValue(':fk_raca_id',   $obj->__get('fk_raca_id'),   \PDO::PARAM_INT);
+        $stmt->execute();
+        return (int) $this->getConn()->lastInsertId();
+    }
+
+    public function excluir($id)
+    {
+        $sql  = "DELETE FROM animal_raca WHERE id = :id";
+        $stmt = $this->getConn()->prepare($sql);
+        $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function alterar($obj)
+    {
+        // Pivot não tem alteração — método implementado apenas para satisfazer a classe base
+    }
+
+    public function buscarPorId($id)
+    {
+        try {
+            $sql  = "SELECT id, fk_animal_id, fk_raca_id
+                     FROM   animal_raca
+                     WHERE  id = :id";
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+            $stmt->execute();
+
+            $resultado = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if ($resultado !== false) {
+                $model  = new AnimalRaca();
+                $global = new FuncoesGlobais();
+                $global->popularModel($model, $resultado);
+                return $model;
+            }
+
+            return false;
+
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
+
+    public function listar()
+    {
+        try {
+            $lista = array();
+
+            $sql  = "SELECT id, fk_animal_id, fk_raca_id FROM animal_raca";
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->execute();
+
+            $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($resultado as $row) {
+                $model  = new AnimalRaca();
+                $global = new FuncoesGlobais();
+                $global->popularModel($model, $row);
+                array_push($lista, $model);
+            }
+
+            return $lista;
+
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
     }
 
     // ------------------------------------------------------------------ //
-    //  Vinculação
+    //  Métodos específicos do pivot
     // ------------------------------------------------------------------ //
 
     public function vincular(int $animalId, int $racaId): bool
@@ -24,55 +96,25 @@ class AnimalRacaDAO
             return false;
         }
 
-        $sql  = 'INSERT INTO animal_raca (fk_animal_id, fk_raca_id)
-                 VALUES (:fk_animal_id, :fk_raca_id)';
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            ':fk_animal_id' => $animalId,
-            ':fk_raca_id'   => $racaId,
-        ]);
+        $sql  = "INSERT INTO animal_raca (fk_animal_id, fk_raca_id)
+                 VALUES (:fk_animal_id, :fk_raca_id)";
+        $stmt = $this->getConn()->prepare($sql);
+        $stmt->bindValue(':fk_animal_id', $animalId, \PDO::PARAM_INT);
+        $stmt->bindValue(':fk_raca_id',   $racaId,   \PDO::PARAM_INT);
+        return $stmt->execute();
     }
-
-    /**
-     * @param int[] $racaIds
-     */
-    public function vincularVarias(int $animalId, array $racaIds): void
-    {
-        foreach ($racaIds as $racaId) {
-            $this->vincular($animalId, (int) $racaId);
-        }
-    }
-
-    // ------------------------------------------------------------------ //
-    //  Desvinculação
-    // ------------------------------------------------------------------ //
 
     public function desvincular(int $animalId, int $racaId): bool
     {
-        $sql  = 'DELETE FROM animal_raca
+        $sql  = "DELETE FROM animal_raca
                  WHERE fk_animal_id = :fk_animal_id
-                   AND fk_raca_id   = :fk_raca_id';
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            ':fk_animal_id' => $animalId,
-            ':fk_raca_id'   => $racaId,
-        ]);
+                   AND fk_raca_id   = :fk_raca_id";
+        $stmt = $this->getConn()->prepare($sql);
+        $stmt->bindValue(':fk_animal_id', $animalId, \PDO::PARAM_INT);
+        $stmt->bindValue(':fk_raca_id',   $racaId,   \PDO::PARAM_INT);
+        return $stmt->execute();
     }
 
-    public function desvinculaTodos(int $animalId): bool
-    {
-        $sql  = 'DELETE FROM animal_raca WHERE fk_animal_id = :fk_animal_id';
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([':fk_animal_id' => $animalId]);
-    }
-
-    // ------------------------------------------------------------------ //
-    //  Sincronização — form de edição do animal
-    // ------------------------------------------------------------------ //
-
-    /**
-     * @param int[] $novosRacaIds
-     */
     public function sincronizar(int $animalId, array $novosRacaIds): void
     {
         $novos  = array_map('intval', $novosRacaIds);
@@ -89,64 +131,75 @@ class AnimalRacaDAO
         }
     }
 
-    // ------------------------------------------------------------------ //
-    //  Consultas
-    // ------------------------------------------------------------------ //
-
-    /**
-     * @return AnimalRaca[]
-     */
     public function listarPorAnimal(int $animalId): array
     {
-        $sql = 'SELECT id, fk_animal_id, fk_raca_id
-                FROM   animal_raca
-                WHERE  fk_animal_id = :fk_animal_id
-                ORDER  BY fk_raca_id';
+        try {
+            $lista = array();
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':fk_animal_id' => $animalId]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, AnimalRaca::class);
-        return $stmt->fetchAll();
+            $sql  = "SELECT id, fk_animal_id, fk_raca_id
+                     FROM   animal_raca
+                     WHERE  fk_animal_id = :fk_animal_id
+                     ORDER  BY fk_raca_id";
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':fk_animal_id', $animalId, \PDO::PARAM_INT);
+            $stmt->execute();
+
+            $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($resultado as $row) {
+                $model  = new AnimalRaca();
+                $global = new FuncoesGlobais();
+                $global->popularModel($model, $row);
+                array_push($lista, $model);
+            }
+
+            return $lista;
+
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
     }
 
-    /**
-     * @return AnimalRaca[]
-     */
     public function listarPorRaca(int $racaId): array
     {
-        $sql = 'SELECT id, fk_animal_id, fk_raca_id
-                FROM   animal_raca
-                WHERE  fk_raca_id = :fk_raca_id
-                ORDER  BY fk_animal_id';
+        try {
+            $lista = array();
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':fk_raca_id' => $racaId]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, AnimalRaca::class);
-        return $stmt->fetchAll();
-    }
+            $sql  = "SELECT id, fk_animal_id, fk_raca_id
+                     FROM   animal_raca
+                     WHERE  fk_raca_id = :fk_raca_id
+                     ORDER  BY fk_animal_id";
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':fk_raca_id', $racaId, \PDO::PARAM_INT);
+            $stmt->execute();
 
-    public function buscarPorId(int $id): ?AnimalRaca
-    {
-        $sql  = 'SELECT id, fk_animal_id, fk_raca_id
-                 FROM   animal_raca
-                 WHERE  id = :id';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':id' => $id]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, AnimalRaca::class);
-        $result = $stmt->fetch();
-        return $result ?: null;
+            $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($resultado as $row) {
+                $model  = new AnimalRaca();
+                $global = new FuncoesGlobais();
+                $global->popularModel($model, $row);
+                array_push($lista, $model);
+            }
+
+            return $lista;
+
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
     }
 
     public function existeVinculo(int $animalId, int $racaId): bool
     {
-        $sql  = 'SELECT COUNT(*) FROM animal_raca
+        $sql  = "SELECT COUNT(*) FROM animal_raca
                  WHERE fk_animal_id = :fk_animal_id
-                   AND fk_raca_id   = :fk_raca_id';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':fk_animal_id' => $animalId,
-            ':fk_raca_id'   => $racaId,
-        ]);
+                   AND fk_raca_id   = :fk_raca_id";
+        $stmt = $this->getConn()->prepare($sql);
+        $stmt->bindValue(':fk_animal_id', $animalId, \PDO::PARAM_INT);
+        $stmt->bindValue(':fk_raca_id',   $racaId,   \PDO::PARAM_INT);
+        $stmt->execute();
         return (int) $stmt->fetchColumn() > 0;
     }
 }

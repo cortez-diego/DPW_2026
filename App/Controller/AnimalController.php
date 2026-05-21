@@ -6,6 +6,8 @@ use FW\Controller\Action;
 use App\DAO\AnimalDAO;
 use App\DAO\EspecieDAO;
 use App\Model\AnimalModel;
+use App\DAO\RacaDAO;
+use App\DAO\AnimalRacaDAO;
 
 class AnimalController extends Action
 {
@@ -56,17 +58,32 @@ class AnimalController extends Action
 
     public function editar($params)
     {
-        $id  = $params['id'] ?? ($params[0] ?? null);
+        $id = $params['id'] ?? ($params[0] ?? null);
 
-        $dao        = new AnimalDAO();
-        $especieDAO = new EspecieDAO();
-        $animal     = $dao->buscarPorId($id);
+        $animalDAO     = new AnimalDAO();
+        $especieDAO    = new EspecieDAO();
+        $racaDAO       = new RacaDAO();
+        $animalRacaDAO = new AnimalRacaDAO();
 
-        $this->getView()->title        = 'Editar Animal';
-        $this->getView()->title_pagina = 'Editar Animal';
-        $this->getView()->animal       = $animal;
-        $this->getView()->especies     = $especieDAO->listar();
-        $this->getView()->params       = $params;
+        $animal    = $animalDAO->buscarPorId($id);
+        $especieId = (int) $animal->__get('fk_especie_id');
+
+        $racas = $especieId
+            ? $racaDAO->listarPorEspecie($especieId)
+            : $racaDAO->listar();
+
+        $racasVinculadas = array_map(
+            fn($ar) => (int) $ar->fk_raca_id,
+            $animalRacaDAO->listarPorAnimal((int) $id)
+        );
+
+        $this->getView()->title           = 'Editar Animal';
+        $this->getView()->title_pagina    = 'Editar Animal';
+        $this->getView()->animal          = $animal;
+        $this->getView()->especies        = $especieDAO->listar();
+        $this->getView()->racas           = $racas;
+        $this->getView()->racasVinculadas = $racasVinculadas;
+        $this->getView()->params          = $params;
 
         $this->render('../dashboard/animal_editar', 'dashboard');
     }
@@ -107,8 +124,10 @@ class AnimalController extends Action
 
     public function validaAutenticacao()
     {
-        if (!isset($_SESSION['id'])   || $_SESSION['id']   == '' ||
-            !isset($_SESSION['nome']) || $_SESSION['nome'] == '') {
+        if (
+            !isset($_SESSION['id'])   || $_SESSION['id']   == '' ||
+            !isset($_SESSION['nome']) || $_SESSION['nome'] == ''
+        ) {
             header('Location: /login');
             die();
         }

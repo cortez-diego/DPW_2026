@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Controller;
+
+use FW\Controller\Action;
+use App\DAO\RacaDAO;
+use App\DAO\EspecieDAO;
+use App\Model\RacaModel;
+
+class RacaController extends Action
+{
+    public function listar()
+    {
+        $dao   = new RacaDAO();
+        $racas = $dao->listar();
+
+        $this->getView()->title        = 'Raças';
+        $this->getView()->title_pagina = 'Listar Raças';
+        $this->getView()->racas        = $racas;
+
+        $this->render('../dashboard/raca_listar', 'dashboard');
+    }
+
+    public function cadastro()
+    {
+        $especieDAO = new EspecieDAO();
+
+        $this->getView()->title        = 'Cadastro de Raça';
+        $this->getView()->title_pagina = 'Cadastro de Raça';
+        $this->getView()->especies     = $especieDAO->listar();
+
+        $this->render('../dashboard/raca_cadastro', 'dashboard');
+    }
+
+    public function cadastrar()
+    {
+        $model = new RacaModel();
+        $model->__set('nome',          $_POST['nome']          ?? '');
+        $model->__set('fk_especie_id', $_POST['fk_especie_id'] ?? null);
+
+        $dao = new RacaDAO();
+        $dao->inserir($model);
+
+        header('Location: /dashboard/raca/listar');
+        die();
+    }
+
+    public function editar($params)
+    {
+        $id = $params['id'] ?? ($params[0] ?? null);
+
+        $racaDAO    = new RacaDAO();
+        $especieDAO = new EspecieDAO();
+        $raca       = $racaDAO->buscarPorId($id);
+
+        $this->getView()->title        = 'Editar Raça';
+        $this->getView()->title_pagina = 'Editar Raça';
+        $this->getView()->raca         = $raca;
+        $this->getView()->especies     = $especieDAO->listar();
+        $this->getView()->params       = $params;
+
+        $this->render('../dashboard/raca_editar', 'dashboard');
+    }
+
+    public function alterar()
+    {
+        $model = new RacaModel();
+        $model->__set('id',            $_POST['id']            ?? null);
+        $model->__set('nome',          $_POST['nome']          ?? '');
+        $model->__set('fk_especie_id', $_POST['fk_especie_id'] ?? null);
+
+        $dao = new RacaDAO();
+        $dao->alterar($model);
+
+        header('Location: /dashboard/raca/listar');
+        die();
+    }
+
+    public function excluir()
+    {
+        $id = $_POST['id'] ?? null;
+
+        $dao = new RacaDAO();
+        $dao->excluir($id);
+
+        header('Location: /dashboard/raca/listar');
+        die();
+    }
+
+    public function validaAutenticacao()
+    {
+        if (!isset($_SESSION['id'])   || $_SESSION['id']   == '' ||
+            !isset($_SESSION['nome']) || $_SESSION['nome'] == '') {
+            header('Location: /login');
+            die();
+        }
+    }
+}
