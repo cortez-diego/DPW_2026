@@ -6,13 +6,13 @@ use FW\Controller\Action;
 use App\DAO\AnimalRacaDAO;
 use App\DAO\AnimalDAO;
 use App\DAO\RacaDAO;
-use App\Model\AnimalRaca;
+use App\Model\AnimalRacaModel;
 
 class AnimalRacaController extends Action
 {
     public function vincular()
     {
-        $model = new AnimalRaca();
+        $model = new AnimalRacaModel();
         $model->__set('fk_animal_id', $_POST['fk_animal_id'] ?? null);
         $model->__set('fk_raca_id',   $_POST['fk_raca_id']   ?? null);
 
@@ -56,8 +56,10 @@ class AnimalRacaController extends Action
 
     public function validaAutenticacao()
     {
-        if (!isset($_SESSION['id'])   || $_SESSION['id']   == '' ||
-            !isset($_SESSION['nome']) || $_SESSION['nome'] == '') {
+        if (
+            !isset($_SESSION['id'])   || $_SESSION['id']   == '' ||
+            !isset($_SESSION['nome']) || $_SESSION['nome'] == ''
+        ) {
             header('Location: /login');
             die();
         }
