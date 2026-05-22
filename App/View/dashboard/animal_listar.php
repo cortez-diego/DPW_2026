@@ -17,7 +17,7 @@
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Espécie</th>
-                            <th>Raças</th>
+                            <th>Raça</th>
                             <th>Sexo</th>
                             <th>Porte</th>
                             <th>Localização</th>
@@ -89,7 +89,9 @@
 <script>
     $(document).ready(function() {
         $('#tabela-animais').DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+            },
             pageLength: 10,
             responsive: true
         });
