@@ -5,12 +5,15 @@ namespace App\Controller;
 use FW\Controller\Action;
 use App\DAO\AnimalDAO;
 use App\DAO\EspecieDAO;
-use App\Model\AnimalModel;
 use App\DAO\RacaDAO;
 use App\DAO\AnimalRacaDAO;
+use App\Model\AnimalModel;
 
 class AnimalController extends Action
 {
+    // Pasta de upload relativa à raiz do projeto
+    private string $uploadDir = 'resources/dashboard/images/animais/';
+
     public function listar()
     {
         $dao     = new AnimalDAO();
@@ -36,6 +39,8 @@ class AnimalController extends Action
 
     public function cadastrar()
     {
+        $foto = $this->processarUploadFoto();
+
         $model = new AnimalModel();
         $model->__set('nome',            $_POST['nome']            ?? '');
         $model->__set('data_nascimento', $_POST['data_nascimento'] ?? null);
@@ -46,7 +51,7 @@ class AnimalController extends Action
         $model->__set('descricao',       $_POST['descricao']       ?? '');
         $model->__set('porte',           $_POST['porte']           ?? '');
         $model->__set('localizacao',     $_POST['localizacao']     ?? '');
-        $model->__set('foto',            $_POST['foto']            ?? '');
+        $model->__set('foto',            $foto);
         $model->__set('status',          $_POST['status']          ?? 'disponivel');
 
         $dao = new AnimalDAO();
@@ -90,6 +95,9 @@ class AnimalController extends Action
 
     public function alterar()
     {
+        $fotoAtual = $_POST['foto_atual'] ?? '';
+        $foto      = $this->processarUploadFoto($fotoAtual);
+
         $model = new AnimalModel();
         $model->__set('id',              $_POST['id']              ?? null);
         $model->__set('nome',            $_POST['nome']            ?? '');
@@ -101,7 +109,7 @@ class AnimalController extends Action
         $model->__set('descricao',       $_POST['descricao']       ?? '');
         $model->__set('porte',           $_POST['porte']           ?? '');
         $model->__set('localizacao',     $_POST['localizacao']     ?? '');
-        $model->__set('foto',            $_POST['foto']            ?? '');
+        $model->__set('foto',            $foto);
         $model->__set('status',          $_POST['status']          ?? 'disponivel');
 
         $dao = new AnimalDAO();
@@ -115,11 +123,67 @@ class AnimalController extends Action
     {
         $id = $_POST['id'] ?? null;
 
-        $dao = new AnimalDAO();
+        // Remove foto do servidor antes de excluir o registro
+        $dao    = new AnimalDAO();
+        $animal = $dao->buscarPorId($id);
+        if ($animal && $animal->__get('foto')) {
+            $this->removerFoto($animal->__get('foto'));
+        }
+
         $dao->excluir($id);
 
         header('Location: /dashboard/animal/listar');
         die();
+    }
+
+    // ------------------------------------------------------------------ //
+    //  Upload de foto
+    // ------------------------------------------------------------------ //
+
+    /**
+     * Processa o upload da foto do animal.
+     * Se nenhum arquivo for enviado, retorna a foto atual.
+     *
+     * @param  string $fotoAtual  Caminho da foto já salva (edição)
+     * @return string             Caminho relativo salvo no banco
+     */
+    private function processarUploadFoto(string $fotoAtual = ''): string
+    {
+        // Nenhum arquivo enviado ou erro de upload
+        if (empty($_FILES['foto']['name']) || $_FILES['foto']['error'] !== UPLOAD_ERR_OK) {
+            return $fotoAtual;
+        }
+
+        $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
+        $extensao = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($extensao, $extensoesPermitidas)) {
+            return $fotoAtual; // extensão inválida — mantém foto atual
+        }
+
+        // Nome único para evitar colisões
+        $nomeArquivo = uniqid('animal_', true) . '.' . $extensao;
+        $destino     = $this->uploadDir . $nomeArquivo;
+
+        if (move_uploaded_file($_FILES['foto']['tmp_name'], $destino)) {
+            // Remove foto antiga ao substituir
+            if ($fotoAtual) {
+                $this->removerFoto($fotoAtual);
+            }
+            return $destino;
+        }
+
+        return $fotoAtual;
+    }
+
+    /**
+     * Remove o arquivo de foto do servidor.
+     */
+    private function removerFoto(string $caminho): void
+    {
+        if ($caminho && file_exists($caminho)) {
+            unlink($caminho);
+        }
     }
 
     public function validaAutenticacao()

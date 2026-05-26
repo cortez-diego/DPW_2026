@@ -1,104 +1,27 @@
 <style>
-    .page-header-animal h1 {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 1.6rem;
-        color: #2D2D2D;
-    }
-    .page-header-animal p { color: #9B9B9B; font-size: 0.88rem; margin-bottom: 0; }
-    .btn-voltar {
-        background: rgba(0,0,0,0.05);
-        border: none;
-        color: #6B7280;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        font-size: 0.85rem;
-        padding: 10px 18px;
-        border-radius: 12px;
-        transition: all 0.2s;
-    }
-    .btn-voltar:hover { background: rgba(0,0,0,0.09); color: #4F4F4F; }
-    .card-form {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    }
-    .card-form .card-body { padding: 32px; }
-    .section-title {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #6FCF97;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid rgba(111,207,151,0.2);
-    }
-    .form-label {
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #6B7280;
-        margin-bottom: 6px;
-    }
-    .form-control, .form-select {
-        border: 1.5px solid #EFEFEF;
-        border-radius: 12px;
-        font-size: 0.875rem;
-        color: #2D2D2D;
-        padding: 10px 14px;
-        transition: all 0.2s;
-        background-color: #FAFAFA;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: #6FCF97;
-        box-shadow: 0 0 0 3px rgba(111,207,151,0.15);
-        background-color: white;
-    }
-    .form-control::placeholder { color: #C4C4C4; }
-    .form-check-input:checked { background-color: #6FCF97; border-color: #6FCF97; }
-    .form-check-label {
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.85rem;
-        color: #4F4F4F;
-        font-weight: 500;
-    }
-    .btn-salvar {
-        background-color: #6FCF97;
-        border: none;
-        color: white;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 0.88rem;
-        padding: 12px 28px;
-        border-radius: 12px;
-        transition: all 0.2s;
-    }
-    .btn-salvar:hover {
-        background-color: #5BBF87;
-        color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(111,207,151,0.35);
-    }
-    .btn-cancelar {
-        background: rgba(0,0,0,0.05);
-        border: none;
-        color: #6B7280;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        font-size: 0.88rem;
-        padding: 12px 24px;
-        border-radius: 12px;
-        transition: all 0.2s;
-    }
-    .btn-cancelar:hover { background: rgba(0,0,0,0.09); color: #4F4F4F; }
-    .divider { border-top: 1.5px solid #F5F5F5; margin: 28px 0; }
+    .page-header-animal h1 { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.6rem; color:#2D2D2D; }
+    .page-header-animal p  { color:#9B9B9B; font-size:0.88rem; margin-bottom:0; }
+    .btn-voltar { background:rgba(0,0,0,0.05); border:none; color:#6B7280; font-family:'Poppins',sans-serif; font-weight:600; font-size:0.85rem; padding:10px 18px; border-radius:12px; transition:all 0.2s; }
+    .btn-voltar:hover { background:rgba(0,0,0,0.09); color:#4F4F4F; }
+    .card-form { border:none; border-radius:20px; box-shadow:0 4px 20px rgba(0,0,0,0.05); }
+    .card-form .card-body { padding:32px; }
+    .section-title { font-family:'Poppins',sans-serif; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; color:#6FCF97; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid rgba(111,207,151,0.2); }
+    .form-label { font-family:'Poppins',sans-serif; font-size:0.8rem; font-weight:600; color:#6B7280; margin-bottom:6px; }
+    .form-control, .form-select { border:1.5px solid #EFEFEF; border-radius:12px; font-size:0.875rem; color:#2D2D2D; padding:10px 14px; transition:all 0.2s; background-color:#FAFAFA; }
+    .form-control:focus, .form-select:focus { border-color:#6FCF97; box-shadow:0 0 0 3px rgba(111,207,151,0.15); background-color:white; }
+    .form-control::placeholder { color:#C4C4C4; }
+    .form-check-input:checked { background-color:#6FCF97; border-color:#6FCF97; }
+    .form-check-label { font-family:'Poppins',sans-serif; font-size:0.85rem; color:#4F4F4F; font-weight:500; }
+    .foto-preview-wrap { margin-top:10px; display:none; }
+    .foto-preview-wrap img { width:100px; height:100px; object-fit:cover; border-radius:14px; border:2px solid rgba(111,207,151,0.3); }
+    .btn-salvar { background-color:#6FCF97; border:none; color:white; font-family:'Poppins',sans-serif; font-weight:700; font-size:0.88rem; padding:12px 28px; border-radius:12px; transition:all 0.2s; }
+    .btn-salvar:hover { background-color:#5BBF87; color:white; transform:translateY(-1px); box-shadow:0 6px 16px rgba(111,207,151,0.35); }
+    .btn-cancelar { background:rgba(0,0,0,0.05); border:none; color:#6B7280; font-family:'Poppins',sans-serif; font-weight:600; font-size:0.88rem; padding:12px 24px; border-radius:12px; transition:all 0.2s; }
+    .btn-cancelar:hover { background:rgba(0,0,0,0.09); color:#4F4F4F; }
+    .divider { border-top:1.5px solid #F5F5F5; margin:28px 0; }
 </style>
 
 <div class="container-fluid">
-
-    <!-- Header -->
     <div class="page-header-animal d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1>Novo Animal 🐾</h1>
@@ -111,9 +34,8 @@
 
     <div class="card card-form">
         <div class="card-body">
-            <form method="POST" action="/dashboard/animal/cadastrar">
+            <form method="POST" action="/dashboard/animal/cadastrar" enctype="multipart/form-data">
 
-                <!-- Identificação -->
                 <div class="section-title">🐾 Identificação</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
@@ -166,23 +88,29 @@
                             <label class="form-check-label" for="castrado">Castrado</label>
                         </div>
                     </div>
-                </div>
-
-                <div class="divider"></div>
-
-                <!-- Descrição -->
-                <div class="section-title">📝 Descrição</div>
-                <div class="row g-3 mb-2">
-                    <div class="col-md-12">
-                        <label class="form-label">Descrição</label>
-                        <textarea class="form-control" name="descricao" rows="3"
-                                  placeholder="Descreva o temperamento, histórico e outras informações relevantes do animal."></textarea>
+                    <div class="col-md-4">
+                        <label class="form-label">Foto do Animal</label>
+                        <input type="file" class="form-control" name="foto" id="fotoInput" accept="image/jpeg,image/png,image/webp">
+                        <small class="text-muted" style="font-size:0.75rem;">JPG, PNG ou WEBP. Máx. 5MB.</small>
+                        <div class="foto-preview-wrap" id="fotoPreview">
+                            <img id="fotoPreviewImg" src="" alt="Preview">
+                        </div>
                     </div>
                 </div>
 
                 <div class="divider"></div>
 
-                <!-- Status -->
+                <div class="section-title">📝 Descrição</div>
+                <div class="row g-3 mb-2">
+                    <div class="col-md-12">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="descricao" rows="3"
+                                  placeholder="Descreva o temperamento, histórico e outras informações relevantes."></textarea>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
                 <div class="section-title">📌 Status</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
@@ -198,7 +126,6 @@
 
                 <div class="divider"></div>
 
-                <!-- Botões -->
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-salvar">
                         <i class="fas fa-save me-2"></i> Salvar Animal
@@ -207,8 +134,21 @@
                         <i class="fas fa-times me-2"></i> Cancelar
                     </a>
                 </div>
-
             </form>
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('fotoInput').addEventListener('change', function() {
+    const file = this.files[0];
+    const preview = document.getElementById('fotoPreview');
+    const img = document.getElementById('fotoPreviewImg');
+    if (file) {
+        img.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+});
+</script>
