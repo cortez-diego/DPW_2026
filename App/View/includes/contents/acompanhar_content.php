@@ -1,14 +1,14 @@
 <?php
 /**
  * AmigoPet - Conteúdo do Acompanhamento de Denúncias
- * Localização: ~/App/View/acompanhar_content.php
+ * Localização: ~/App/View/includes/contents/acompanhar_content.php
  */
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../Data/denuncias_mock.php';
+require_once __DIR__ . '/../../../Data/denuncias_mock.php';
 
 // Usuário ativo para filtrar denúncias próprias
 $simUserId = $_SESSION['sim_user_id'] ?? ($_SESSION['sim_user_name'] ?? 'usuario_anonym');

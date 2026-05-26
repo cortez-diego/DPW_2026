@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../Data/animais_mock.php';
+require_once __DIR__ . '/../../../Data/animais_mock.php';
 
 // Mock de doações (pode ser substituído por dados reais)
 $doacoes = $_SESSION['doacoes'] ?? [
@@ -39,7 +39,7 @@ $adocoes = $_SESSION['adocoes'] ?? [];
         <div class="row g-4">
             <div class="col-lg-6">
                 <div class="card shadow-sm h-100">
-                    <div class="card-body">
+         * Localização: ~/App/View/includes/contents/relatorios_content.php
                         <h6 class="fw-semibold">Doações (últimos meses)</h6>
                         <div class="report-chart">
                             <canvas id="donationsChart"></canvas>

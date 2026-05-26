@@ -9,7 +9,7 @@ include 'includes/dashboard/header.php';
 include 'includes/dashboard/menu.php';
 include 'includes/dashboard/navbar.php';
 
-include 'reportar_content.php'; 
+include 'includes/contents/reportar_content.php'; 
 
 include 'includes/dashboard/footer.php';
 ob_end_flush();

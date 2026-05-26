@@ -1,7 +1,7 @@
 <?php
 /**
  * Mock de denúncias
- * Estrutura usada por reportar_content.php e verificar_denuncias_content.php
+ * Estrutura usada por includes/contents/reportar_content.php e includes/contents/verificar_denuncias_content.php
  */
 
 $denunciasMock = [

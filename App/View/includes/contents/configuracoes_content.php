@@ -1,14 +1,14 @@
 <?php
 /**
  * AmigoPet - Configurações do Sistema
- * Localização: ~/App/View/configuracoes_content.php
+ * Localização: ~/App/View/includes/contents/configuracoes_content.php
  */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../Data/animais_mock.php';
-$mockFile = __DIR__ . '/../Data/configuracoes_mock.php';
+require_once __DIR__ . '/../../../Data/animais_mock.php';
+$mockFile = __DIR__ . '/../../../Data/configuracoes_mock.php';
 
 // Inicialização padrão
 $defaults = [

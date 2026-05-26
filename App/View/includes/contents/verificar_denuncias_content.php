@@ -6,8 +6,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../Data/denuncias_mock.php';
-$mockFile = __DIR__ . '/../Data/denuncias_mock.php';
+require_once __DIR__ . '/../../../Data/denuncias_mock.php';
+$mockFile = __DIR__ . '/../../../Data/denuncias_mock.php';
 
 // Inicializa denúncias a partir do mock e sincroniza com sessão
 $denuncias = $denunciasMock ?? [];
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                     <th>Assunto</th>
                                     <th>Local</th>
                                     <th>Enviado</th>
-                                    <th>Status</th>
+                                 * Localização: ~/App/View/includes/contents/verificar_denuncias_content.php
                                     <th class="text-end">Ações</th>
                                 </tr>
                             </thead>

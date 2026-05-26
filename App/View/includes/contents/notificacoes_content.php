@@ -1,7 +1,7 @@
 <?php
 /**
  * AmigoPet - Conteúdo das Notificações
- * Localização: ~/App/View/notificacoes_content.php
+ * Localização: ~/App/View/includes/contents/notificacoes_content.php
  */
 
 // Simulação de notificações (No backend, buscar do banco com filtro de data)

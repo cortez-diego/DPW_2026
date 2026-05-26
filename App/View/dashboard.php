@@ -10,7 +10,7 @@ include 'includes/dashboard/header.php';
 include 'includes/dashboard/menu.php';
 include 'includes/dashboard/navbar.php';
 
-include 'dashboard_content.php'; 
+include 'includes/contents/dashboard_content.php'; 
 
 include 'includes/dashboard/footer.php';
 ?>

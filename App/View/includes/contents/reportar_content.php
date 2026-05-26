@@ -1,14 +1,14 @@
 <?php
 /**
  * AmigoPet - Conteúdo do Formulário de Reporte
- * Localização: ~/App/View/reportar_content.php
+ * Localização: ~/App/View/includes/contents/reportar_content.php
  */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../Data/denuncias_mock.php';
-$mockFile = __DIR__ . '/../Data/denuncias_mock.php';
+require_once __DIR__ . '/../../../Data/denuncias_mock.php';
+$mockFile = __DIR__ . '/../../../Data/denuncias_mock.php';
 
 // Inicializa denúncias a partir do mock e sincroniza com sessão
 $denuncias = $denunciasMock ?? [];

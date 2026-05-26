@@ -16,7 +16,7 @@ if (!in_array($role, ['admin', 'moderador', 'ong', 'veterinario'])) {
     exit;
 }
 
-include 'verificar_denuncias_content.php';
+include 'includes/contents/verificar_denuncias_content.php';
 
 include 'includes/dashboard/footer.php';
 ob_end_flush();

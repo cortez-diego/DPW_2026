@@ -15,7 +15,7 @@ if (!in_array($role, ['admin', 'moderador', 'ong'])) {
     exit;
 }
 
-include 'relatorios_content.php';
+include 'includes/contents/relatorios_content.php';
 
 include 'includes/dashboard/footer.php';
 ?>

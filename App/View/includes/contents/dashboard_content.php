@@ -1,7 +1,7 @@
 <?php
 /**
  * AmigoPet - Conteúdo do Dashboard Principal
- * Localização: ~/App/View/dashboard_content.php
+ * Localização: ~/App/View/includes/contents/dashboard_content.php
  */
 
 // Garante que a sessão está ativa
@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$mockFile = __DIR__ . '/../Data/configuracoes_mock.php';
+$mockFile = __DIR__ . '/../../../Data/configuracoes_mock.php';
 
 // Inicialização padrão (Fallbacks)
 $configGeralMock = ['dashboard_titulo' => 'Painel de Adoção 🐾', 'dashboard_subtitulo' => 'Bem-vindo ao painel central.'];

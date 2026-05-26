@@ -1,7 +1,7 @@
 <?php
 /**
  * AmigoPet - Conteúdo de Gerenciamento de Usuários
- * Localização: ~/App/View/usuarios_content.php
+ * Localização: ~/App/View/includes/contents/usuarios_content.php
  */
 
 // Simulação de base de dados de utilizadores

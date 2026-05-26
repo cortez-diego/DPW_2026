@@ -1,11 +1,11 @@
 <?php
 /**
  * AmigoPet - Conteúdo da Listagem de Adoção
- * Localização: ~/App/View/adocao_content.php
+ * Localização: ~/App/View/includes/contents/adocao_content.php
  */
 
 // Inclui o mock de dados de um ficheiro separado
-include_once __DIR__ . '/../Data/animais_mock.php';
+include_once __DIR__ . '/../../../Data/animais_mock.php';
 ?>
 
 <style>

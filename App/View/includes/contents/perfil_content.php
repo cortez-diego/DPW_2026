@@ -1,7 +1,7 @@
 <?php
 /**
  * AmigoPet - Conteúdo do Perfil do Usuário
- * Localização: ~/App/View/perfil_content.php
+ * Localização: ~/App/View/includes/contents/perfil_content.php
  */
 
 // Simulação de dados do usuário (Substituir por consulta ao banco de dados no backend)

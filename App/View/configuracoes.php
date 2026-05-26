@@ -18,7 +18,7 @@ if ($role !== 'admin') {
     exit;
 }
 
-include 'configuracoes_content.php'; 
+include 'includes/contents/configuracoes_content.php'; 
 
 include 'includes/dashboard/footer.php';
 ?>

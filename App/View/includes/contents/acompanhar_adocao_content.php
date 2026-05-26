@@ -1,7 +1,7 @@
 <?php
 /**
  * AmigoPet - Conteúdo do Acompanhamento de Adoções
- * Localização: ~/App/View/acompanhar_adocao_content.php
+ * Localização: ~/App/View/includes/contents/acompanhar_adocao_content.php
  */
 
 // Simulação de dados de pedidos de adoção (Substituir por consulta SQL no Backend)
