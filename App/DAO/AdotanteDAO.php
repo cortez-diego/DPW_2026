@@ -3,146 +3,35 @@
 namespace App\DAO;
 
 use App\DAO;
-use App\Model\AdotanteModel;
+use App\Model\LoginModel;
 use FW\Controller\FuncoesGlobais;
 
-class AdotanteDAO extends DAO
+class LoginDAO extends DAO
 {
-    /**
-     * Mapeia colunas do banco (sem prefixo) para propriedades do Model (com prefixo )
-     */
-    // private function mapRowToModel(array $row): AdotanteModel
-    // {
-    //     try {
-    //         $nome = $obj->__get("nome");
-    //         $cpf = $obj->__get("cpf");
-    //         $data_nascimento = $obj->__get("data_nascimento");
-    //         $cep = $obj->__get("cep");
-    //         $estado = $obj->__get("estado");
-    //         $cidade = $obj->__get("cidade");
-    //         $bairro = $obj->__get("bairro");
-    //         $logradouro = $obj->__get("logradouro");
-    //         $numero = $obj->__get("numero");
-    //         $complemento = $obj->__get("complemento");
-    //         $telefone_1 = $obj->__get("telefone_1");
-    //         $telefone_2 = $obj->__get("telefone_2");
-    //         $status = $obj->__get("status");
-
-
-    //         $sql = "INSERT INTO adotante (
-    //             nome
-    //             cpf
-    //             data_nascimento
-    //             cep
-    //             estado
-    //             cidade
-    //             bairro
-    //             logradouro
-    //             numero
-    //             complemento
-    //             telefone_1
-    //             telefone_2
-    //             status
-    //         ) VALUES (
-    //             :nome
-    //             :cpf
-    //             :data_nascimento
-    //             :cep
-    //             :estado
-    //             :cidade
-    //             :bairro
-    //             :logradouro
-    //             :numero
-    //             :complemento
-    //             :telefone_1
-    //             :telefone_2
-    //             :status
-    //         )";
-
-    //         $stmt = $this->getConn()->prepare($sql);
-    //         $stmt->bindValue('nome', $nome);
-    //         $stmt->bindValue('cpf', $cpf);
-    //         $stmt->bindValue('data_nascimento', $data_nascimento);
-    //         $stmt->bindValue('cep', $cep);
-    //         $stmt->bindValue('estado', $estado);
-    //         $stmt->bindValue('cidade', $cidade);
-    //         $stmt->bindValue('bairro', $bairro);
-    //         $stmt->bindValue('logradouro', $logradouro);
-    //         $stmt->bindValue('numero', $numero);
-    //         $stmt->bindValue('complemento', $complemento);
-    //         $stmt->bindValue('telefone_1', $telefone_1);
-    //         $stmt->bindValue('telefone_2', $telefone_2);
-    //         $stmt->bindValue('status', $status);
-    //         $stmt->execute();
-    //     } catch (\PDOException $ex) {
-    //         header('Location:/error103');
-    //         die();
-    //     }
-    // }
 
     public function inserir($obj)
     {
         try {
-            $nome = $obj->__get("nome");
-            $cpf = $obj->__get("cpf");
-            $data_nascimento = $obj->__get("data_nascimento");
-            $cep = $obj->__get("cep");
-            $estado = $obj->__get("estado");
-            $cidade = $obj->__get("cidade");
-            $bairro = $obj->__get("bairro");
-            $logradouro = $obj->__get("logradouro");
-            $numero = $obj->__get("numero");
-            $complemento = $obj->__get("complemento");
-            $telefone_1 = $obj->__get("telefone_1");
-            $telefone_2 = $obj->__get("telefone_2");
-            $status = $obj->__get("status");
 
+            $email = $obj->__get('email');
+            $senha = $obj->__get('senha');
 
-            $sql = "INSERT INTO adotante (
-                nome,
-                cpf,
-                data_nascimento,
-                cep,
-                estado,
-                cidade,
-                bairro,
-                logradouro,
-                numero,
-                complemento,
-                telefone_1,
-                telefone_2,
-                status
+            $sql = "INSERT INTO login (
+                email,
+                senha
             ) VALUES (
-                :nome,
-                :cpf,
-                :data_nascimento,
-                :cep,
-                :estado,
-                :cidade,
-                :bairro,
-                :logradouro,
-                :numero,
-                :complemento,
-                :telefone_1,
-                :telefone_2,
-                :status
+                :email,
+                :senha
             )";
 
-            $stmt = $this->getConn()->prepare($sql);
-            $stmt->bindValue(':nome', $nome);
-            $stmt->bindValue(':cpf', $cpf);
-            $stmt->bindValue(':data_nascimento', $data_nascimento);
-            $stmt->bindValue(':cep', $cep);
-            $stmt->bindValue(':estado', $estado);
-            $stmt->bindValue(':cidade', $cidade);
-            $stmt->bindValue(':bairro', $bairro);
-            $stmt->bindValue(':logradouro', $logradouro);
-            $stmt->bindValue(':numero', $numero);
-            $stmt->bindValue(':complemento', $complemento);
-            $stmt->bindValue(':telefone_1', $telefone_1);
-            $stmt->bindValue(':telefone_2', $telefone_2);
-            $stmt->bindValue(':status', $status);
+            $conn = $this->getConn();
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':email', $email);
+            $stmt->bindValue(':senha', password_hash($senha, PASSWORD_DEFAULT));
             $stmt->execute();
+
+            return $conn->lastInsertId();
         } catch (\PDOException $ex) {
             header('Location:/error103');
             die();
@@ -151,63 +40,95 @@ class AdotanteDAO extends DAO
 
     public  function excluir($id)
     {
-        $sql = "DELETE FROM adotante WHERE id = :id";
-
-        $stmt = $this->getConn()->prepare($sql);
-        $stmt->bindValue(":id", $id);
-        $stmt->execute();
+        try {
+            $sql = "DELETE FROM login WHERE id = :id";
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(":id", $id);
+            $stmt->execute();
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
     }
     public  function alterar($obj)
     {
         try {
             $id = $obj->__get("id");
-            $nome = $obj->__get("nome");
-            $cpf = $obj->__get("cpf");
-            $data_nascimento = $obj->__get("data_nascimento");
-            $cep = $obj->__get("cep");
-            $estado = $obj->__get("estado");
-            $cidade = $obj->__get("cidade");
-            $bairro = $obj->__get("bairro");
-            $logradouro = $obj->__get("logradouro");
-            $numero = $obj->__get("numero");
-            $complemento = $obj->__get("complemento");
-            $telefone_1 = $obj->__get("telefone_1");
-            $telefone_2 = $obj->__get("telefone_2");
-            $status = $obj->__get("status");
+            $email = $obj->__get("email");
+            $senha = $obj->__get("senha");
+            $status = $obj->__get("status") ?: 'a';
+            $tipo_usuario = $obj->__get("tipo_usuario") ?: 'adotante';
 
-            $sql = "UPDATE adotante as a
-                SET 
-                nome = :nome,
-                cpf = :cpf,
-                data_nascimento = :data_nascimento,
-                cep = :cep,
-                estado = :estado,
-                cidade = :cidade,
-                bairro = :bairro,
-                logradouro = :logradouro,
-                numero = :numero,
-                complemento = :complemento,
-                telefone_1 = :telefone_1,
-                telefone_2 = :telefone_2,
-                `status` = :status
-            WHERE id = :id";
+            $sql = "UPDATE 
+                login
+            SET 
+                email = :email,
+                status = :status,
+                tipo_usuario = :tipo_usuario
+            WHERE 
+                id = :id";
 
             $stmt = $this->getConn()->prepare($sql);
             $stmt->bindValue(':id', $id);
-            $stmt->bindValue(':nome', $nome);
-            $stmt->bindValue(':cpf', $cpf);
-            $stmt->bindValue(':data_nascimento', $data_nascimento);
-            $stmt->bindValue(':cep', $cep);
-            $stmt->bindValue(':estado', $estado);
-            $stmt->bindValue(':cidade', $cidade);
-            $stmt->bindValue(':bairro', $bairro);
-            $stmt->bindValue(':logradouro', $logradouro);
-            $stmt->bindValue(':numero', $numero);
-            $stmt->bindValue(':complemento', $complemento);
-            $stmt->bindValue(':telefone_1', $telefone_1);
-            $stmt->bindValue(':telefone_2', $telefone_2);
+            $stmt->bindValue(':email', $email);
+            $stmt->bindValue(':senha', password_hash($senha, PASSWORD_DEFAULT));
             $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':tipo_usuario', $tipo_usuario);
             $stmt->execute();
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
+
+    public function alterarSenha($obj) {
+        try {
+
+            $id = $obj->__get('id');
+            $senha = $obj->__get('senha');
+
+            $sql = "UPDATE 
+                login
+            SET 
+                senha = :senha
+            WHERE 
+                id = :id";
+
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue('id', $id);
+            $stmt->bindValue('senha', password_hash($senha, PASSWORD_DEFAULT));
+            $stmt->execute();
+
+
+        }catch(\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
+
+    public  function buscarPorEmail($email)
+    {
+        try {
+            $sql = "SELECT * 
+            FROM 
+                login
+            WHERE 
+                email = :email";
+
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':email', $email);
+            $stmt->execute();
+            $resultado = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($resultado) {
+                $loginModel = new LoginModel();
+
+                $global = new FuncoesGlobais();
+                $global->popularModel($loginModel, $resultado);
+
+                return $loginModel;
+            }
+
+            return false;
         } catch (\PDOException $ex) {
             header('Location:/error103');
             die();
@@ -217,20 +138,20 @@ class AdotanteDAO extends DAO
     {
         try {
             $sql = "SELECT * 
-            FROM Adotante
+            FROM login
             WHERE id = :id";
 
             $stmt = $this->getConn()->prepare($sql);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
             $resultado = $stmt->fetch(\PDO::FETCH_ASSOC);
-            if ($resultado > 0) {
-                $adotanteModel = new AdotanteModel();
+            if ($resultado) {
+                $loginModel = new LoginModel();
 
                 $global = new FuncoesGlobais();
-                $global->popularModel($adotanteModel, $resultado);
+                $global->popularModel($loginModel, $resultado);
 
-                return $adotanteModel;
+                return $loginModel;
             }
 
             return false;
@@ -242,32 +163,32 @@ class AdotanteDAO extends DAO
     public function listar()
     {
         try {
-            $adotantes = array();
+            $logins = array();
 
             $sql = "SELECT 
-                a.*,
-                l.email
+                id,
+                email,
+                status,
+                tipo_usuario,
+                data_cadastro,
+                data_atualizacao
             FROM 
-                adotante a
-            JOIN 
-                login l 
-            ON 
-                a.fk_login_id = l.id
+                login 
             ";
 
             $stmt = $this->getConn()->prepare($sql);
             $stmt->execute();
             $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             foreach ($resultado as $row) {
-                $adotanteModel = new AdotanteModel();
+                $loginModel = new LoginModel();
 
                 $global = new FuncoesGlobais();
-                $global->popularModel($adotanteModel, $row);
+                $global->popularModel($loginModel, $row);
 
-                array_push($adotantes, $adotanteModel);
+                array_push($logins, $loginModel);
             }
 
-            return $adotantes;
+            return $logins;
         } catch (\PDOException $ex) {
             header('Location:/error103');
             die();
