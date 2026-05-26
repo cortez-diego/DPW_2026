@@ -18,6 +18,20 @@ if (isset($_GET['sim_role'])) {
 }
 
 $userRole = $_SESSION['sim_user_role'] ?? 'usuario';
+
+// Carrega notificações para o resumo do sino da navbar
+$notificacoesMock = [];
+$mockFile = __DIR__ . '/../../../Data/notificacoes_mock.php';
+if (file_exists($mockFile)) {
+    include $mockFile;
+}
+
+// Ordena as notificações mais recentes primeiro
+usort($notificacoesMock, function($a, $b) {
+    return strtotime($b['data']) <=> strtotime($a['data']);
+});
+$latestNotifications = array_slice($notificacoesMock, 0, 3);
+$unreadCount = count(array_filter($notificacoesMock, function($n) { return !$n['lida']; }));
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-amigopet">
@@ -58,13 +72,45 @@ $userRole = $_SESSION['sim_user_role'] ?? 'usuario';
                     </select>
                 </div>
 
-                <button class="notification-btn" title="Notificações">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                    </svg>
-                    <span class="notification-badge"></span>
-                </button>
+                <div class="dropdown">
+                    <button type="button" class="notification-btn dropdown-toggle btn btn-link p-0" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notificações">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <?php if ($unreadCount > 0): ?>
+                            <span class="notification-badge"><?php echo $unreadCount; ?></span>
+                        <?php endif; ?>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end py-2 shadow" aria-labelledby="notificationDropdown" style="min-width: 320px;">
+                        <li class="px-3 py-2 d-flex justify-content-between align-items-center border-bottom">
+                            <span class="fw-bold">Notificações recentes</span>
+                            <small class="text-muted"><?php echo $unreadCount > 0 ? $unreadCount . ' não lidas' : 'Sem novas'; ?></small>
+                        </li>
+                        <?php if (empty($latestNotifications)): ?>
+                            <li class="px-3 py-3 text-center text-muted">Nenhuma notificação disponível.</li>
+                        <?php else: ?>
+                            <?php foreach ($latestNotifications as $notif): ?>
+                                <li>
+                                    <a href="notificacoes.php" class="dropdown-item py-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <div class="fw-semibold"><?php echo htmlspecialchars($notif['titulo']); ?></div>
+                                                <div class="text-muted small"><?php echo htmlspecialchars($notif['mensagem']); ?></div>
+                                            </div>
+                                            <?php if (!$notif['lida']): ?>
+                                                <span class="badge bg-success rounded-pill ms-2" style="font-size: 0.6rem;">Nova</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="text-end text-muted small mt-1"><?php echo date('d/m H:i', strtotime($notif['data'])); ?></div>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center" href="notificacoes.php">Ver todas as notificações</a></li>
+                    </ul>
+                </div>
                 
                 <div class="d-flex align-items-center">
                     <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">

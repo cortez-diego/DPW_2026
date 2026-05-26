@@ -88,11 +88,12 @@ include_once __DIR__ . '/../../../Data/animais_mock.php';
         <div class="row g-4" id="petGrid">
             <?php foreach ($animaisSimulados as $pet): ?>
             <div class="col-xl-3 col-lg-4 col-md-6 pet-item" 
+                 data-pet-id="<?php echo $pet['id']; ?>"
                  data-search="<?php echo strtolower("{$pet['nome']} {$pet['especie']} {$pet['raca']} {$pet['idade']} {$pet['sexo']}"); ?>">
                 
                 <div class="pet-card-adocao shadow-sm h-100 border">
                     <div class="pet-img-wrapper position-relative">
-                        <img src="<?php echo $pet['imagem']; ?>" alt="<?php echo $pet['nome']; ?>">
+                        <img src="<?php echo $pet['imagem']; ?>" alt="<?php echo $pet['nome']; ?>" data-pet-id="<?php echo $pet['id']; ?>">
                         <div class="gender-badge">
                             <?php if ($pet['sexo'] == 'Macho'): ?>
                                 <span class="text-info">♂ Macho</span>
@@ -124,22 +125,25 @@ include_once __DIR__ . '/../../../Data/animais_mock.php';
 
                         <div class="d-grid gap-2">
                             <div class="d-flex gap-2">
-                                <a href="perfil_pet.php?id=<?php echo $pet['id']; ?>" class="btn btn-outline-light border text-muted flex-fill btn-sm py-2">
+                                <button type="button" class="btn btn-outline-light border text-muted flex-fill btn-sm py-2 btn-open-profile" data-pet-id="<?php echo $pet['id']; ?>">
                                     <i data-lucide="user" class="me-1" style="width: 14px;"></i> Perfil
-                                </a>
+                                </button>
                                 <button class="btn btn-outline-light border text-muted flex-fill btn-sm py-2">
                                     <i data-lucide="info" class="me-1" style="width: 14px;"></i> Info
                                 </button>
                             </div>
-                            <button class="btn btn-primary shadow-sm py-2 btn-sm" style="background-color: #6FCF97; border: none; font-weight: 600;">
+                            <a href="adotar.php?id=<?php echo $pet['id']; ?>" class="btn btn-primary shadow-sm py-2 btn-sm" style="background-color: #6FCF97; border: none; font-weight: 600;">
                                 <i data-lucide="heart" class="me-1" style="width: 16px;"></i> Adotar
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
             <?php endforeach; ?>
         </div>
+
+<?php // inclui o modal de perfil para uso via JS ?>
+<?php include 'includes/contents/animal_profile_modal.php'; ?>
 
         <div id="noResults" class="text-center py-5" style="display: none;">
             <div class="mb-3">

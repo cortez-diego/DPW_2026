@@ -212,11 +212,11 @@ if (isset($_SESSION['carrossel'])) {
                                     foreach ($slide as $index => $pet): 
                                     ?>
                                     <!-- Apenas o primeiro aparece em mobile, os outros escondem -->
-                                    <div class="col-md-4 mb-3 <?php echo $index > 0 ? 'd-none d-md-block' : ''; ?>">
-                                        <div class="pet-card-inner shadow-sm h-100 bg-white border-0 rounded-4">
+                                    <div class="col-md-4 mb-3 <?php echo $index > 0 ? 'd-none d-md-block' : ''; ?>" >
+                                        <div class="pet-card-inner shadow-sm h-100 bg-white border-0 rounded-4" data-pet-id="<?php echo $pet['id']; ?>" data-pet-name="<?php echo htmlspecialchars($pet['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <div class="ratio ratio-16x9 overflow-hidden bg-light rounded-top-4">
                                                 <img src="<?php echo $pet['imagem']; ?>" 
-                                                     class="img-fluid" style="object-fit: cover; object-position: top;" alt="<?php echo $pet['nome']; ?>">
+                                                     class="img-fluid" style="object-fit: cover; object-position: top; cursor:pointer;" alt="<?php echo $pet['nome']; ?>" data-pet-id="<?php echo $pet['id']; ?>" data-pet-name="<?php echo htmlspecialchars($pet['nome'], ENT_QUOTES, 'UTF-8'); ?>" onclick="openAnimalProfile(this.dataset.petName || this.dataset.petId)">
                                             </div>
                                             <div class="p-3">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -250,6 +250,9 @@ if (isset($_SESSION['carrossel'])) {
                         </button>
                     </div>
                     <?php endif; ?>
+
+                    <?php // inclui modal de perfil para abrir a partir do carrossel ?>
+                    <?php include __DIR__ . '/animal_profile_modal.php'; ?>
                 </section>
 
                 <!-- Seção de Gráficos -->
@@ -324,10 +327,10 @@ if (isset($_SESSION['carrossel'])) {
                             <tbody>
                                 <tr>
                                     <td>
-                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex align-items-center">
                                             <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=100" 
-                                                 class="img-thumbnail me-2" 
-                                                 style="width: 40px; height: 40px; object-fit: cover; object-position: top;" alt="Thor">
+                                                class="img-thumbnail me-2" 
+                                                style="width: 40px; height: 40px; object-fit: cover; object-position: top;" alt="Thor" data-pet-id="98">
                                             <div>
                                                 <span class="fw-bold d-block">Thor</span>
                                                 <small class="text-muted" style="font-size: 0.7rem;">Macho</small>
@@ -343,10 +346,10 @@ if (isset($_SESSION['carrossel'])) {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex align-items-center">
                                             <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100" 
-                                                 class="img-thumbnail me-2" 
-                                                 style="width: 40px; height: 40px; object-fit: cover; object-position: top;" alt="Mimi">
+                                                class="img-thumbnail me-2" 
+                                                style="width: 40px; height: 40px; object-fit: cover; object-position: top;" alt="Mimi" data-pet-id="99">
                                             <div>
                                                 <span class="fw-bold d-block">Mimi</span>
                                                 <small class="text-muted" style="font-size: 0.7rem;">Fêmea</small>
