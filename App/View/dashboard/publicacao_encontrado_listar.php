@@ -38,11 +38,10 @@
                                 <td>
                                     <?php
                                     $statusMap = [
-                                        'pessimo'   => ['label' => 'Péssimo',   'class' => 'danger'],
-                                        'regular'   => ['label' => 'Regular',   'class' => 'warning'],
-                                        'bom'       => ['label' => 'Bom',       'class' => 'success'],
-                                        'muito bom' => ['label' => 'Muito Bom', 'class' => 'primary'],
-                                        'excelente' => ['label' => 'Excelente', 'class' => 'info'],
+                                        'aguardando acolhimento'   => ['label' => 'Aguardando Acolhimento',   'class' => 'info'],
+                                        'acolhido'   => ['label' => 'Acolhido',   'class' => 'success'],
+                                        'em análise'   => ['label' => 'Em Análise',   'class' => 'warning'],
+                                        
                                     ];
                                     $st = strtolower($adotante->__get('status') ?? '');
                                     $info = $statusMap[$st] ?? ['label' => ucfirst($st), 'class' => 'secondary'];
