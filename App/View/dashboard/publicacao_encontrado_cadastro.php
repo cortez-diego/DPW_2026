@@ -26,16 +26,14 @@
                     </div>
                 </div>
 
-                <h5 class="mb-3 text-primary">Status</h5>
+                <h5 class="mb-3 text-primary">Status da Animal Publicado</h5>
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
-                        <label for="status" class="form-label">Status da Publicacao</label>
+                        <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
-                            <option value="pessimo"></option>
-                            <option value="regular"></option>
-                            <option value="bom" selected></option>
-                            <option value="muito bom"></option>
-                            <option value="excelente"></option>
+                            <option value="aguardando acolhimento"></option>
+                            <option value="acolhido"></option>
+                            <option value="em análise"></option>
                         </select>
                     </div>
                 </div>
