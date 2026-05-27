@@ -14,7 +14,7 @@ $dao = new SolicitacaoAdocaoDAO();
 $obj = new SolicitacaoAdocaoModel();
 $obj->__set('solAdc_data', date('Y-m-d'));
 $obj->__set('solAdc_status', 'pendente');
-$obj->__set('solAdc_motivo', 'Teste de inserção');
+$obj->__set('solAdc_motivo', 'Teste de inserção 4');
 $obj->__set('fk_adotante_id', 1);
 $obj->__set('fk_animal_id', 1);
 
