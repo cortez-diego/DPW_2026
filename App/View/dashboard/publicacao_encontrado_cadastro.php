@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Cadastro de Publicação de Animais Encontrados</h1>
-        <a href="/dashboard/publicacao_encontrado/listar" class="btn btn-secondary">
+        <a href="/dashboard/publicacao/listar" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Voltar
         </a>
     </div>
@@ -26,7 +26,7 @@
                     </div>
                 </div>
 
-                <h5 class="mb-3 text-primary">Status da Animal Publicado</h5>
+                <h5 class="mb-3 text-primary">Status do Animal Publicado</h5>
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <label for="status" class="form-label">Status</label>
@@ -37,6 +37,16 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                    <a href="/dashboard/publicacao/listar" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+
             </form>
         </div>
     </div>
