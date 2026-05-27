@@ -50,7 +50,7 @@
                                     <span class="badge bg-<?= $info['class'] ?>"><?= $info['label'] ?></span>
                                 </td>
                                 <td>
-                                    <a href="/dashboard/publicacao_encontrado_editar/<?= $publicacao->__get('id') ?>"
+                                    <a href="/dashboard/publicacao/editar/<?= $publicacao->__get('id') ?>"
                                         class="btn btn-warning btn-sm me-1">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
