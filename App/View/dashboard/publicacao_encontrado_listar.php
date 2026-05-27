@@ -21,11 +21,55 @@
                             <th>Condição Fisica</th>
                             <th>Ações Realizadas</th>
                             <th>Status</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     
                     <tbody>
-                        
+                       <?php if (!empty($this->getView()->publicacoes)): ?>                                             
+                        <?php foreach ($this->getView()->publicacoes as $publicacao): ?>                           
+                            <tr>
+                                <td><?= htmlspecialchars($publicacao->__get('id')) ?></td>
+                                <td><?= htmlspecialchars($publicacao->__get('fk_animal_id')) ?></td>
+                                <td><?= htmlspecialchars($publicacao->__get('fk_login_id')) ?></td>
+                                <td><?= htmlspecialchars($publicacao->__get('data_encontro')) ?></td>
+                                <td><?= htmlspecialchars($publicacao->__get('condicao_fisica')) ?></td>
+                                <td><?= htmlspecialchars($publicacao->__get('acoes_realizadas')) ?></td>
+                                <td>
+                                    <?php
+                                    $statusMap = [
+                                        'pessimo'   => ['label' => 'Péssimo',   'class' => 'danger'],
+                                        'regular'   => ['label' => 'Regular',   'class' => 'warning'],
+                                        'bom'       => ['label' => 'Bom',       'class' => 'success'],
+                                        'muito bom' => ['label' => 'Muito Bom', 'class' => 'primary'],
+                                        'excelente' => ['label' => 'Excelente', 'class' => 'info'],
+                                    ];
+                                    $st = strtolower($adotante->__get('status') ?? '');
+                                    $info = $statusMap[$st] ?? ['label' => ucfirst($st), 'class' => 'secondary'];
+                                    ?>
+                                    <span class="badge bg-<?= $info['class'] ?>"><?= $info['label'] ?></span>
+                                </td>
+                                <td>
+                                    <a href="/dashboard/publicacao_encontrado_editar/<?= $publicacao->__get('id') ?>"
+                                        class="btn btn-warning btn-sm me-1">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <form method="POST" action="/dashboard/publicacao/excluir"
+                                        style="display:inline-block;"
+                                        onsubmit="return confirm('Tem certeza que deseja excluir este adotante?');">
+                                        <input type="hidden" name="id" value="<?= $adotante->__get('id') ?>">
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i> Excluir
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                         <?php else: ?>
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Nenhuma publicação cadastrada.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>                    
             </div>
