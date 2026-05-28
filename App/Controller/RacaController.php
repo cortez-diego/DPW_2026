@@ -87,6 +87,32 @@ class RacaController extends Action
         die();
     }
 
+    public function porEspecie()
+    {
+        header('Content-Type: application/json');
+
+        $fk_especie_id = $_GET['fk_especie_id'] ?? null;
+
+        if (empty($fk_especie_id)) {
+            echo json_encode([]);
+            die();
+        }
+
+        $dao = new RacaDAO();
+        $racas = $dao->listarPorEspecie((int) $fk_especie_id);
+
+        $resultado = [];
+        foreach ($racas as $raca) {
+            $resultado[] = [
+                'id'   => (int) $raca->__get('id'),
+                'nome' => htmlspecialchars($raca->__get('nome')),
+            ];
+        }
+
+        echo json_encode($resultado);
+        die();
+    }
+
     public function validaAutenticacao()
     {
         if (!isset($_SESSION['id'])   || $_SESSION['id']   == '' ||

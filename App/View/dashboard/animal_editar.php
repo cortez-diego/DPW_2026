@@ -86,7 +86,7 @@ $fotoAtual       = $animal->__get('foto') ?? '';
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Espécie</label>
-                        <select class="form-select" name="fk_especie_id">
+                        <select class="form-select" id="fk_especie_id" name="fk_especie_id">
                             <option value="">Selecione a espécie</option>
                             <?php foreach ($especies as $especie): ?>
                                 <option value="<?= $especie->__get('id') ?>"
@@ -211,6 +211,57 @@ $fotoAtual       = $animal->__get('foto') ?? '';
 </div>
 
 <script>
+// Atualizar raças ao mudar espécie
+document.getElementById('fk_especie_id').addEventListener('change', function() {
+    const especieId = this.value;
+    const animalId = <?= (int) $animal->__get('id') ?>;
+
+    if (!especieId) {
+        // Nenhuma espécie selecionada
+        location.reload();
+        return;
+    }
+
+    // Requisição AJAX para obter raças
+    fetch('/dashboard/raca/por-especie?fk_especie_id=' + encodeURIComponent(especieId))
+        .then(response => response.json())
+        .then(racas => {
+            const card = document.querySelector('.card-racas .card-body');
+            
+            if (racas.length === 0) {
+                card.innerHTML = '<div class="empty-racas">Nenhuma raça cadastrada para a espécie selecionada.</div>';
+                return;
+            }
+
+            let html = '<form method="POST" action="/dashboard/animal-raca/sincronizar">';
+            html += '<input type="hidden" name="fk_animal_id" value="' + animalId + '">';
+            html += '<div class="row g-2 mb-4">';
+            
+            racas.forEach(raca => {
+                html += '<div class="col-md-3 col-sm-4 col-6">';
+                html += '<label class="raca-check-item d-flex align-items-center gap-2 mb-0">';
+                html += '<input class="form-check-input mt-0" type="checkbox" name="fk_raca_id[]" value="' + raca.id + '">';
+                html += '<span class="form-check-label">' + raca.nome + '</span>';
+                html += '</label>';
+                html += '</div>';
+            });
+            
+            html += '</div>';
+            html += '<button type="submit" class="btn btn-salvar">';
+            html += '<i class="fas fa-save me-2"></i> Salvar Raças';
+            html += '</button>';
+            html += '</form>';
+            
+            card.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar raças:', error);
+            const card = document.querySelector('.card-racas .card-body');
+            card.innerHTML = '<div class="empty-racas">Erro ao carregar raças. Tente novamente.</div>';
+        });
+});
+
+// Preview de foto
 document.getElementById('fotoInput').addEventListener('change', function() {
     const file = this.files[0];
     const preview = document.getElementById('fotoPreview');

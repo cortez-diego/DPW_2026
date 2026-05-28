@@ -65,13 +65,19 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Espécie</label>
-                        <select class="form-select" name="fk_especie_id">
+                        <select class="form-select" id="fk_especie_id" name="fk_especie_id">
                             <option value="">Selecione a espécie</option>
                             <?php foreach ($this->getView()->especies as $especie): ?>
                                 <option value="<?= $especie->__get('id') ?>">
                                     <?= htmlspecialchars($especie->__get('nome')) ?>
                                 </option>
                             <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="racaContainer" style="display:none;">
+                        <label class="form-label">Raça</label>
+                        <select class="form-select" id="fk_raca_id" name="fk_raca_id">
+                            <option value="">Selecione a raça</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -140,6 +146,43 @@
 </div>
 
 <script>
+// Carregar raças ao mudar espécie
+document.getElementById('fk_especie_id').addEventListener('change', function() {
+    const especieId = this.value;
+    const racaContainer = document.getElementById('racaContainer');
+    const racaSelect = document.getElementById('fk_raca_id');
+
+    if (!especieId) {
+        racaContainer.style.display = 'none';
+        racaSelect.innerHTML = '<option value="">Selecione a raça</option>';
+        return;
+    }
+
+    // Requisição AJAX
+    fetch('/dashboard/raca/por-especie?fk_especie_id=' + encodeURIComponent(especieId))
+        .then(response => response.json())
+        .then(racas => {
+            racaSelect.innerHTML = '<option value="">Selecione a raça</option>';
+            
+            if (racas.length > 0) {
+                racas.forEach(raca => {
+                    const option = document.createElement('option');
+                    option.value = raca.id;
+                    option.textContent = raca.nome;
+                    racaSelect.appendChild(option);
+                });
+                racaContainer.style.display = 'block';
+            } else {
+                racaContainer.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar raças:', error);
+            racaContainer.style.display = 'none';
+        });
+});
+
+// Preview de foto
 document.getElementById('fotoInput').addEventListener('change', function() {
     const file = this.files[0];
     const preview = document.getElementById('fotoPreview');

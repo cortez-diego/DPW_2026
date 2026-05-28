@@ -55,7 +55,13 @@ class AnimalController extends Action
         $model->__set('status',          $_POST['status']          ?? 'disponivel');
 
         $dao = new AnimalDAO();
-        $dao->inserir($model);
+        $animalId = $dao->inserir($model);
+
+        // Vincular raça se fornecida
+        if (!empty($_POST['fk_raca_id'])) {
+            $animalRacaDAO = new AnimalRacaDAO();
+            $animalRacaDAO->vincular($animalId, (int) $_POST['fk_raca_id']);
+        }
 
         header('Location: /dashboard/animal/listar');
         die();
