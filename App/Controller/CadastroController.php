@@ -33,12 +33,12 @@ class CadastroController extends Action
         $adodanteModel->__set('telefone_1',   $_POST['telefone_1'] ?? '');
         $adodanteModel->__set('telefone_2',   $_POST['telefone_2'] ?? '');
 
-        $loginDAO = new LoginDAO();
+        $loginDao = new LoginDAO();
         $loginModel = new LoginModel();
 
-        $loginId = $loginDAO->inserir($adodanteModel);
+        $loginId = $loginDao->inserir($adodanteModel);
         $adodanteModel->__set('fk_login_id', $loginId);
-        
+
         $adotanteDao = new AdotanteDAO();
         $adotanteDao->inserir($adodanteModel);
 
