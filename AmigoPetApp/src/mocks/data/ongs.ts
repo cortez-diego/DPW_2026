@@ -1,0 +1,36 @@
+import type { Ong } from '../../types/Ong';
+
+export const ongsMock: Ong[] = [
+  {
+    id: 1,
+    nome: 'Patinhas Felizes',
+    cnpj: '12.345.678/0001-90',
+    status: 'a',
+    quantidade_animais: 15,
+    cep: '01310-100',
+    numero: 100,
+    bairro: 'Bela Vista',
+    cidade: 'São Paulo',
+    estado: 'SP',
+    complemento: '',
+    logradouro: 'Av. Paulista',
+    telefone_1: '(11) 99999-1111',
+    telefone_2: '',
+  },
+  {
+    id: 2,
+    nome: 'Amor Animal',
+    cnpj: '98.765.432/0001-10',
+    status: 'a',
+    quantidade_animais: 8,
+    cep: '13010-050',
+    numero: 200,
+    bairro: 'Centro',
+    cidade: 'Campinas',
+    estado: 'SP',
+    complemento: '',
+    logradouro: 'Rua Sete de Setembro',
+    telefone_1: '(19) 98888-2222',
+    telefone_2: '',
+  },
+];

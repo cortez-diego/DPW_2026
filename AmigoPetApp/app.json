@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "AmigoPetApp",
+    "slug": "AmigoPetApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "O AmigoPet usa sua localização para registrar onde animais de rua foram encontrados, facilitando o resgate."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "O AmigoPet usa sua localização para registrar onde animais de rua foram encontrados, facilitando o resgate.",
+          "locationWhenInUsePermission": "O AmigoPet usa sua localização para registrar onde animais de rua foram encontrados, facilitando o resgate."
+        }
+      ]
+    ]
+  }
+}
