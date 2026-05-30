@@ -50,7 +50,6 @@ class AnimalController extends Action {
 
     public function mostrar($params)
     {
-        header('Location: /dashboard/animal/listar');
         
         $id  = $params['id'] ?? ($params[0] ?? null);
         $dao = new AnimalDAO();
@@ -58,7 +57,7 @@ class AnimalController extends Action {
 
         $this->getView()->title        = 'Mostrar Animal';
         $this->getView()->title_pagina = 'Mostrar Animal';
-        $this->getView()->animal     = $adotante;
+        $this->getView()->animal     = $animal;
 
         $this->render('../dashboard/animal_mostrar', 'dashboard');
     }
