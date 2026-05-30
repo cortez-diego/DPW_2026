@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use FW\Controller\Action;
+use App\DAO\AnimalDAO;
+use App\Model\AnimalModel;
 
 class AnimalController extends Action {
 
@@ -45,6 +47,22 @@ class AnimalController extends Action {
         header('Location: /dashboard/animal/listar');
         die();
     }
+
+    public function mostrar($params)
+    {
+        header('Location: /dashboard/animal/listar');
+        
+        $id  = $params['id'] ?? ($params[0] ?? null);
+        $dao = new AnimalDAO();
+        $animal = $dao->buscarPorId($id);
+
+        $this->getView()->title        = 'Mostrar Animal';
+        $this->getView()->title_pagina = 'Mostrar Animal';
+        $this->getView()->animal     = $adotante;
+
+        $this->render('../dashboard/animal_mostrar', 'dashboard');
+    }
+
 
     public function validaAutenticacao() {
         if (!isset($_SESSION['id']) || $_SESSION['id'] == '' || !isset($_SESSION['nome']) || $_SESSION['nome'] == '') {

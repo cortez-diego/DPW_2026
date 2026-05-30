@@ -66,6 +66,33 @@ class AnimalDAO extends DAO
 
     public function excluir($obj) {}
     public function alterar($obj) {}
-    public function buscarPorId($id) {}
+
+    public  function buscarPorId($id)
+    {
+        try {
+            $sql = "SELECT * 
+            FROM animal
+            WHERE id = :id";
+
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+            $resultado = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($resultado) {
+                $animalModel = new animalModel();
+
+                $global = new FuncoesGlobais();
+                $global->popularModel($animalModel, $resultado);
+
+                return $animalModel;
+            }
+
+            return false;
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
+
     public function buscarPorLogado($id) {}
 }
