@@ -1,28 +1,258 @@
-.btn_salvar{
-    float: right;
-}
-.fa-whatsapp{
-    color: rgb(11, 104, 11);
-}
-.fa-trash-can{
-    color: #f00;
-}
-.fa-pen-to-square{
-    color: #d37801;
-}
-.tamanho_icone{
-    font-size: 15px;
-}
-.is-valid {
-    border-color: #28a745;
+/**
+ * AmigoPet - Estilos Globais
+ * Identidade Visual: Poppins (Títulos), Inter (Textos)
+ * Localização: ~/resources/dashboard/css/style.css
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap');
+
+:root {
+    --primary-green: #6FCF97;
+    --secondary-orange: #F2994A;
+    --info-blue: #56CCF2;
+    --bg-off-white: #FAF9F6;
+    --text-gray: #4F4F4F;
+    --sidebar-width: 260px;
+    --sidebar-width-collapsed: 80px; /* Nova variável para o menu mini */
 }
 
-.is-invalid {
-    border-color: #dc3545;
+body {
+    background-color: var(--bg-off-white);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-gray);
+    margin: 0;
+    overflow-x: hidden;
 }
 
-.icone-dashboard
-{
-    font-size: 45px;
-    color: #d37801;
+/* ==========================================================================
+   Componente: Barra de Navegação Superior (Navbar)
+   ========================================================================== */
+.navbar-amigopet {
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 0.8rem 1.5rem;
+    z-index: 1030;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.navbar-brand {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.brand-text-pet { color: var(--primary-green); }
+.brand-text-amigo { color: var(--secondary-orange); }
+
+/* ==========================================================================
+   Componente: Barra Lateral Dinâmica (Sidebar)
+   ========================================================================== */
+.sidebar-amigopet {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid rgba(0,0,0,0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 80px;
+    z-index: 1020;
+    /* Animação suave na largura em vez da posição */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-x: hidden; /* Importante para o texto não vazar ao encolher */
+    white-space: nowrap;
+}
+
+.sidebar-nav {
+    padding: 1rem 0.5rem;
+}
+
+.sidebar-heading {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ADB5BD;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+}
+
+.nav-item-amigopet {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1.25rem;
+    color: var(--text-gray);
+    text-decoration: none;
+    border-radius: 12px;
+    margin-bottom: 5px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    gap: 12px;
+}
+
+.nav-item-amigopet:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-green);
+}
+
+.nav-item-amigopet.active {
+    background-color: rgba(111, 207, 151, 0.1);
+    color: var(--primary-green);
+}
+
+.nav-item-amigopet svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+    flex-shrink: 0; /* Impede o ícone de ser esmagado */
+}
+
+/* ==========================================================================
+   Estrutura: Área de Conteúdo Principal (Main Content)
+   ========================================================================== */
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 100px 2rem 2rem;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   Componente: Botão de Alternância da Sidebar (Toggle Button)
+   ========================================================================== */
+.sidebar-toggle-btn-inner {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: -30px;
+    width: 30px;
+    height: 50px;
+    background-color: #ffffff;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 4px 2px 10px rgba(0,0,0,0.05);
+    z-index: 1025;
+    color: var(--primary-green);
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle-btn-inner:hover {
+    background-color: #fcfcfc;
+    color: var(--secondary-orange);
+}
+
+/* ==========================================================================
+   Lógica Responsiva e de Mini-Menu (Toggle Sidebar)
+   ========================================================================== */
+
+/* 1. COMPORTAMENTO DESKTOP (>= 992px) */
+@media (min-width: 992px) {
+    /* Estado Oculto (Mini Menu) no Desktop */
+    body.sidebar-toggled .sidebar-amigopet {
+        width: var(--sidebar-width-collapsed);
+    }
+    body.sidebar-toggled .main-content {
+        margin-left: var(--sidebar-width-collapsed);
+    }
+    
+    /* Esconde textos e cabeçalhos */
+    body.sidebar-toggled .sidebar-heading,
+    body.sidebar-toggled .nav-item-amigopet span {
+        display: none;
+    }
+    
+    /* Centraliza os ícones */
+    body.sidebar-toggled .nav-item-amigopet {
+        padding: 0.8rem 0;
+        justify-content: center;
+        margin: 0 10px 5px;
+    }
+}
+
+/* 2. COMPORTAMENTO MOBILE (< 992px) */
+@media (max-width: 991px) {
+    /* No Mobile, o padrão é iniciar Oculto (Mini Menu) */
+    .sidebar-amigopet {
+        width: var(--sidebar-width-collapsed);
+    }
+    .main-content {
+        margin-left: var(--sidebar-width-collapsed);
+        padding: 100px 1rem 1rem;
+    }
+    
+    /* Esconde textos por padrão no Mobile */
+    .sidebar-heading,
+    .nav-item-amigopet span {
+        display: none;
+    }
+    
+    /* Centraliza ícones por padrão no Mobile */
+    .nav-item-amigopet {
+        padding: 0.8rem 0;
+        justify-content: center;
+        margin: 0 10px 5px;
+    }
+
+    /* Estado Aberto (Expandido) no Mobile ao clicar no botão */
+    body.sidebar-toggled .sidebar-amigopet {
+        width: var(--sidebar-width);
+        box-shadow: 5px 0 25px rgba(0,0,0,0.1);
+    }
+    body.sidebar-toggled .sidebar-heading {
+        display: block;
+    }
+    body.sidebar-toggled .nav-item-amigopet span {
+        display: inline;
+    }
+    body.sidebar-toggled .nav-item-amigopet {
+        padding: 0.8rem 1.25rem;
+        justify-content: flex-start;
+        margin: 0 10px 5px;
+    }
+}
+
+/* ==========================================================================
+   Componentes Utilitários e Cartões (Cards)
+   ========================================================================== */
+.card-amigopet {
+    background: #fff;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pet-card-inner {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+}
+
+.pet-card-inner:hover {
+    transform: translateY(-5px);
+}
+
+.ratio img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.badge-category {
+    background-color: rgba(86, 204, 242, 0.1);
+    color: var(--info-blue);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }

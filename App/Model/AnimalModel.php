@@ -27,6 +27,7 @@ class AnimalModel
     private $localizacao;
     private $foto;
     private $status;
+    private $especie;
 
     // Campos extras vindos de JOINs (populados pelo FuncoesGlobais->popularModel)
     private $especie_nome;  // JOIN com tabela especie

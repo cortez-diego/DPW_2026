@@ -158,4 +158,32 @@ class RacaDAO extends DAO
             die();
         }
     }
+
+    public function buscarPorNomeEEspecie($nome, $fk_especie_id)
+    {
+        try {
+            $sql = "SELECT r.id, r.nome, r.fk_especie_id, e.nome AS especie_nome
+                    FROM raca r
+                    INNER JOIN especie e ON e.id = r.fk_especie_id
+                    WHERE r.nome = :nome AND r.fk_especie_id = :fk_especie_id
+                    LIMIT 1";
+
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':nome', $nome);
+            $stmt->bindValue(':fk_especie_id', $fk_especie_id, \PDO::PARAM_INT);
+            $stmt->execute();
+
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($row !== false) {
+                $model  = new RacaModel();
+                $global = new FuncoesGlobais();
+                $global->popularModel($model, $row);
+                return $model;
+            }
+            return false;
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
 }

@@ -12,7 +12,7 @@ use App\Model\AnimalModel;
 class AnimalController extends Action
 {
     // Pasta de upload relativa à raiz do projeto
-    private string $uploadDir = 'resources/dashboard/images/animais/';
+    private $uploadDir = 'resources/dashboard/images/animais/';
 
     public function listar()
     {
@@ -69,34 +69,77 @@ class AnimalController extends Action
 
     public function editar($params)
     {
-        $id = $params['id'] ?? ($params[0] ?? null);
+        $logFile = __DIR__ . '/../../controller_debug.log';
+        $timestamp = date('Y-m-d H:i:s');
+        
+        try {
+            file_put_contents($logFile, "[$timestamp] AnimalController::editar called\n", FILE_APPEND);
+            file_put_contents($logFile, "[$timestamp] params: " . print_r($params, true) . "\n", FILE_APPEND);
+            
+            $id = null;
+            if (is_array($params)) {
+                $id = $params['id'] ?? ($params[0] ?? null);
+            } else {
+                $id = $params;
+            }
+            
+            file_put_contents($logFile, "[$timestamp] extracted id: " . var_export($id, true) . "\n", FILE_APPEND);
 
-        $animalDAO     = new AnimalDAO();
-        $especieDAO    = new EspecieDAO();
-        $racaDAO       = new RacaDAO();
-        $animalRacaDAO = new AnimalRacaDAO();
+            $id = is_numeric($id) ? (int) $id : null;
+            if (!$id) {
+                file_put_contents($logFile, "[$timestamp] Invalid ID, redirecting\n", FILE_APPEND);
+                header('Location: /dashboard/animal/listar');
+                die();
+            }
 
-        $animal    = $animalDAO->buscarPorId($id);
-        $especieId = (int) $animal->__get('fk_especie_id');
+            $animalDAO     = new AnimalDAO();
+            $animal        = $animalDAO->buscarPorId($id);
+            
+            file_put_contents($logFile, "[$timestamp] animal found: " . ($animal ? 'yes' : 'no') . "\n", FILE_APPEND);
 
-        $racas = $especieId
-            ? $racaDAO->listarPorEspecie($especieId)
-            : $racaDAO->listar();
+            if (!$animal) {
+                file_put_contents($logFile, "[$timestamp] Animal not found, redirecting\n", FILE_APPEND);
+                header('Location: /dashboard/animal/listar');
+                die();
+            }
 
-        $racasVinculadas = array_map(
-            fn($ar) => (int) $ar->fk_raca_id,
-            $animalRacaDAO->listarPorAnimal((int) $id)
-        );
+            $especieDAO    = new EspecieDAO();
+            $racaDAO       = new RacaDAO();
+            $animalRacaDAO = new AnimalRacaDAO();
 
-        $this->getView()->title           = 'Editar Animal';
-        $this->getView()->title_pagina    = 'Editar Animal';
-        $this->getView()->animal          = $animal;
-        $this->getView()->especies        = $especieDAO->listar();
-        $this->getView()->racas           = $racas;
-        $this->getView()->racasVinculadas = $racasVinculadas;
-        $this->getView()->params          = $params;
+            $especieId = (int) $animal->__get('fk_especie_id');
 
-        $this->render('../dashboard/animal_editar', 'dashboard');
+            $racasAll = $racaDAO->listar();
+            $racas = $especieId
+                ? $racaDAO->listarPorEspecie($especieId)
+                : $racasAll;
+
+            $animalRacas = $animalRacaDAO->listarPorAnimal($id);
+            $racasVinculadas = [];
+            foreach ($animalRacas as $ar) {
+                $racasVinculadas[] = (int) $ar->fk_raca_id;
+            }
+
+            file_put_contents($logFile, "[$timestamp] All data loaded successfully\n", FILE_APPEND);
+
+            $this->getView()->title           = 'Editar Animal';
+            $this->getView()->title_pagina    = 'Editar Animal';
+            $this->getView()->animal          = $animal;
+            $this->getView()->especies        = $especieDAO->listar();
+            $this->getView()->racas           = $racas;
+            $this->getView()->racasAll        = $racasAll;
+            $this->getView()->racasVinculadas = $racasVinculadas;
+            $this->getView()->params          = $params;
+
+            file_put_contents($logFile, "[$timestamp] About to render template\n", FILE_APPEND);
+            $this->render('../dashboard/animal_editar', 'dashboard');
+            file_put_contents($logFile, "[$timestamp] Template rendered successfully\n", FILE_APPEND);
+            
+        } catch (\Throwable $ex) {
+            file_put_contents($logFile, "[$timestamp] Exception: " . $ex->getMessage() . "\n", FILE_APPEND);
+            file_put_contents($logFile, "[$timestamp] Stack: " . $ex->getTraceAsString() . "\n", FILE_APPEND);
+            throw $ex;
+        }
     }
 
     public function alterar()
@@ -120,6 +163,15 @@ class AnimalController extends Action
 
         $dao = new AnimalDAO();
         $dao->alterar($model);
+
+        $racaIds = $_POST['fk_raca_id'] ?? [];
+        if (!is_array($racaIds)) {
+            $racaIds = [$racaIds];
+        }
+        $racaIds = array_filter(array_map('intval', $racaIds));
+
+        $animalRacaDAO = new AnimalRacaDAO();
+        $animalRacaDAO->sincronizar((int) $model->__get('id'), $racaIds);
 
         header('Location: /dashboard/animal/listar');
         die();
