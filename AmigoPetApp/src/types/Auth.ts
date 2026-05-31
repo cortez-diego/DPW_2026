@@ -39,6 +39,10 @@ export interface AlterarSenhaRequest {
   senha_confirmacao: string;
 }
 
+export interface RecuperarSenhaRequest {
+  email: string;
+}
+
 export interface CadastroOngRequest {
   nome: string;
   cnpj: string;

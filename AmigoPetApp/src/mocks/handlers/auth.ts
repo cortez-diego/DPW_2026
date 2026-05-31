@@ -37,3 +37,7 @@ export async function cadastrarVeterinario(req: CadastroVeterinarioRequest): Pro
     usuario: { id: 101, nome: req.nome, email: req.email, tipo_usuario: 'veterinario', status: 'a' },
   };
 }
+
+export async function recuperarSenha(_email: string): Promise<void> {
+  await new Promise(r => setTimeout(r, 800));
+}

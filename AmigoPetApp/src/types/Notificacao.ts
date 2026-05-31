@@ -1,4 +1,17 @@
-export type TipoNotificacao = 'solicitacao' | 'sistema' | 'adocao_concluida';
+export type TipoNotificacao =
+  | 'solicitacao'
+  | 'sistema'
+  | 'adocao_concluida'
+  | 'status_adocao'
+  | 'avistamento_atualizado'
+  | 'alerta_vacina'
+  | 'promocao_papel';
+
+export interface NotificacaoDestino {
+  tab: string;
+  tela: string;
+  params?: Record<string, unknown>;
+}
 
 export interface Notificacao {
   id: number;
@@ -7,4 +20,5 @@ export interface Notificacao {
   data: string;
   lida: boolean;
   tipo: TipoNotificacao;
+  destino?: NotificacaoDestino;
 }

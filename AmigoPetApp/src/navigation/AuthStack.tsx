@@ -6,6 +6,7 @@ import { CadastroAdotanteScreen } from '../screens/auth/CadastroAdotanteScreen';
 import { CadastroOngScreen } from '../screens/auth/CadastroOngScreen';
 import { CadastroVeterinarioScreen } from '../screens/auth/CadastroVeterinarioScreen';
 import { CadastroClinicaScreen } from '../screens/auth/CadastroClinicaScreen';
+import { RecuperarSenhaScreen } from '../screens/auth/RecuperarSenhaScreen';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -14,6 +15,7 @@ export type AuthStackParamList = {
   CadastroOng: undefined;
   CadastroVeterinario: undefined;
   CadastroClinica: undefined;
+  RecuperarSenha: undefined;
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
@@ -27,6 +29,11 @@ export function AuthStack() {
       <Stack.Screen name="CadastroOng" component={CadastroOngScreen} />
       <Stack.Screen name="CadastroVeterinario" component={CadastroVeterinarioScreen} />
       <Stack.Screen name="CadastroClinica" component={CadastroClinicaScreen} />
+      <Stack.Screen
+        name="RecuperarSenha"
+        component={RecuperarSenhaScreen}
+        options={{ headerShown: true, title: 'Recuperar Senha' }}
+      />
     </Stack.Navigator>
   );
 }

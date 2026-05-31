@@ -15,6 +15,15 @@ export interface SolicitacaoAdocao {
   fk_adotante_id: number;
   fk_animal_id: number;
   animal?: Animal;
+  adotante_nome?: string;
+  adotante_email?: string;
+  termo_assinado?: boolean;
+  pdf_termo_url?: string | null;
+}
+
+export interface AvancarStatusRequest {
+  status: StatusSolicitacao;
+  motivo_recusa?: string;
 }
 
 export interface SolicitarAdocaoRequest {

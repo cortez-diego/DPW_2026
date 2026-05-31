@@ -15,4 +15,5 @@ export interface Ong {
   telefone_2: string;
   email?: string;
   foto?: string | null;
+  descricao?: string;
 }

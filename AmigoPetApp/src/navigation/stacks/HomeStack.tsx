@@ -7,6 +7,8 @@ import { TermoResponsabilidadeScreen } from '../../screens/adocao/TermoResponsab
 import { AdicionarVacinaScreen } from '../../screens/saude/AdicionarVacinaScreen';
 import { AdicionarProcedimentoScreen } from '../../screens/saude/AdicionarProcedimentoScreen';
 import { CarteiraIdentificacaoScreen } from '../../screens/saude/CarteiraIdentificacaoScreen';
+import { TransferenciaScreen } from '../../screens/adocao/TransferenciaScreen';
+import { EditarSaudeAnimalScreen } from '../../screens/saude/EditarSaudeAnimalScreen';
 import { colors } from '../../theme/colors';
 
 export type HomeStackParamList = {
@@ -17,6 +19,8 @@ export type HomeStackParamList = {
   AdicionarVacina: { animalId: number };
   AdicionarProcedimento: { animalId: number };
   CarteiraIdentificacao: { animalId: number };
+  Transferencia: { animalId: number };
+  EditarSaudeAnimal: { animalId: number };
 };
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -31,6 +35,8 @@ export function HomeStack() {
       <Stack.Screen name="AdicionarVacina" component={AdicionarVacinaScreen} options={{ title: 'Adicionar Vacina', presentation: 'modal' }} />
       <Stack.Screen name="AdicionarProcedimento" component={AdicionarProcedimentoScreen} options={{ title: 'Adicionar Procedimento', presentation: 'modal' }} />
       <Stack.Screen name="CarteiraIdentificacao" component={CarteiraIdentificacaoScreen} options={{ title: 'Carteira de Identificação' }} />
+      <Stack.Screen name="Transferencia" component={TransferenciaScreen} options={{ title: 'Transferir Responsabilidade', presentation: 'modal' }} />
+      <Stack.Screen name="EditarSaudeAnimal" component={EditarSaudeAnimalScreen} options={{ title: 'Editar Condição de Saúde', presentation: 'modal' }} />
     </Stack.Navigator>
   );
 }

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { PerfilStackParamList } from '../../navigation/stacks/PerfilStack';
 import { NotificacaoItem } from '../../components/domain/NotificacaoItem';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { notificacaoService } from '../../api/services/notificacaoService';
 import { Notificacao } from '../../types/Notificacao';
 import { colors } from '../../theme/colors';
-import { spacing } from '../../theme/spacing';
 
 type Props = NativeStackScreenProps<PerfilStackParamList, 'Notificacoes'>;
 
 export function NotificacoesScreen(_: Props) {
+  const navigation = useNavigation<any>();
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -24,9 +25,19 @@ export function NotificacoesScreen(_: Props) {
 
   useEffect(() => { carregar(); }, []);
 
-  async function marcarLida(id: number) {
-    await notificacaoService.marcarLida(id);
-    setNotificacoes(ns => ns.map(n => n.id === id ? { ...n, lida: true } : n));
+  async function handlePress(item: Notificacao) {
+    if (!item.lida) {
+      await notificacaoService.marcarLida(item.id);
+      setNotificacoes(ns => ns.map(n => n.id === item.id ? { ...n, lida: true } : n));
+    }
+    if (item.destino) {
+      try {
+        navigation.getParent()?.navigate(item.destino.tab, {
+          screen: item.destino.tela,
+          params: item.destino.params,
+        });
+      } catch { /* destino pode não estar disponível para o papel atual */ }
+    }
   }
 
   if (loading) {
@@ -40,7 +51,7 @@ export function NotificacoesScreen(_: Props) {
       renderItem={({ item }) => (
         <NotificacaoItem
           notificacao={item}
-          onPress={() => { if (!item.lida) marcarLida(item.id); }}
+          onPress={() => handlePress(item)}
         />
       )}
       style={styles.root}

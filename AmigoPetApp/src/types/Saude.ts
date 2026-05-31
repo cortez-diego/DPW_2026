@@ -49,6 +49,7 @@ export interface SaudeAnimal {
   apto_para_adocao: boolean;
   temperamento: string | null;
   necessidades_especiais: string | null;
+  condicao_geral: string | null;
 }
 
 export interface CarteiraIdentificacao {

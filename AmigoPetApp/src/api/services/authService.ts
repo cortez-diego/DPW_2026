@@ -11,6 +11,7 @@ import type {
   AlterarSenhaRequest,
 } from '../../types/Auth';
 
+
 export const authService = {
   async login(req: LoginRequest): Promise<LoginResponse> {
     if (USE_MOCKS) return mock.login(req);
@@ -50,5 +51,10 @@ export const authService = {
   async alterarSenha(req: AlterarSenhaRequest): Promise<void> {
     if (USE_MOCKS) { await new Promise(r => setTimeout(r, 600)); return; }
     await client.post(ENDPOINTS.auth.alterarSenha, req);
+  },
+
+  async recuperarSenha(email: string): Promise<void> {
+    if (USE_MOCKS) return mock.recuperarSenha(email);
+    await client.post(ENDPOINTS.auth.recuperarSenha, { email });
   },
 };

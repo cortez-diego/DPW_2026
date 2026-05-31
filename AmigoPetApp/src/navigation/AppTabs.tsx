@@ -15,6 +15,7 @@ import { AdocoesOngStack } from './stacks/AdocoesOngStack';
 import { AtendimentosStack } from './stacks/AtendimentosStack';
 import { ResgatesStack } from './stacks/ResgatesStack';
 import { useAuth } from '../hooks/useAuth';
+import { useNotificacoesNaoLidas } from '../hooks/useNotificacoesNaoLidas';
 import { colors } from '../theme/colors';
 import type { AppStackParamList } from './RootNavigator';
 
@@ -33,6 +34,7 @@ type AdotanteTabsParamList = {
 const AdotanteTab = createBottomTabNavigator<AdotanteTabsParamList>();
 
 function AdotanteTabs() {
+  const badge = useNotificacoesNaoLidas();
   const tabIcons: Record<keyof AdotanteTabsParamList, IconName> = {
     HomeTab: 'paw',
     ResgatesTab: 'alert-circle',
@@ -46,7 +48,8 @@ function AdotanteTabs() {
       <AdotanteTab.Screen name="ResgatesTab" component={ResgatesStack} options={{ tabBarLabel: 'Resgates' }} />
       <AdotanteTab.Screen name="AdocaoTab" component={AdocaoStack} options={{ tabBarLabel: 'Adoção' }} />
       <AdotanteTab.Screen name="OngsTab" component={OngsStack} options={{ tabBarLabel: 'ONGs' }} />
-      <AdotanteTab.Screen name="PerfilTab" component={PerfilStack} options={{ tabBarLabel: 'Perfil' }} />
+      <AdotanteTab.Screen name="PerfilTab" component={PerfilStack}
+        options={{ tabBarLabel: 'Perfil', tabBarBadge: badge }} />
     </AdotanteTab.Navigator>
   );
 }
@@ -64,6 +67,7 @@ type OngTabsParamList = {
 const OngTab = createBottomTabNavigator<OngTabsParamList>();
 
 function OngTabs() {
+  const badge = useNotificacoesNaoLidas();
   const tabIcons: Record<keyof OngTabsParamList, IconName> = {
     HomeTab: 'paw',
     ResgatesTab: 'alert-circle',
@@ -77,7 +81,8 @@ function OngTabs() {
       <OngTab.Screen name="ResgatesTab" component={ResgatesStack} options={{ tabBarLabel: 'Resgates' }} />
       <OngTab.Screen name="MeusAnimaisTab" component={MeusAnimaisStack} options={{ tabBarLabel: 'Meus Animais' }} />
       <OngTab.Screen name="AdocoesOngTab" component={AdocoesOngStack} options={{ tabBarLabel: 'Adoções' }} />
-      <OngTab.Screen name="PerfilTab" component={PerfilStack} options={{ tabBarLabel: 'Perfil' }} />
+      <OngTab.Screen name="PerfilTab" component={PerfilStack}
+        options={{ tabBarLabel: 'Perfil', tabBarBadge: badge }} />
     </OngTab.Navigator>
   );
 }
@@ -94,6 +99,7 @@ type VetTabsParamList = {
 const VetTab = createBottomTabNavigator<VetTabsParamList>();
 
 function VetTabs() {
+  const badge = useNotificacoesNaoLidas();
   const tabIcons: Record<keyof VetTabsParamList, IconName> = {
     HomeTab: 'paw',
     ResgatesTab: 'alert-circle',
@@ -105,7 +111,8 @@ function VetTabs() {
       <VetTab.Screen name="HomeTab" component={HomeStack} options={{ tabBarLabel: 'Animais' }} />
       <VetTab.Screen name="ResgatesTab" component={ResgatesStack} options={{ tabBarLabel: 'Resgates' }} />
       <VetTab.Screen name="AtendimentosTab" component={AtendimentosStack} options={{ tabBarLabel: 'Atendimentos' }} />
-      <VetTab.Screen name="PerfilTab" component={PerfilStack} options={{ tabBarLabel: 'Perfil' }} />
+      <VetTab.Screen name="PerfilTab" component={PerfilStack}
+        options={{ tabBarLabel: 'Perfil', tabBarBadge: badge }} />
     </VetTab.Navigator>
   );
 }

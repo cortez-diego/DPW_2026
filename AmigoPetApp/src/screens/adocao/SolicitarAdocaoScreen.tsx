@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
+  View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { Snackbar } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../../navigation/stacks/HomeStack';
 import { animalService } from '../../api/services/animalService';
 import { solicitacaoAdocaoService } from '../../api/services/solicitacaoAdocaoService';
+import { adotanteService } from '../../api/services/adotanteService';
+import { useAuth } from '../../hooks/useAuth';
+import { perfilCompletoParaAdotar } from '../../utils/perfilAdotante';
 import { Animal } from '../../types/Animal';
+import { Adotante } from '../../types/Adotante';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
@@ -24,7 +22,10 @@ const MOTIVO_MIN = 20;
 
 export function SolicitarAdocaoScreen({ route, navigation }: Props) {
   const { animalId } = route.params;
+  const { user } = useAuth();
   const [animal, setAnimal] = useState<Animal | null>(null);
+  const [adotante, setAdotante] = useState<Adotante | null>(null);
+  const [carregandoPerfil, setCarregandoPerfil] = useState(true);
   const [motivo, setMotivo] = useState('');
   const [aceite, setAceite] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -34,10 +35,21 @@ export function SolicitarAdocaoScreen({ route, navigation }: Props) {
 
   useEffect(() => {
     animalService.buscarPorId(animalId).then(setAnimal).catch(() => {});
-  }, [animalId]);
+    if (user?.tipo_usuario === 'adotante') {
+      adotanteService.perfil()
+        .then(setAdotante)
+        .catch(() => {})
+        .finally(() => setCarregandoPerfil(false));
+    } else {
+      setCarregandoPerfil(false);
+    }
+  }, [animalId, user?.tipo_usuario]);
+
+  const perfilCheck = adotante ? perfilCompletoParaAdotar(adotante) : null;
+  const perfilIncompleto = user?.tipo_usuario === 'adotante' && perfilCheck && !perfilCheck.completo;
 
   const motivoValido = motivo.trim().length >= MOTIVO_MIN;
-  const podeEnviar = motivoValido && aceite && !enviando;
+  const podeEnviar = motivoValido && aceite && !enviando && !perfilIncompleto;
 
   async function enviar() {
     if (!podeEnviar) return;
@@ -58,6 +70,10 @@ export function SolicitarAdocaoScreen({ route, navigation }: Props) {
     }
   }
 
+  if (carregandoPerfil) {
+    return <View style={styles.centered}><ActivityIndicator size="large" color={colors.primary} /></View>;
+  }
+
   return (
     <View style={styles.root}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -68,56 +84,76 @@ export function SolicitarAdocaoScreen({ route, navigation }: Props) {
           </View>
         )}
 
-        <Text style={styles.fieldLabel}>Motivo da solicitação *</Text>
-        <TextInput
-          style={styles.textarea}
-          multiline
-          numberOfLines={5}
-          placeholder={`Descreva por que deseja adotar este animal (mín. ${MOTIVO_MIN} caracteres)...`}
-          placeholderTextColor={colors.secondary}
-          value={motivo}
-          onChangeText={setMotivo}
-          textAlignVertical="top"
-        />
-        <Text style={[styles.contador, !motivoValido && motivo.length > 0 && styles.contadorErro]}>
-          {motivo.length}/{MOTIVO_MIN} caracteres mínimos
-        </Text>
-
-        <TouchableOpacity
-          style={styles.termoLink}
-          onPress={() => navigation.navigate('TermoResponsabilidade', { animalId, motivo })}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.termoLinkText}>Ler Termo de Responsabilidade</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.checkRow} onPress={() => setAceite(v => !v)} activeOpacity={0.8}>
-          <View style={[styles.checkbox, aceite && styles.checkboxAtivo]}>
-            {aceite && <Text style={styles.checkmark}>✓</Text>}
+        {/* RF#08 — Aviso de perfil incompleto */}
+        {perfilIncompleto && (
+          <View style={styles.perfilIncompleto}>
+            <Text style={styles.perfilIncompletoTitulo}>⚠️ Perfil incompleto</Text>
+            <Text style={styles.perfilIncompletoSub}>
+              Para solicitar adoção, complete os seguintes campos:{'\n'}
+              {perfilCheck!.camposFaltando.join(', ')}
+            </Text>
+            <TouchableOpacity
+              style={styles.btnCompletarPerfil}
+              onPress={() => navigation.navigate('PerfilTab' as any, { screen: 'EditarPerfil' } as any)}
+              activeOpacity={0.85}>
+              <Text style={styles.btnCompletarPerfilLabel}>Completar perfil</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.checkLabel}>Li e aceito o Termo de Responsabilidade</Text>
-        </TouchableOpacity>
+        )}
+
+        {!perfilIncompleto && (
+          <>
+            <Text style={styles.fieldLabel}>Motivo da solicitação *</Text>
+            <TextInput
+              style={styles.textarea}
+              multiline
+              numberOfLines={5}
+              placeholder={`Descreva por que deseja adotar este animal (mín. ${MOTIVO_MIN} caracteres)...`}
+              placeholderTextColor={colors.secondary}
+              value={motivo}
+              onChangeText={setMotivo}
+              textAlignVertical="top"
+            />
+            <Text style={[styles.contador, !motivoValido && motivo.length > 0 && styles.contadorErro]}>
+              {motivo.length}/{MOTIVO_MIN} caracteres mínimos
+            </Text>
+
+            <TouchableOpacity
+              style={styles.termoLink}
+              onPress={() => navigation.navigate('TermoResponsabilidade', { animalId, motivo })}
+              activeOpacity={0.7}>
+              <Text style={styles.termoLinkText}>Ler Termo de Responsabilidade (prévia)</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.checkRow} onPress={() => setAceite(v => !v)} activeOpacity={0.8}>
+              <View style={[styles.checkbox, aceite && styles.checkboxAtivo]}>
+                {aceite && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.checkLabel}>Li e aceito o Termo de Responsabilidade</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
 
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.btnEnviar, !podeEnviar && styles.btnDisabled]}
-          onPress={enviar}
-          disabled={!podeEnviar}
-          activeOpacity={0.85}
-        >
-          {enviando
-            ? <ActivityIndicator color={colors.white} />
-            : <Text style={styles.btnLabel}>Enviar Solicitação</Text>}
-        </TouchableOpacity>
-      </View>
+      {!perfilIncompleto && (
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[styles.btnEnviar, !podeEnviar && styles.btnDisabled]}
+            onPress={enviar}
+            disabled={!podeEnviar}
+            activeOpacity={0.85}>
+            {enviando
+              ? <ActivityIndicator color={colors.white} />
+              : <Text style={styles.btnLabel}>Enviar Solicitação</Text>}
+          </TouchableOpacity>
+        </View>
+      )}
 
       <Snackbar
         visible={snack.visible}
         onDismiss={() => setSnack(s => ({ ...s, visible: false }))}
         duration={3000}
-        style={{ backgroundColor: snack.err ? colors.error : colors.success }}
-      >
+        style={{ backgroundColor: snack.err ? colors.error : colors.success }}>
         {snack.msg}
       </Snackbar>
     </View>
@@ -127,27 +163,28 @@ export function SolicitarAdocaoScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bgMuted },
   scroll: { padding: spacing.md },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   animalInfo: {
-    backgroundColor: colors.bg,
-    borderRadius: 10,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+    backgroundColor: colors.bg, borderRadius: 10, padding: spacing.md,
+    marginBottom: spacing.md, borderLeftWidth: 3, borderLeftColor: colors.primary,
   },
   animalLabel: { fontFamily: typography.fontFamily.body, fontSize: typography.fontSize.xs, color: colors.secondary },
   animalNome: { fontFamily: typography.fontFamily.titleBold, fontSize: typography.fontSize.lg, color: colors.text, marginTop: 2 },
+  // Perfil incompleto
+  perfilIncompleto: {
+    backgroundColor: '#FFF8E7', borderRadius: 12, padding: spacing.md, marginBottom: spacing.md,
+    borderWidth: 1, borderColor: colors.accent,
+  },
+  perfilIncompletoTitulo: { fontFamily: typography.fontFamily.titleBold, fontSize: typography.fontSize.md, color: colors.text, marginBottom: spacing.xs },
+  perfilIncompletoSub: { fontFamily: typography.fontFamily.body, fontSize: typography.fontSize.sm, color: colors.text, lineHeight: 20, marginBottom: spacing.md },
+  btnCompletarPerfil: { backgroundColor: colors.accent, borderRadius: 8, paddingVertical: spacing.sm, alignItems: 'center' },
+  btnCompletarPerfilLabel: { fontFamily: typography.fontFamily.bodyBold, fontSize: typography.fontSize.sm, color: colors.white },
+  // Form
   fieldLabel: { fontFamily: typography.fontFamily.bodyBold, fontSize: typography.fontSize.sm, color: colors.text, marginBottom: spacing.xs },
   textarea: {
-    backgroundColor: colors.bg,
-    borderRadius: 10,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    fontFamily: typography.fontFamily.body,
-    fontSize: typography.fontSize.md,
-    color: colors.text,
-    minHeight: 120,
+    backgroundColor: colors.bg, borderRadius: 10, padding: spacing.md,
+    borderWidth: 1, borderColor: colors.border,
+    fontFamily: typography.fontFamily.body, fontSize: typography.fontSize.md, color: colors.text, minHeight: 120,
   },
   contador: { fontFamily: typography.fontFamily.body, fontSize: typography.fontSize.xs, color: colors.secondary, marginTop: 4, marginBottom: spacing.md },
   contadorErro: { color: colors.error },

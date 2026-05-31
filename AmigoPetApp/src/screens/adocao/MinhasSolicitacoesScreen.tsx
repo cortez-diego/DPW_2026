@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, FlatList, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AdocaoStackParamList } from '../../navigation/stacks/AdocaoStack';
 import { SolicitacaoCard } from '../../components/domain/SolicitacaoCard';
@@ -14,7 +14,7 @@ type Props = NativeStackScreenProps<AdocaoStackParamList, 'MinhasSolicitacoes'>;
 
 const FILTROS: Array<StatusSolicitacao | 'Todos'> = ['Todos', 'Pendente', 'Em Análise', 'Aprovado', 'Concluído', 'Recusado'];
 
-export function MinhasSolicitacoesScreen(_: Props) {
+export function MinhasSolicitacoesScreen({ navigation }: Props) {
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoAdocao[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -39,11 +39,7 @@ export function MinhasSolicitacoesScreen(_: Props) {
 
   return (
     <View style={styles.root}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chips}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
         {FILTROS.map(f => (
           <Chip key={f} label={f} active={filtro === f} onPress={() => setFiltro(f)} />
         ))}
@@ -52,11 +48,13 @@ export function MinhasSolicitacoesScreen(_: Props) {
       <FlatList
         data={dados}
         keyExtractor={s => String(s.id)}
-        renderItem={({ item }) => <SolicitacaoCard solicitacao={item} />}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => navigation.navigate('SolicitacaoDetalhe', { id: item.id })} activeOpacity={0.85}>
+            <SolicitacaoCard solicitacao={item} />
+          </TouchableOpacity>
+        )}
         contentContainerStyle={styles.lista}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => carregar(true)} colors={[colors.primary]} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => carregar(true)} colors={[colors.primary]} />}
         ListEmptyComponent={
           <EmptyState
             icon="📋"

@@ -83,9 +83,9 @@ export const procedimentosMock: Procedimento[] = [
 
 // ── Saúde Geral ──────────────────────────────────────────────────────────────
 export const saudeMock: SaudeAnimal[] = [
-  { fk_animal_id: 1, apto_para_adocao: true, temperamento: 'Dócil, brincalhão, sociável com crianças e outros animais.', necessidades_especiais: null },
-  { fk_animal_id: 2, apto_para_adocao: true, temperamento: 'Calmo e independente. Prefere silêncio.', necessidades_especiais: 'Intolerância a ração com grãos.' },
-  { fk_animal_id: 3, apto_para_adocao: false, temperamento: 'Em observação', necessidades_especiais: 'Fratura em recuperação na pata dianteira.' },
+  { fk_animal_id: 1, apto_para_adocao: true, temperamento: 'Dócil, brincalhão, sociável com crianças e outros animais.', necessidades_especiais: null, condicao_geral: 'Excelente. Vacinado e castrado.' },
+  { fk_animal_id: 2, apto_para_adocao: true, temperamento: 'Calmo e independente. Prefere silêncio.', necessidades_especiais: 'Intolerância a ração com grãos.', condicao_geral: 'Boa. Sem doenças diagnosticadas.' },
+  { fk_animal_id: 3, apto_para_adocao: false, temperamento: 'Em observação', necessidades_especiais: 'Fratura em recuperação na pata dianteira.', condicao_geral: 'Em tratamento — fratura pata direita.' },
 ];
 
 // ── Carteira de Identificação ────────────────────────────────────────────────

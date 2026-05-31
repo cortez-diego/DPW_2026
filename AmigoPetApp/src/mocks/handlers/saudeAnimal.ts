@@ -4,7 +4,7 @@ import { saudeMock } from '../data/saude';
 export async function obter(animalId: number): Promise<SaudeAnimal> {
   await new Promise(r => setTimeout(r, 300));
   return saudeMock.find(s => s.fk_animal_id === animalId)
-    ?? { fk_animal_id: animalId, apto_para_adocao: true, temperamento: null, necessidades_especiais: null };
+    ?? { fk_animal_id: animalId, apto_para_adocao: true, temperamento: null, necessidades_especiais: null, condicao_geral: null };
 }
 
 export async function atualizar(animalId: number, dados: Partial<Omit<SaudeAnimal, 'fk_animal_id'>>): Promise<SaudeAnimal> {
@@ -14,7 +14,13 @@ export async function atualizar(animalId: number, dados: Partial<Omit<SaudeAnima
     Object.assign(saudeMock[idx], dados);
     return saudeMock[idx];
   }
-  const nova: SaudeAnimal = { fk_animal_id: animalId, apto_para_adocao: true, temperamento: null, necessidades_especiais: null, ...dados };
+  const nova: SaudeAnimal = {
+    fk_animal_id: animalId,
+    apto_para_adocao: dados.apto_para_adocao ?? true,
+    temperamento: dados.temperamento ?? null,
+    necessidades_especiais: dados.necessidades_especiais ?? null,
+    condicao_geral: dados.condicao_geral ?? null,
+  };
   saudeMock.push(nova);
   return nova;
 }

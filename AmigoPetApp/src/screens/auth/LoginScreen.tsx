@@ -137,6 +137,14 @@ export function LoginScreen() {
           </Button>
         </View>
 
+        {/* Esqueci a senha */}
+        <TouchableOpacity
+          style={styles.linkEsqueciRow}
+          onPress={() => navigation.navigate('RecuperarSenha')}
+        >
+          <Text style={styles.linkEsqueci}>Esqueci minha senha</Text>
+        </TouchableOpacity>
+
         {/* Rodapé */}
         <View style={styles.rodape}>
           <Text style={styles.rodapeTexto}>Não tem conta? </Text>
@@ -205,6 +213,12 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.titleBold,
     fontSize: typography.fontSize.md,
     letterSpacing: 0.5,
+  },
+  linkEsqueciRow: { alignItems: 'flex-end', marginTop: spacing.xs, marginBottom: spacing.sm },
+  linkEsqueci: {
+    fontFamily: typography.fontFamily.body,
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
   },
   rodape: {
     flexDirection: 'row',

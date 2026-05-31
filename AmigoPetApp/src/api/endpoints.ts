@@ -6,6 +6,7 @@ export const ENDPOINTS = {
     cadastrarOng: '/auth/cadastrar/ong',
     cadastrarVeterinario: '/auth/cadastrar/veterinario',
     alterarSenha: '/auth/alterar-senha',
+    recuperarSenha: '/auth/recuperar-senha',
   },
   animais: {
     listar: '/animais',
@@ -19,9 +20,20 @@ export const ENDPOINTS = {
     saude: (id: number) => `/animais/${id}/saude`,
     carteira: (id: number) => `/animais/${id}/carteira`,
     auditoria: (id: number) => `/animais/${id}/auditoria`,
+    transferencias: (id: number) => `/animais/${id}/transferencias`,
   },
   vet: {
     meusAtendimentos: '/vet/atendimentos',
+    perfil: '/veterinario/perfil',
+    clinicas: '/veterinario/clinicas',
+    associarClinica: (id: number) => `/veterinario/clinicas/${id}`,
+    desassociarClinica: (id: number) => `/veterinario/clinicas/${id}`,
+  },
+  ong: {
+    perfil: '/ong/perfil',
+  },
+  usuarios: {
+    buscar: (q: string) => `/usuarios/busca?q=${encodeURIComponent(q)}`,
   },
   adotante: {
     perfil: '/adotante/perfil',
@@ -40,7 +52,12 @@ export const ENDPOINTS = {
   solicitacoes: {
     criar: '/solicitacoes',
     minhas: '/solicitacoes/minhas',
+    recebidas: '/solicitacoes/recebidas',
     buscarPorId: (id: number) => `/solicitacoes/${id}`,
+    avancarStatus: (id: number) => `/solicitacoes/${id}/status`,
+    avaliacao: (id: number) => `/solicitacoes/${id}/avaliacao`,
+    termo: (id: number) => `/solicitacoes/${id}/termo`,
+    assinarTermo: (id: number) => `/solicitacoes/${id}/termo/assinar`,
   },
   especies: {
     listar: '/especies',

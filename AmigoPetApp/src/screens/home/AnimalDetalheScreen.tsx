@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, Alert,
+  View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, Share,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../../navigation/stacks/HomeStack';
 import { Avatar } from '../../components/ui/Avatar';
 import { Section } from '../../components/ui/Section';
 import { PermissionGate } from '../../components/ui/PermissionGate';
+import { usePermissions } from '../../permissions/usePermissions';
 import { animalService } from '../../api/services/animalService';
 import { vacinaService } from '../../api/services/vacinaService';
 import { procedimentoService } from '../../api/services/procedimentoService';
@@ -60,6 +61,7 @@ const ALERTA_TEXTO = {
 
 export function AnimalDetalheScreen({ route, navigation }: Props) {
   const { id } = route.params;
+  const { has } = usePermissions();
   const [animal, setAnimal] = useState<Animal | null>(null);
   const [vacinas, setVacinas] = useState<Vacina[]>([]);
   const [procedimentos, setProcedimentos] = useState<Procedimento[]>([]);
@@ -141,12 +143,12 @@ export function AnimalDetalheScreen({ route, navigation }: Props) {
           ) : (
             <Text style={styles.semDados}>Sem informações de saúde registradas.</Text>
           )}
-          <PermissionGate capability="podeCadastrarAnimal">
-            <TouchableOpacity style={styles.btnEditar} onPress={() =>
-              Alert.alert('Em breve', 'Edição de saúde disponível em próxima versão.')}>
+          {(has('podeCadastrarAnimal') || has('podeRegistrarProcedimento')) && (
+            <TouchableOpacity style={styles.btnEditar}
+              onPress={() => navigation.navigate('EditarSaudeAnimal', { animalId: id })}>
               <Text style={styles.btnEditarLabel}>✏️ Editar condição geral</Text>
             </TouchableOpacity>
-          </PermissionGate>
+          )}
         </Section>
 
         {/* Vacinas (RF#15) */}
@@ -228,12 +230,32 @@ export function AnimalDetalheScreen({ route, navigation }: Props) {
           </PermissionGate>
         </Section>
 
+        {/* Compartilhar perfil (RF#21) */}
+        <TouchableOpacity style={styles.btnCompartilhar}
+          onPress={() => Share.share({
+            title: `${animal.nome} — AmigoPet`,
+            message: `Conheça ${animal.nome} e ajude a encontrar um lar! https://amigopet.com/animal/${animal.id}`,
+            url: `https://amigopet.com/animal/${animal.id}`,
+          })}
+          activeOpacity={0.85}>
+          <Text style={styles.btnCompartilharLabel}>↗ Compartilhar este animal</Text>
+        </TouchableOpacity>
+
         {/* Carteira de Identificação (RF#17) */}
         <TouchableOpacity style={styles.btnCarteira}
           onPress={() => navigation.navigate('CarteiraIdentificacao', { animalId: id })}
           activeOpacity={0.85}>
           <Text style={styles.btnCarteiraLabel}>🪪 Ver Carteira de Identificação</Text>
         </TouchableOpacity>
+
+        {/* Transferência de responsabilidade (RF#24) */}
+        <PermissionGate capability="podeCadastrarAnimal">
+          <TouchableOpacity style={styles.btnTransferencia}
+            onPress={() => navigation.navigate('Transferencia', { animalId: id })}
+            activeOpacity={0.85}>
+            <Text style={styles.btnTransferenciaLabel}>↗ Transferir responsabilidade</Text>
+          </TouchableOpacity>
+        </PermissionGate>
 
         {/* Log de Auditoria (RF#10) */}
         <Section titulo="Histórico (imutável)">
@@ -334,6 +356,12 @@ const styles = StyleSheet.create({
   // Botões
   btnAdicionar: { marginTop: spacing.xs, paddingVertical: spacing.xs },
   btnAdicionarLabel: { fontFamily: typography.fontFamily.bodyBold, fontSize: typography.fontSize.sm, color: colors.primary },
+  btnCompartilhar: {
+    backgroundColor: colors.bg, borderRadius: 10, paddingVertical: spacing.sm,
+    alignItems: 'center', marginBottom: spacing.md,
+    borderWidth: 1, borderColor: colors.info,
+  },
+  btnCompartilharLabel: { fontFamily: typography.fontFamily.body, fontSize: typography.fontSize.sm, color: colors.info },
   btnCarteira: {
     backgroundColor: colors.bg, borderRadius: 10, paddingVertical: spacing.sm,
     alignItems: 'center', marginBottom: spacing.md,
@@ -341,6 +369,12 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   btnCarteiraLabel: { fontFamily: typography.fontFamily.bodyBold, fontSize: typography.fontSize.md, color: colors.primary },
+  btnTransferencia: {
+    backgroundColor: colors.bg, borderRadius: 10, paddingVertical: spacing.sm,
+    alignItems: 'center', marginBottom: spacing.md,
+    borderWidth: 1, borderColor: colors.secondary,
+  },
+  btnTransferenciaLabel: { fontFamily: typography.fontFamily.body, fontSize: typography.fontSize.sm, color: colors.secondary },
   // Auditoria
   imutavelAviso: { backgroundColor: '#F5F5F5', borderRadius: 6, padding: spacing.sm, marginBottom: spacing.sm },
   imutavelAvisoTexto: { fontFamily: typography.fontFamily.body, fontSize: typography.fontSize.xs, color: colors.secondary },
