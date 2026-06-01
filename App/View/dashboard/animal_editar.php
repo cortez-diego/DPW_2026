@@ -41,7 +41,7 @@ $fotoAtual       = $animal->__get('foto') ?? '';
 
     <div class="page-header-animal d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1>Editar Animal 🐾</h1>
+            <h1>Editar Animal</h1>
             <p>Atualize os dados de <strong style="color:#2D2D2D;"><?= htmlspecialchars($animal->__get('nome')) ?></strong>.</p>
         </div>
         <a href="/dashboard/animal/listar" class="btn btn-voltar">
@@ -55,7 +55,7 @@ $fotoAtual       = $animal->__get('foto') ?? '';
                 <input type="hidden" name="id"         value="<?= htmlspecialchars($animal->__get('id')) ?>">
                 <input type="hidden" name="foto_atual" value="<?= htmlspecialchars($fotoAtual) ?>">
 
-                <div class="section-title">🐾 Identificação</div>
+                <div class="section-title">Identificação</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
                         <label class="form-label">Nome <span class="text-danger">*</span></label>
@@ -136,7 +136,7 @@ $fotoAtual       = $animal->__get('foto') ?? '';
 
                 <div class="divider"></div>
 
-                <div class="section-title">📝 Descrição</div>
+                <div class="section-title">Descrição</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-12">
                         <label class="form-label">Descrição</label>
@@ -147,16 +147,16 @@ $fotoAtual       = $animal->__get('foto') ?? '';
 
                 <div class="divider"></div>
 
-                <div class="section-title">📌 Status</div>
+                <div class="section-title">Status</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
                         <label class="form-label">Status do Animal</label>
                         <select class="form-select" name="status">
                             <?php foreach ([
-                                'disponivel'    => '✅ Disponível',
-                                'reservado'     => '🔒 Reservado',
-                                'em_tratamento' => '🏥 Em Tratamento',
-                                'adotado'       => '🏠 Adotado',
+                                'disponivel'    => 'Disponível',
+                                'reservado'     => 'Reservado',
+                                'em_tratamento' => 'Em Tratamento',
+                                'adotado'       => 'Adotado',
                             ] as $v => $l): ?>
                                 <option value="<?= $v ?>" <?= $animal->__get('status') === $v ? 'selected' : '' ?>><?= $l ?></option>
                             <?php endforeach; ?>

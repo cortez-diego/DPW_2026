@@ -168,8 +168,7 @@
     <!-- Header -->
     <div class="page-header-animal d-flex justify-content-between align-items-center">
         <div>
-            <h1>Animais 🐾</h1>
-            <p>Gerencie todos os animais cadastrados no sistema.</p>
+            <h1>Animais</h1>
         </div>
         <a href="/dashboard/animal/cadastro" class="btn btn-novo-animal">
             <i class="fas fa-plus me-2"></i> Novo Animal
@@ -216,16 +215,16 @@
                                     </td>
                                     <td>
                                         <?php if ($animal->__get('sexo') === 'm'): ?>
-                                            <span class="sexo-icon sexo-m">♂ Macho</span>
+                                            <span class="sexo-icon sexo-m">Macho</span>
                                         <?php else: ?>
-                                            <span class="sexo-icon sexo-f">♀ Fêmea</span>
+                                            <span class="sexo-icon sexo-f">Fêmea</span>
                                         <?php endif; ?>
                                     </td>
                                     <td><?= htmlspecialchars(ucfirst($animal->__get('porte') ?? '—')) ?></td>
                                     <td><?= htmlspecialchars($animal->__get('localizacao') ?? '—') ?></td>
                                     <td>
                                         <?php if ($animal->__get('castrado')): ?>
-                                            <span class="badge-castrado-sim">✓ Sim</span>
+                                            <span class="badge-castrado-sim">Sim</span>
                                         <?php else: ?>
                                             <span class="badge-castrado-nao">Não</span>
                                         <?php endif; ?>
