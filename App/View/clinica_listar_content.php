@@ -1,44 +1,3 @@
-<?php
-/**
- * AmigoPet - Listagem de Adotantes
- * Localização: ~/App/View/adotante_listar_content.php
- */
-
-// Simulação de base de dados de utilizadores
-$adotantes = [
-
-    (object) [
-        'id' => 1,
-        'nome' => 'Mariana Oliveira',
-        'cpf' => '123.456.789-00',
-        'tel1' => '(19) 99876-1122',
-        'cidade' => 'São João da Boa Vista',
-        'estado' => 'SP',
-        'status' => 'Excelente'
-    ],
-
-    (object) [
-        'id' => 2,
-        'nome' => 'Carlos Henrique Souza',
-        'cpf' => '987.654.321-10',
-        'tel1' => '(19) 99123-4455',
-        'cidade' => 'Águas da Prata',
-        'estado' => 'SP',
-        'status' => 'Bom'
-    ],
-
-    (object) [
-        'id' => 3,
-        'nome' => 'Fernanda Lima Costa',
-        'cpf' => '741.852.963-20',
-        'tel1' => '(19) 99777-8899',
-        'cidade' => 'Poços de Caldas',
-        'estado' => 'MG',
-        'status' => 'Regular'
-    ]
-];
-?>
-
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
 <style>
@@ -87,13 +46,15 @@ $adotantes = [
     }
 
     /* Tabela */
-    #tabela-adotantes {
+    #tabela-clinicas {
         border-collapse: separate;
         border-spacing: 0 10px;
         margin-top: -5px !important;
+
     }
 
-    #tabela-adotantes thead th {
+    #tabela-clinicas thead th {
+        
         border: none !important;
         background: #6FCF97 !important;
         color: #fff !important;
@@ -103,25 +64,25 @@ $adotantes = [
         padding: 14px 16px;
     }
 
-    #tabela-adotantes thead th:first-child {
+    #tabela-clinicas thead th:first-child {
         border-radius: 12px 0 0 12px;
     }
 
-    #tabela-adotantes thead th:last-child {
+    #tabela-clinicas thead th:last-child {
         border-radius: 0 12px 12px 0;
     }
 
-    #tabela-adotantes tbody tr {
+    #tabela-clinicas tbody tr {
         background: #fff;
         transition: .2s ease;
     }
 
-    #tabela-adotantes tbody tr:hover {
+    #tabela-clinicas tbody tr:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 18px rgba(111, 207, 151, .15);
     }
 
-    #tabela-adotantes tbody td {
+    #tabela-clinicas tbody td {
         vertical-align: middle;
         border-top: 1px solid #f1f1f1;
         border-bottom: 1px solid #f1f1f1;
@@ -129,12 +90,12 @@ $adotantes = [
         background: #fff !important;
     }
 
-    #tabela-adotantes tbody td:first-child {
+    #tabela-clinicas tbody td:first-child {
         border-left: 1px solid #f1f1f1;
         border-radius: 14px 0 0 14px;
     }
 
-    #tabela-adotantes tbody td:last-child {
+    #tabela-clinicas tbody td:last-child {
         border-right: 1px solid #f1f1f1;
         border-radius: 0 14px 14px 0;
     }
@@ -255,137 +216,175 @@ $adotantes = [
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="h3 mb-1 fw-bold" style="color:#4F4F4F;">
-                    Listagem de Adotantes
+                    Listagem de Clinicas
                 </h1>
                 <p class="text-muted mb-0">
-                    Gerencie os adotantes cadastrados no sistema
+                    Gerencie as clinicas cadastradas no sistema
                 </p>
             </div>
-            <a href="/dashboard/adotante/cadastro" class="btn-voltar">
-                + Novo Adotante
+            <a href="/App/View/clinica_cadastro.php" class="btn-voltar">
+                + Nova Clinica
             </a>
         </div>
 
         <!-- Card -->
         <div class="ap-card">
             <div class="table-responsive">
-                <table id="tabela-adotantes" class="table align-middle w-100">
+                <table id="tabela-clinicas" class="table table-striped table-hover" width="100% table-hover">
+                   
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Adotante</th>
-                            <th>CPF</th>
+                            <th>Nome</th>
+                            <th>CNPJ</th>
+                            <th>Cidade</th>
                             <th>Telefone</th>
-                            <th>Localização</th>
-                            <th>Status</th>
                             <th width="190">Ações</th>
                         </tr>
                     </thead>
 
                     <tbody>
+                        <!-- Clinica 1 -->
                         <tr>
                             <td><strong>#1</strong></td>
                             <td>
                                 <div class="ap-nome">
-                                    Mariana Oliveira
+                                    Clinica animal
                                 </div>
                             </td>
                             <td>
-                                123.456.789-00
+                                00.394.460/0058-87
+                            </td>
+                            <td class="ap-cidade" >
+                                São João da Boa Vista - SP 
                             </td>
                             <td>
-                                (19) 99876-1122
-                            </td>
-                            <td>
-                                <div class="ap-cidade">
-                                    São João da Boa Vista - SP
+                                <div >
+                                    (19) 99876-1122
                                 </div>
                             </td>
-                            <td>
-                                <span class="status-badge status-excelente">
-                                    Excelente
-                                </span>
-                            </td>
+                            
                             <td>
                                 <div class="d-flex gap-2">
                                     <a href="#" class="btn-editar">
                                         Editar
                                     </a>
-                                    <button class="btn-excluir">
-                                        Excluir
-                                    </button>
+                                    
+                                    <form method="POST"
+                                            action="/dashboard/clinica/excluir"
+                                            style="display:inline-block;"
+                                            onsubmit="return confirm('Tem certeza que deseja excluir esta clínica?');">
+
+                                            <input type="hidden"
+                                                name="id"
+                                                value="1">
+
+                                            <button type="submit"
+                                                class="btn btn-danger btn-sm">
+
+                                                <i class="fas fa-trash"></i> Excluir
+
+                                            </button>
+
+                                        </form>
                                 </div>
                             </td>
                         </tr>
+                        
+                        <!-- Clinica 2 -->
                         <tr>
                             <td><strong>#2</strong></td>
                             <td>
                                 <div class="ap-nome">
-                                    Carlos Henrique Souza
+                                    Dr. Pet Vet Clínica Veterinária
                                 </div>
                             </td>
                             <td>
-                                987.654.321-10
+                                12.333.590/0134-56
+                            </td>
+                            <td class="ap-cidade" >
+                                Poços de Caldas - SP 
                             </td>
                             <td>
-                                (19) 99123-4455
-                            </td>
-                            <td>
-                                <div class="ap-cidade">
-                                    Águas da Prata - SP
+                                <div >
+                                    (19) 98907-7688
                                 </div>
                             </td>
-                            <td>
-                                <span class="status-badge status-bom">
-                                    Bom
-                                </span>
-                            </td>
+                            
                             <td>
                                 <div class="d-flex gap-2">
                                     <a href="#" class="btn-editar">
                                         Editar
                                     </a>
+                                    
+                                    <form method="POST"
+                                            action="/dashboard/clinica/excluir"
+                                            style="display:inline-block;"
+                                            onsubmit="return confirm('Tem certeza que deseja excluir esta clínica?');">
 
-                                    <button class="btn-excluir">
-                                        Excluir
-                                    </button>
+                                            <input type="hidden"
+                                                name="id"
+                                                value="1">
+
+                                            <button type="submit"
+                                                class="btn btn-danger btn-sm">
+
+                                                <i class="fas fa-trash"></i> Excluir
+
+                                            </button>
+
+                                        </form>
                                 </div>
                             </td>
                         </tr>
+
+                        <!-- Clinica 3 -->
                         <tr>
                             <td><strong>#3</strong></td>
                             <td>
                                 <div class="ap-nome">
-                                    Fernanda Lima Costa
+                                    Mascott & Cia
                                 </div>
                             </td>
                             <td>
-                                741.852.963-20
+                                01.896.326/3265-87
+                            </td>
+                            <td class="ap-cidade" >
+                                Vargem Grande - SP 
                             </td>
                             <td>
-                                (19) 99777-8899
-                            </td>
-                            <td>
-                                <div class="ap-cidade">
-                                    Poços de Caldas - MG
+                                <div >
+                                    (19) 3642-2442
                                 </div>
                             </td>
-                            <td>
-                                <span class="status-badge status-regular">
-                                    Regular
-                                </span>
-                            </td>
+                            
                             <td>
                                 <div class="d-flex gap-2">
                                     <a href="#" class="btn-editar">
                                         Editar
                                     </a>
-                                    <button class="btn-excluir">
-                                        Excluir
-                                    </button>
+                                    
+                                    <form method="POST"
+                                            action="/dashboard/clinica/excluir"
+                                            style="display:inline-block;"
+                                            onsubmit="return confirm('Tem certeza que deseja excluir esta clínica?');">
+
+                                            <input type="hidden"
+                                                name="id"
+                                                value="1">
+
+                                            <button type="submit"
+                                                class="btn btn-danger btn-sm">
+
+                                                <i class="fas fa-trash"></i> Excluir
+
+                                            </button>
+
+                                        </form>
                                 </div>
                             </td>
                         </tr>
+                        
                     </tbody>
                 </table>
             </div>
@@ -393,15 +392,24 @@ $adotantes = [
     </div>
 </div>
 
+
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
 <script>
-    $(document).ready(function () {
-        $('#tabela-adotantes').DataTable({
-            "language": { "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json" },
+    $(document).ready(function() {
+
+        $('#tabela-clinicas').DataTable({
+
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json"
+            },
+
             "pageLength": 10,
             "responsive": true
         });
+
     });
 </script>
