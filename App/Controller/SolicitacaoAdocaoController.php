@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use FW\Controller\Action;
 use App\DAO\SolicitacaoAdocaoDAO;
+use App\DAO\AnimalDAO;
 use App\Model\SolicitacaoAdocaoModel;
 
 class SolicitacaoAdocaoController extends Action
@@ -20,10 +21,15 @@ class SolicitacaoAdocaoController extends Action
         $this->render('../dashboard/solicitacaoadocao_listar', 'dashboard');
     }*/
 
-    public function cadastro()
+    public function cadastro($params)
     {
+        $id  = $params['id'] ?? ($params[0] ?? null);
+        $dao = new AnimalDAO();
+        $animal = $dao->buscarPorId($id);
+
         $this->getView()->title       = 'Solicitação de Adoção';
         $this->getView()->title_pagina = 'Solicitação de Adoção';
+        $this->getView()->animal     = $animal;
 
         $this->render('../dashboard/solicitacao_adocao', 'dashboard');
     }
