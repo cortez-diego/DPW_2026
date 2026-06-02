@@ -24,8 +24,7 @@
 <div class="container-fluid">
     <div class="page-header-animal d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1>Novo Animal 🐾</h1>
-            <p>Preencha os dados para cadastrar um novo animal.</p>
+            <h1>Cadastrar Animal</h1>
         </div>
         <a href="/dashboard/animal/listar" class="btn btn-voltar">
             <i class="fas fa-arrow-left me-2"></i> Voltar
@@ -36,7 +35,7 @@
         <div class="card-body">
             <form method="POST" action="/dashboard/animal/cadastrar" enctype="multipart/form-data">
 
-                <div class="section-title">🐾 Identificação</div>
+                <div class="section-title">Identificação</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
                         <label class="form-label">Nome <span class="text-danger">*</span></label>
@@ -50,8 +49,8 @@
                         <label class="form-label">Sexo <span class="text-danger">*</span></label>
                         <select class="form-select" name="sexo" required>
                             <option value="">Selecione</option>
-                            <option value="m">♂ Macho</option>
-                            <option value="f">♀ Fêmea</option>
+                            <option value="m">Macho</option>
+                            <option value="f">Fêmea</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -65,13 +64,19 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Espécie</label>
-                        <select class="form-select" name="fk_especie_id">
+                        <select class="form-select" id="fk_especie_id" name="fk_especie_id">
                             <option value="">Selecione a espécie</option>
                             <?php foreach ($this->getView()->especies as $especie): ?>
                                 <option value="<?= $especie->__get('id') ?>">
                                     <?= htmlspecialchars($especie->__get('nome')) ?>
                                 </option>
                             <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="racaContainer" style="display:none;">
+                        <label class="form-label">Raça</label>
+                        <select class="form-select" id="fk_raca_id" name="fk_raca_id">
+                            <option value="">Selecione a raça</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -100,7 +105,7 @@
 
                 <div class="divider"></div>
 
-                <div class="section-title">📝 Descrição</div>
+                <div class="section-title">Descrição</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-12">
                         <label class="form-label">Descrição</label>
@@ -111,15 +116,15 @@
 
                 <div class="divider"></div>
 
-                <div class="section-title">📌 Status</div>
+                <div class="section-title">Status</div>
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
                         <label class="form-label">Status do Animal</label>
                         <select class="form-select" name="status">
-                            <option value="disponivel" selected>✅ Disponível</option>
-                            <option value="reservado">🔒 Reservado</option>
-                            <option value="em_tratamento">🏥 Em Tratamento</option>
-                            <option value="adotado">🏠 Adotado</option>
+                            <option value="disponivel" selected>Disponível</option>
+                            <option value="reservado">Reservado</option>
+                            <option value="em_tratamento">Em Tratamento</option>
+                            <option value="adotado">Adotado</option>
                         </select>
                     </div>
                 </div>
@@ -140,6 +145,43 @@
 </div>
 
 <script>
+// Carregar raças ao mudar espécie
+document.getElementById('fk_especie_id').addEventListener('change', function() {
+    const especieId = this.value;
+    const racaContainer = document.getElementById('racaContainer');
+    const racaSelect = document.getElementById('fk_raca_id');
+
+    if (!especieId) {
+        racaContainer.style.display = 'none';
+        racaSelect.innerHTML = '<option value="">Selecione a raça</option>';
+        return;
+    }
+
+    // Requisição AJAX
+    fetch('/dashboard/raca/por-especie?fk_especie_id=' + encodeURIComponent(especieId))
+        .then(response => response.json())
+        .then(racas => {
+            racaSelect.innerHTML = '<option value="">Selecione a raça</option>';
+            
+            if (racas.length > 0) {
+                racas.forEach(raca => {
+                    const option = document.createElement('option');
+                    option.value = raca.id;
+                    option.textContent = raca.nome;
+                    racaSelect.appendChild(option);
+                });
+                racaContainer.style.display = 'block';
+            } else {
+                racaContainer.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar raças:', error);
+            racaContainer.style.display = 'none';
+        });
+});
+
+// Preview de foto
 document.getElementById('fotoInput').addEventListener('change', function() {
     const file = this.files[0];
     const preview = document.getElementById('fotoPreview');
