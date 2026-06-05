@@ -68,6 +68,7 @@ class PublicacaoEncontradoDAO extends DAO
     {
         try {
             $id              = $obj->__get("id");
+            $fk_animal_id      = $obj->__get("fk_animal_id");
             $data_encontro   = $obj->__get("data_encontro");
             $condicao_fisica  = $obj->__get("condicao_fisica");
             $acoes_realizadas= $obj->__get("acoes_realizadas");
@@ -75,6 +76,7 @@ class PublicacaoEncontradoDAO extends DAO
 
             $sql = "UPDATE publicacao_encontrado
                 SET 
+                fk_animal_id     = :fk_animal_id,
                 data_encontro   = :data_encontro,
                 condicao_fisica  = :condicao_fisica,
                 acoes_realizadas= :acoes_realizadas,
@@ -82,7 +84,8 @@ class PublicacaoEncontradoDAO extends DAO
             WHERE id = :id";
 
             $stmt = $this->getConn()->prepare($sql);
-            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+            $stmt->bindValue(':fk_animal_id', $fk_animal_id, \PDO::PARAM_INT);
             $stmt->bindValue(':data_encontro', $data_encontro);
             $stmt->bindValue(':condicao_fisica', $condicao_fisica);
             $stmt->bindValue(':acoes_realizadas', $acoes_realizadas);
@@ -97,11 +100,13 @@ class PublicacaoEncontradoDAO extends DAO
     public function buscarPorId($id)
     {
         try {
-            $sql = "SELECT 
-                p.*,
-                l.email
+            $sql = "SELECT
+            p.*,
+            l.email,
+            a.nome AS animal_nome
             FROM publicacao_encontrado p
             JOIN login l ON p.fk_login_id = l.id
+            JOIN animal a ON p.fk_animal_id = a.id
             WHERE p.id = :id";
 
             $stmt = $this->getConn()->prepare($sql);

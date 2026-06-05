@@ -34,6 +34,7 @@ class PublicacaoEncontradoController extends Action
 
     public function cadastrar()
     {
+        $this->validaAutenticacao();
         $model = new PublicacaoEncontradoModel();
         $model->__set('fk_animal_id',     $_POST['fk_animal_id']     ?? null);
         $model->__set('fk_login_id', $_SESSION['id']);
@@ -68,6 +69,10 @@ class PublicacaoEncontradoController extends Action
     public function alterar()
     {
         $model = new PublicacaoEncontradoModel();
+        $model->__set(
+            'fk_animal_id',
+            $_POST['fk_animal_id'] ?? null
+        );
         $model->__set('id',              $_POST['id']              ?? null);
         $model->__set('data_encontro',   $_POST['data_encontro']   ?? null);
         $model->__set('condicao_fisica',  $_POST['condicao_fisica']  ?? '');
