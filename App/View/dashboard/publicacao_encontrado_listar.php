@@ -15,8 +15,8 @@
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
-                            <th>Fk animal id</th>
-                            <th>Fk login id</th>
+                            <th>Animal</th>
+                            <th>Usuário</th>
                             <th>Data Encontro</th>
                             <th>Condição Fisica</th>
                             <th>Ações Realizadas</th>
@@ -30,8 +30,8 @@
                         <?php foreach ($this->getView()->publicacoes as $publicacao): ?>                           
                             <tr>
                                 <td><?= htmlspecialchars($publicacao->__get('id')) ?></td>
-                                <td><?= htmlspecialchars($publicacao->__get('fk_animal_id')) ?></td>
-                                <td><?= htmlspecialchars($publicacao->__get('fk_login_id')) ?></td>
+                                <td><?= htmlspecialchars($publicacao->__get('animal_nome')) ?></td>
+                                <td><?= htmlspecialchars($publicacao->__get('email')) ?></td>
                                 <td><?= htmlspecialchars($publicacao->__get('data_encontro')) ?></td>
                                 <td><?= htmlspecialchars($publicacao->__get('condicao_fisica')) ?></td>
                                 <td><?= htmlspecialchars($publicacao->__get('acoes_realizadas')) ?></td>
@@ -73,5 +73,21 @@
                 </table>                    
             </div>
         </div>
-    <div>
-<div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#tabela-publicacao_encontrado').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+        },
+        pageLength: 10,
+        responsive: true
+    });
+});
+</script>
