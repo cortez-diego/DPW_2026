@@ -14,7 +14,7 @@ class PublicacaoEncontradoDAO extends DAO
             $fk_animal_id    = $obj->__get("fk_animal_id");
             $fk_login_id     = $obj->__get("fk_login_id");
             $data_encontro   = $obj->__get("data_encontro");
-            $condicao_fisca  = $obj->__get("condicao_fisca");
+            $condicao_fisica  = $obj->__get("condicao_fisica");
             $acoes_realizadas= $obj->__get("acoes_realizadas");
             $status          = $obj->__get("status");
 
@@ -22,14 +22,14 @@ class PublicacaoEncontradoDAO extends DAO
                 fk_animal_id,
                 fk_login_id,
                 data_encontro,
-                condicao_fisca,
+                condicao_fisica,
                 acoes_realizadas,
                 status
             ) VALUES (
                 :fk_animal_id,
                 :fk_login_id,
                 :data_encontro,
-                :condicao_fisca,
+                :condicao_fisica,
                 :acoes_realizadas,
                 :status
             )";
@@ -39,9 +39,9 @@ class PublicacaoEncontradoDAO extends DAO
             $stmt->bindValue(':fk_animal_id', $fk_animal_id);
             $stmt->bindValue(':fk_login_id', $fk_login_id);
             $stmt->bindValue(':data_encontro', $data_encontro);
-            $stmt->bindValue(':condicao_fisca', $condicao_fisca);
+            $stmt->bindValue(':condicao_fisica', $condicao_fisica);
             $stmt->bindValue(':acoes_realizadas', $acoes_realizadas);
-            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':status', 'AGUARDANDO ACOLHIMENTO');
             $stmt->execute();
 
             return $conn->lastInsertId();
@@ -69,14 +69,14 @@ class PublicacaoEncontradoDAO extends DAO
         try {
             $id              = $obj->__get("id");
             $data_encontro   = $obj->__get("data_encontro");
-            $condicao_fisca  = $obj->__get("condicao_fisca");
+            $condicao_fisica  = $obj->__get("condicao_fisica");
             $acoes_realizadas= $obj->__get("acoes_realizadas");
             $status          = $obj->__get("status");
 
             $sql = "UPDATE publicacao_encontrado
                 SET 
                 data_encontro   = :data_encontro,
-                condicao_fisca  = :condicao_fisca,
+                condicao_fisica  = :condicao_fisica,
                 acoes_realizadas= :acoes_realizadas,
                 status          = :status
             WHERE id = :id";
@@ -84,7 +84,7 @@ class PublicacaoEncontradoDAO extends DAO
             $stmt = $this->getConn()->prepare($sql);
             $stmt->bindValue(':id', $id);
             $stmt->bindValue(':data_encontro', $data_encontro);
-            $stmt->bindValue(':condicao_fisca', $condicao_fisca);
+            $stmt->bindValue(':condicao_fisica', $condicao_fisica);
             $stmt->bindValue(':acoes_realizadas', $acoes_realizadas);
             $stmt->bindValue(':status', $status);
             $stmt->execute();
