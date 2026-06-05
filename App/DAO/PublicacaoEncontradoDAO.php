@@ -41,7 +41,7 @@ class PublicacaoEncontradoDAO extends DAO
             $stmt->bindValue(':data_encontro', $data_encontro);
             $stmt->bindValue(':condicao_fisica', $condicao_fisica);
             $stmt->bindValue(':acoes_realizadas', $acoes_realizadas);
-            $stmt->bindValue(':status', 'AGUARDANDO ACOLHIMENTO');
+            $stmt->bindValue(':status', $status);
             $stmt->execute();
 
             return $conn->lastInsertId();
