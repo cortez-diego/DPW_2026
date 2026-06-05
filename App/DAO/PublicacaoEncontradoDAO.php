@@ -36,8 +36,8 @@ class PublicacaoEncontradoDAO extends DAO
 
             $conn = $this->getConn();
             $stmt = $conn->prepare($sql);
-            $stmt->bindValue(':fk_animal_id', $fk_animal_id);
-            $stmt->bindValue(':fk_login_id', $fk_login_id);
+            $stmt->bindValue(':fk_animal_id', $fk_animal_id, \PDO::PARAM_INT);
+            $stmt->bindValue(':fk_login_id', $fk_login_id, \PDO::PARAM_INT);
             $stmt->bindValue(':data_encontro', $data_encontro);
             $stmt->bindValue(':condicao_fisica', $condicao_fisica);
             $stmt->bindValue(':acoes_realizadas', $acoes_realizadas);
@@ -128,11 +128,14 @@ class PublicacaoEncontradoDAO extends DAO
         try {
             $publicacoes = array();
 
-            $sql = "SELECT 
-                p.*,
-                l.email
+            $sql = "SELECT
+            p.*,
+            l.email,
+            a.nome AS animal_nome
             FROM publicacao_encontrado p
-            JOIN login l ON p.fk_login_id = l.id";
+            JOIN login l ON p.fk_login_id = l.id
+            JOIN animal a ON p.fk_animal_id = a.id
+            ORDER BY p.id DESC";
 
             $stmt = $this->getConn()->prepare($sql);
             $stmt->execute();
