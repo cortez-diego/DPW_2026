@@ -36,12 +36,12 @@ class PublicacaoEncontradoController extends Action
         $model->__set('data_encontro',    $_POST['data_encontro']    ?? null);
         $model->__set('condicao_fisica',   $_POST['condicao_fisica']   ?? '');
         $model->__set('acoes_realizadas', $_POST['acoes_realizadas'] ?? '');
-        $model->__set('status',           $_POST['status']           ?? 'aguardando_acolhimento');
+        $model->__set('status',           $_POST['status']           ?? 'aguardando acolhimento');
 
         $dao = new PublicacaoEncontradoDAO();
         $dao->inserir($model);
 
-        header('Location: /dashboard/publicacao_encontrado/listar');
+        header('Location: /dashboard/publicacao/listar');
         die();
     }
 
@@ -55,7 +55,7 @@ class PublicacaoEncontradoController extends Action
         $this->getView()->title_pagina = 'Editar Publicação';
         $this->getView()->publicacao   = $publicacao;
 
-        $this->render('../dashboard/publicacao_encontrado_editar', 'dashboard');
+        $this->render('../dashboard/publicacao/listar', 'dashboard');
     }
 
     public function alterar()
@@ -70,7 +70,7 @@ class PublicacaoEncontradoController extends Action
         $dao = new PublicacaoEncontradoDAO();
         $dao->alterar($model);
 
-        header('Location: /dashboard/publicacao_encontrado/listar');
+        header('Location: /dashboard/publicacao/listar');
         die();
     }
 
@@ -80,7 +80,7 @@ class PublicacaoEncontradoController extends Action
         $dao = new PublicacaoEncontradoDAO();
         $dao->excluir($id);
 
-        header('Location: /dashboard/publicacao_encontrado/listar');
+        header('Location: /dashboard/publicacao/listar');
         die();
     }
 
