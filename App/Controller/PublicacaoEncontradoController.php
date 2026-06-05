@@ -12,6 +12,7 @@ class PublicacaoEncontradoController extends Action
     {
         $dao = new PublicacaoEncontradoDAO();
         $publicacoes = $dao->listar();
+        $publicacoes = [];
 
         $this->getView()->title        = 'Publicações de Animais Encontrados';
         $this->getView()->title_pagina = 'Listar Publicações';
