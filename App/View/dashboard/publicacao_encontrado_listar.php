@@ -43,7 +43,7 @@
                                         'em análise'   => ['label' => 'Em Análise',   'class' => 'warning'],
                                         
                                     ];
-                                    $st = strtolower($adotante->__get('status') ?? '');
+                                    $st = strtolower($publicacao->__get('status') ?? '');
                                     $info = $statusMap[$st] ?? ['label' => ucfirst($st), 'class' => 'secondary'];
                                     ?>
                                     <span class="badge bg-<?= $info['class'] ?>"><?= $info['label'] ?></span>
@@ -55,8 +55,8 @@
                                     </a>
                                     <form method="POST" action="/dashboard/publicacao/excluir"
                                         style="display:inline-block;"
-                                        onsubmit="return confirm('Tem certeza que deseja excluir este adotante?');">
-                                        <input type="hidden" name="id" value="<?= $adotante->__get('id') ?>">
+                                        onsubmit="return confirm('Tem certeza que deseja excluir esta publicação?');">
+                                        <input type="hidden" name="id" value="<?= $publicacao->__get('id') ?>">
                                         <button type="submit" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i> Excluir
                                         </button>
