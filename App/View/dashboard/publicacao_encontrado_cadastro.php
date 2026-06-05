@@ -13,15 +13,15 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label for="data_encontro" class="form-label">Data de Encontro <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="dataEncontro" name="dataEncontro" required>                        
+                        <input type="date" class="form-control" id="data_encontro" name="data_encontro" required>                        
                     </div>
                     <div class="col-md-3">
                         <label for="condicao_fisica" class="form-label">Condição Física - Descreva a condição em que o animal foi encontrado!<span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="condicaoFisica" name="condicaoFisica" required>                        
+                        <input type="text" class="form-control" id="condicao_fisica" name="condicao_fisica" required>                        
                     </div>
                     <div class="col-md-3">
                         <label for="acoes_realizadas" class="form-label">Ações Realizadas</label>
-                        <input type="text" class="form-control" id="acoesRealizadas" name="acoesRealizadas">
+                        <input type="text" class="form-control" id="acoes_realizadas" name="acoes_realizadas">
     
                     </div>
                 </div>
@@ -31,9 +31,9 @@
                     <div class="col-md-4">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
-                            <option value="aguardando acolhimento"></option>
-                            <option value="acolhido"></option>
-                            <option value="em análise"></option>
+                            <option value="aguardando acolhimento">Aguardando Acolhimento</option>
+                            <option value="acolhido">Acolhido</option>
+                            <option value="em análise">Em Análise</option>
                         </select>
                     </div>
                 </div>
