@@ -5,15 +5,33 @@
             <i class="fas fa-arrow-left"></i> Voltar
         </a>
     </div>
-
     <div class="card shadow">
         <div class="card-body">
             <form method="POST" action="/dashboard/publicacao/cadastrar">
+                <h5 class="mb-3 text-primary">Animal Encontrado</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="fk_animal_id" class="form-label">
+                            Animal <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select"
+                                id="fk_animal_id"
+                                name="fk_animal_id"
+                                required>
+                            <option value="">Selecione um animal</option>
+                            <?php foreach ($this->getView()->animais as $animal): ?>
+                                <option value="<?= $animal->__get('id') ?>">
+                                    <?= htmlspecialchars($animal->__get('nome')) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
                 <h5 class="mb-3 text-primary">Informações Sobre o Animal encontrado</h5>    
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label for="data_encontro" class="form-label">Data de Encontro <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="data_encontro" name="data_encontro" required>                        
+                        <input type="date" class="form-control" id="data_encontro" name="data_encontro" max="<?= date('Y-m-d') ?>" required>                        
                     </div>
                     <div class="col-md-3">
                         <label for="condicao_fisica" class="form-label">Condição Física - Descreva a condição em que o animal foi encontrado!<span class="text-danger">*</span></label>
@@ -37,7 +55,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Salvar
