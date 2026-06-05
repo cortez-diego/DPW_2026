@@ -17,7 +17,7 @@ class PublicacaoEncontradoModel {
     private $fk_animal_id;
     private $fk_login_id;
     private $data_encontro;
-    private $condicao_fisca;
+    private $condicao_fisica;
     private $acoes_realizadas;
     private $status;
 
