@@ -34,7 +34,7 @@ class PublicacaoEncontradoController extends Action
         $model->__set('fk_animal_id',     $_POST['fk_animal_id']     ?? null);
         $model->__set('fk_login_id',      $_POST['fk_login_id']      ?? null);
         $model->__set('data_encontro',    $_POST['data_encontro']    ?? null);
-        $model->__set('condicao_fisca',   $_POST['condicao_fisca']   ?? '');
+        $model->__set('condicao_fisica',   $_POST['condicao_fisica']   ?? '');
         $model->__set('acoes_realizadas', $_POST['acoes_realizadas'] ?? '');
         $model->__set('status',           $_POST['status']           ?? 'aguardando_acolhimento');
 
@@ -63,7 +63,7 @@ class PublicacaoEncontradoController extends Action
         $model = new PublicacaoEncontradoModel();
         $model->__set('id',              $_POST['id']              ?? null);
         $model->__set('data_encontro',   $_POST['data_encontro']   ?? null);
-        $model->__set('condicao_fisca',  $_POST['condicao_fisca']  ?? '');
+        $model->__set('condicao_fisica',  $_POST['condicao_fisica']  ?? '');
         $model->__set('acoes_realizadas',$_POST['acoes_realizadas']?? '');
         $model->__set('status',          $_POST['status']          ?? 'aguardando_acolhimento');
 
