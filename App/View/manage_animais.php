@@ -16,6 +16,7 @@ if (ob_get_level() === 0) ob_start();
  * Localização: ~/App/View/manage_animais.php
  */
 
+include_once __DIR__ . '/includes/dashboard/schema_check.php';
 include 'includes/dashboard/header.php';
 include 'includes/dashboard/menu.php';
 include 'includes/dashboard/navbar.php';

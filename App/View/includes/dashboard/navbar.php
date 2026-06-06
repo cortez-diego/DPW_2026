@@ -37,7 +37,7 @@ $unreadCount = count(array_filter($notificacoesMock, function($n) { return !$n['
 <nav class="navbar navbar-expand-lg navbar-amigopet">
     <div class="container-fluid">
         <!-- Logo e Nome -->
-        <a class="navbar-brand" href="dashboard.php">
+        <a class="navbar-brand" href="/dashboard">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 10C13.1046 10 14 9.10457 14 8C14 6.89543 13.1046 6 12 6C10.8954 6 10 6.89543 10 8C10 9.10457 10.8954 10 12 10Z" fill="#F2994A"/>
                 <path d="M7 9C8.10457 9 9 8.10457 9 7C9 5.89543 8.10457 5 7 5C5.89543 5 5 5.89543 5 7C5 8.10457 5.89543 9 7 9Z" fill="#6FCF97"/>
@@ -54,7 +54,7 @@ $unreadCount = count(array_filter($notificacoesMock, function($n) { return !$n['
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link nav-link-inicio active" href="dashboard.php">Início</a>
+                    <a class="nav-link nav-link-inicio active" href="/dashboard">Início</a>
                 </li>
             </ul>
 

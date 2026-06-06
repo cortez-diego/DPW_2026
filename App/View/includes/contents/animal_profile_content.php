@@ -38,6 +38,18 @@ if ($petId) {
             'vacinas' => [],
             'descricao' => $model->__get('descricao'),
         ];
+
+        function obterGaleriaAnimal(int $id): array {
+            $metaFile = __DIR__ . '/../../../resources/dashboard/images/animais/' . $id . '_gallery.json';
+            if (!file_exists($metaFile)) {
+                return [];
+            }
+            $json = file_get_contents($metaFile);
+            $data = json_decode($json, true);
+            return is_array($data['images'] ?? null) ? $data['images'] : [];
+        }
+
+        $galleryImages = obterGaleriaAnimal($selected['id']);
     }
 }
 
@@ -53,12 +65,16 @@ if (!$selected) {
         <div class="row">
             <div class="col-md-4 col-sm-12">
                 <img id="img-main" class="img-thumbnail m-4" src="<?php echo htmlspecialchars($selected['imagem'] ?? ''); ?>">
-                <div class="d-flex px-4">
-                    <!-- imagens adicionais, usando mesma imagem como fallback -->
-                    <img class="img-carousel" src="<?php echo htmlspecialchars($selected['imagem'] ?? ''); ?>" onclick="trocarImg(this.src)">
-                    <img class="img-carousel" src="<?php echo htmlspecialchars($selected['imagem'] ?? ''); ?>" onclick="trocarImg(this.src)">
-                    <img class="img-carousel" src="<?php echo htmlspecialchars($selected['imagem'] ?? ''); ?>" onclick="trocarImg(this.src)">
-                    <img class="img-carousel" src="<?php echo htmlspecialchars($selected['imagem'] ?? ''); ?>" onclick="trocarImg(this.src)">
+                <div class="d-flex px-4 gap-2 flex-wrap">
+                    <?php
+                        $galleryPreview = !empty($galleryImages) ? array_slice($galleryImages, 0, 4) : [];
+                        while (count($galleryPreview) < 4) {
+                            $galleryPreview[] = $selected['imagem'];
+                        }
+                    ?>
+                    <?php foreach ($galleryPreview as $image): ?>
+                        <img class="img-carousel" src="<?php echo htmlspecialchars($image); ?>" onclick="trocarImg(this.src)" style="width: calc(25% - 8px); min-width: 80px;">
+                    <?php endforeach; ?>
                 </div>
             </div>
             <div class="col-md-8 col-sm-12 p-5">

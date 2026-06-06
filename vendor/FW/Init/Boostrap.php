@@ -58,13 +58,15 @@ abstract class Boostrap {
                 file_put_contents($logFile, "[$timestamp]   Static route\n", FILE_APPEND);
                 
                 if ($this->matchStaticRoute($url, $route['route'])) {
-                    file_put_contents($logFile, "[$timestamp]   MATCHED! Instantiating " . $route['controller'] . "\n", FILE_APPEND);
+                    file_put_contents($logFile, "[$timestamp]   MATCHED! Instantiating " . $route['controller'] . "::" . $route['action'] . "\n", FILE_APPEND);
+                    file_put_contents($logFile, "[$timestamp]   REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD'] . "\n", FILE_APPEND);
                     
                     try {
                         $class = "App\\Controller\\" . $route['controller'];
                         $controller = new $class();
                         $action = $route['action'];
                         $params = $this->getParams($url, $route['route']);
+                        file_put_contents($logFile, "[$timestamp]   Calling " . $action . " with params: " . var_export($params, true) . "\n", FILE_APPEND);
                         $controller->$action($params);
                         $rotaValida = true;
                         file_put_contents($logFile, "[$timestamp]   Action executed successfully\n", FILE_APPEND);

@@ -119,7 +119,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
         <?php if ($role == 'admin'): ?>
             <!-- MENU: ADMINISTRADOR -->
             <div class="sidebar-heading">Administrador</div>
-            <a href="/App/View/dashboard.php" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
+            <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
             <a href="/App/View/usuarios.php" class="nav-item-amigopet">
@@ -144,7 +144,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
         <?php elseif ($role == 'ong'): ?>
             <!-- MENU: ONG -->
             <div class="sidebar-heading">ONG</div>
-            <a href="/App/View/dashboard.php" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
+            <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
             <a href="/App/View/manage_animais.php" class="nav-item-amigopet">
@@ -169,7 +169,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
         <?php elseif ($role == 'moderador'): ?>
             <!-- MENU: EQUIPE MODERADORA -->
             <div class="sidebar-heading">Equipe Moderadora</div>
-            <a href="/App/View/dashboard.php" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
+            <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
             <a href="/App/View/usuarios.php" class="nav-item-amigopet">
@@ -197,7 +197,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
         <?php elseif ($role == 'campo'): ?>
             <!-- MENU: EQUIPE DE CAMPO -->
             <div class="sidebar-heading">Equipe de Campo</div>
-            <a href="/App/View/dashboard.php" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
+            <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
             <a href="/App/View/chamados.php" class="nav-item-amigopet">
@@ -222,7 +222,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
         <?php elseif ($role == 'vet'): ?>
             <!-- MENU: VETERINÁRIOS -->
             <div class="sidebar-heading">Veterinários</div>
-            <a href="/App/View/dashboard.php" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
+            <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
             <a href="/App/View/avaliar.php" class="nav-item-amigopet">
@@ -247,7 +247,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
         <?php else: ?>
             <!-- MENU: USUÁRIO PADRÃO -->
             <div class="sidebar-heading">Principal</div>
-            <a href="/App/View/dashboard.php" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
+            <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
             <a href="/App/View/adocao.php" class="nav-item-amigopet <?php echo $isAdocao ? 'active' : ''; ?>">

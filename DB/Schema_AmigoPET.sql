@@ -123,7 +123,15 @@ create table animal (
     id int(11) AUTO_INCREMENT primary key ,
     nome varchar(100),
     data_nascimento date,
-    sexo enum('m', 'f')
+    sexo enum('m', 'f', 'n/a') DEFAULT 'n/a',
+    fk_especie_id int(11),
+    cor varchar(50),
+    castrado tinyint(1) DEFAULT 0,
+    descricao text,
+    porte varchar(20),
+    localizacao varchar(100),
+    foto varchar(255),
+    status enum('disponivel','reservado') DEFAULT 'disponivel'
 );
 
 create table animal_raca (

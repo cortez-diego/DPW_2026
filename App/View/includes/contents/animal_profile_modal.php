@@ -44,7 +44,8 @@
 async function openAnimalProfile(petId) {
   if (!petId) return false;
   try {
-    const res = await fetch('/api/animal.php?id=' + encodeURIComponent(petId));
+    const apiBaseUrl = (window.API_BASE_URL || <?= json_encode(rtrim(getenv('BASE_URL') ?: ($_ENV['BASE_URL'] ?? ''), '/')) ?>).replace(/\/$/, '');
+    const res = await fetch((apiBaseUrl ? apiBaseUrl : '') + '/api/animal.php?id=' + encodeURIComponent(petId));
     if (!res.ok) return false;
     const pet = await res.json();
 

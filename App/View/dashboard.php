@@ -11,9 +11,14 @@ include 'includes/dashboard/menu.php';
 include 'includes/dashboard/navbar.php';
 
 // Conteúdo dinâmico: inclui a view selecionada pelo controller quando disponível
-if (!empty($this->view->page)) {
+$page = '';
+if (isset($this) && isset($this->view) && !empty($this->view->page)) {
+    $page = $this->view->page;
+}
+
+if (!empty($page)) {
     // Normaliza caminhos com ../ para a pasta correta (ex: "../dashboard/animal_editar")
-    $normalized = preg_replace('#^(\./|(\./)*/|(\./)*/\.{2}/)+#', '', $this->view->page);
+    $normalized = preg_replace('#^(\./|(\./)*/|(\./)*/\.{2}/)+#', '', $page);
     $normalized = preg_replace('#^(\./|\.{2}/)+#', '', $normalized);
     $normalized = ltrim($normalized, '/');
 
@@ -21,17 +26,20 @@ if (!empty($this->view->page)) {
     $contentFile = $contentPath . '.php';
 
     if (file_exists($contentFile)) {
-        echo '<div class="main-content">';
+        $shouldWrap = strpos($normalized, 'includes/contents/') !== 0;
+        if ($shouldWrap) {
+            echo '<div class="main-content">';
+        }
         require_once $contentFile;
-        echo '</div>';
+        if ($shouldWrap) {
+            echo '</div>';
+        }
     } else {
-        // fallback para o conteúdo padrão do dashboard
         include 'includes/contents/dashboard_content.php';
     }
 } else {
     include 'includes/contents/dashboard_content.php';
 }
-
 
 include 'includes/dashboard/footer.php';
 ?>

@@ -11,7 +11,8 @@ class Route extends Boostrap
     public function initRoutes()
     {
         // Inicia logging de debug
-        $logFile = __DIR__ . '/../route_debug.log';
+        $routeLogDir = __DIR__ . '/../';
+        $logFile = is_writable($routeLogDir) ? $routeLogDir . 'route_debug.log' : sys_get_temp_dir() . '/route_debug.log';
         $timestamp = date('Y-m-d H:i:s');
         $requestUri = $_SERVER['REQUEST_URI'] ?? 'N/A';
         file_put_contents($logFile, "[$timestamp] REQUEST_URI: $requestUri\n", FILE_APPEND);

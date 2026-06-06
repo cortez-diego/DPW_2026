@@ -17,7 +17,7 @@ class SiteController extends Action {
         $this->getView()->title = 'Dashboard';
         $this->getView()->title_pagina = 'Dashboard';
 
-        $this->render('../dashboard/dashboard_index', 'dashboard');
+        $this->render('includes/contents/dashboard_content', 'dashboard');
     }
 
     public function validaAutenticacao() {
