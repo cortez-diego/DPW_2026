@@ -35,11 +35,13 @@
                     </div>
                     <div class="col-md-3">
                         <label for="condicao_fisica" class="form-label">Condição Física - Descreva a condição em que o animal foi encontrado!<span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="condicao_fisica" name="condicao_fisica" required>                        
+                        <textarea  type="text" class="form-control" id="condicao_fisica" name="condicao_fisica" rows="3"required>                        
+                        </textarea>
                     </div>
                     <div class="col-md-3">
                         <label for="acoes_realizadas" class="form-label">Ações Realizadas</label>
-                        <input type="text" class="form-control" id="acoes_realizadas" name="acoes_realizadas">
+                        <textarea type="text" class="form-control" id="acoes_realizadas" name="acoes_realizadas" rows="3" required>
+                        </textarea>
     
                     </div>
                 </div>
