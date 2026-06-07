@@ -3,7 +3,7 @@
 namespace App\DAO;
 
 use App\DAO;
-use App\Model\PublicacaoEncontradoModel;
+use App\Model\PublicacaoEncontrado;
 use FW\Controller\FuncoesGlobais;
 
 class PublicacaoEncontradoDAO extends DAO
@@ -115,7 +115,7 @@ class PublicacaoEncontradoDAO extends DAO
             $resultado = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             if ($resultado) {
-                $model = new PublicacaoEncontradoModel();
+                $model = new PublicacaoEncontrado();
                 $global = new FuncoesGlobais();
                 $global->popularModel($model, $resultado);
                 return $model;
@@ -132,7 +132,7 @@ class PublicacaoEncontradoDAO extends DAO
     {
         try {
             $publicacoes = array();
-
+          
             $sql = "SELECT
             p.*,
             l.email,
@@ -147,7 +147,7 @@ class PublicacaoEncontradoDAO extends DAO
             $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             foreach ($resultado as $row) {
-                $model = new PublicacaoEncontradoModel();
+                $model = new PublicacaoEncontrado();
                 $global = new FuncoesGlobais();
                 $global->popularModel($model, $row);
                 array_push($publicacoes, $model);

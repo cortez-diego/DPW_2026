@@ -11,7 +11,7 @@
  */
 namespace App\Model;
 
-class PublicacaoEncontradoModel {
+class PublicacaoEncontrado{
 
     private $id;
     private $fk_animal_id;
