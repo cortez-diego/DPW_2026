@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\DAO\AnimalDAO;
 use FW\Controller\Action;
 use App\DAO\PublicacaoEncontradoDAO;
-use App\Model\PublicacaoEncontradoModel;
+use App\Model\PublicacaoEncontrado;
 
 class PublicacaoEncontradoController extends Action
 {
@@ -34,10 +34,11 @@ class PublicacaoEncontradoController extends Action
 
     public function cadastrar()
     {
-        $this->validaAutenticacao();
-        $model = new PublicacaoEncontradoModel();
+        // $this->validaAutenticacao();
+        $model = new PublicacaoEncontrado();
         $model->__set('fk_animal_id',     $_POST['fk_animal_id']     ?? null);
-        $model->__set('fk_login_id', $_SESSION['id']);
+         $model->__set('fk_login_id', 1);
+        // $model->__set('fk_login_id', $_SESSION['id']);
         $model->__set('data_encontro',    $_POST['data_encontro']    ?? null);
         $model->__set('condicao_fisica',   $_POST['condicao_fisica']   ?? '');
         $model->__set('acoes_realizadas', $_POST['acoes_realizadas'] ?? '');
