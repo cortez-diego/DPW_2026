@@ -37,11 +37,11 @@ class SolicitacaoAdocaoController extends Action
     public function cadastrar()
     {
         $model = new SolicitacaoAdocaoModel();
-        //$model->__set('solAdc_data',   $_POST['data']            ?? '');
-        $model->__set('solAdc_status',    $_POST['status']             ?? '');
+        $model->__set('solAdc_data',  date('Y-m-d')            ?? '');
+        //$model->__set('solAdc_status',    $_POST['status']             ?? '');
         $model->__set('solAdc_motivo',     $_POST['motivo']     ?? '');
         //$model->__set('fk_adotante_id',    $_POST['adotante_id']             ?? '');
-        //$model->__set('fk_animal_id',    $_POST['animal_id']             ?? '');
+        $model->__set('fk_animal_id',    $_POST['fk_animal_id']             ?? '');
 
         $dao = new SolicitacaoAdocaoDAO();
         $dao->inserir($model);

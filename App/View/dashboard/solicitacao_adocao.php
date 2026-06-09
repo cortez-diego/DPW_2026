@@ -13,7 +13,7 @@ $animal   = $this->getView()->animal;
  
     <div class="card shadow mb-4">
         <div class="card-body">
-            <form method="POST" action="/dashboard/solicitacao/cadastrar">
+            <form method="POST" action="/dashboard/solicitacao-adocao/cadastrar">
  
                 <!-- IDs ocultos -->
                 <input type="hidden" name="fk_animal_id"   value="<?= htmlspecialchars($animal->__get('id')) ?>">
@@ -58,7 +58,7 @@ $animal   = $this->getView()->animal;
                 <div class="row mb-4">
                     <div class="col-12">
                         <label for="solAdc_motivo" class="form-label">Motivo da Solicitação</label>
-                        <textarea class="form-control" id="solAdc_motivo" name="solAdc_motivo" rows="4"
+                        <textarea class="form-control" id="motivo" name="motivo" rows="4"
                             placeholder="Descreva o motivo pelo qual deseja adotar este animal..."></textarea>
                         <div class="form-text">Campo opcional. Máximo de 1000 caracteres.</div>
                     </div>
@@ -80,7 +80,7 @@ $animal   = $this->getView()->animal;
 </div>
  
 <script>
-document.getElementById('solAdc_motivo').addEventListener('input', function () {
+/*document.getElementById('solAdc_motivo').addEventListener('input', function () {
     var max  = 1000;
     var atual = this.value.length;
     if (atual > max) {
@@ -88,5 +88,5 @@ document.getElementById('solAdc_motivo').addEventListener('input', function () {
         atual = max;
     }
     this.nextElementSibling.textContent = 'Campo opcional. ' + atual + '/' + max + ' caracteres.';
-});
+});*/
 </script>
