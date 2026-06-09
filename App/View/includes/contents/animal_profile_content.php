@@ -1,56 +1,59 @@
 <?php
 // Buscar animal no backend (DAO) ao invés do mock
-$petId = isset($_GET['id']) ? intval($_GET['id']) : null;
 $selected = null;
-if ($petId) {
+
+// Tenta pegar o animal do controller (passado via $this->view->animal)
+if (isset($this) && isset($this->view) && isset($this->view->animal)) {
+    $model = $this->view->animal;
+} elseif (isset($_GET['id'])) {
+    // Fallback: tenta buscar do $_GET para compatibilidade
+    $petId = intval($_GET['id']);
     $dao = new \App\DAO\AnimalDAO();
     $model = $dao->buscarPorId($petId);
-    if ($model) {
-        // Mapear para o mesmo formato que a view espera (compatibilidade com o mock)
-        $idade_meses = $model->__get('idade_meses');
-        $idade = '';
-        if ($idade_meses !== null && $idade_meses !== '') {
-            $anos = intdiv((int)$idade_meses, 12);
-            $meses = (int)$idade_meses % 12;
-            $idade = trim(($anos > 0 ? $anos . ' ano' . ($anos > 1 ? 's' : '') : '') .
-                          ($anos > 0 && $meses > 0 ? ' ' : '') .
-                          ($meses > 0 ? $meses . ' mês' . ($meses > 1 ? 'es' : '') : ''));
-        }
+} else {
+    $model = null;
+}
 
-        $selected = [
-            'id' => $model->__get('id'),
-            'imagem' => $model->__get('foto'),
-            'nome' => $model->__get('nome'),
-            'sexo' => $model->__get('sexo'),
-            'porte' => $model->__get('porte'),
-            'idade' => $idade,
-            'especie' => $model->__get('especie_nome'),
-            'raca' => $model->__get('racas'),
-            'cor' => $model->__get('cor'),
-            'nascimento' => $model->__get('data_nascimento'),
-            'historico' => '',
-            'status' => $model->__get('status'),
-            'ong' => $model->__get('ong_nome'),
-            'alergias' => '',
-            'castrado' => $model->__get('castrado') ? 'Sim' : 'Não',
-            'data_castracao' => '',
-            'observacoes_veterinarias' => '',
-            'vacinas' => [],
-            'descricao' => $model->__get('descricao'),
-        ];
-
-        function obterGaleriaAnimal(int $id): array {
-            $metaFile = __DIR__ . '/../../../resources/dashboard/images/animais/' . $id . '_gallery.json';
-            if (!file_exists($metaFile)) {
-                return [];
-            }
-            $json = file_get_contents($metaFile);
-            $data = json_decode($json, true);
-            return is_array($data['images'] ?? null) ? $data['images'] : [];
-        }
-
-        $galleryImages = obterGaleriaAnimal($selected['id']);
+if ($model) {
+    // Mapear para o mesmo formato que a view espera (compatibilidade com o mock)
+    $idade_meses = $model->__get('idade_meses');
+    $idade = '';
+    if ($idade_meses !== null && $idade_meses !== '') {
+        $anos = intdiv((int)$idade_meses, 12);
+        $meses = (int)$idade_meses % 12;
+        $idade = trim(($anos > 0 ? $anos . ' ano' . ($anos > 1 ? 's' : '') : '') .
+                      ($anos > 0 && $meses > 0 ? ' ' : '') .
+                      ($meses > 0 ? $meses . ' mês' . ($meses > 1 ? 'es' : '') : ''));
     }
+
+    $selected = [
+        'id' => $model->__get('id'),
+        'imagem' => $model->__get('foto'),
+        'nome' => $model->__get('nome'),
+        'sexo' => $model->__get('sexo'),
+        'porte' => $model->__get('porte'),
+        'idade' => $idade,
+        'especie' => $model->__get('especie_nome'),
+        'raca' => $model->__get('racas'),
+        'cor' => $model->__get('cor'),
+        'nascimento' => $model->__get('data_nascimento'),
+        'historico' => '',
+        'status' => $model->__get('status'),
+        'ong' => $model->__get('ong_nome'),
+        'alergias' => '',
+        'castrado' => $model->__get('castrado') ? 'Sim' : 'Não',
+        'data_castracao' => '',
+        'observacoes_veterinarias' => '',
+        'vacinas' => [],
+        'descricao' => $model->__get('descricao'),
+    ];
+
+    function obterGaleriaAnimal(int $id): array {
+        $dao = new \App\DAO\AnimalDAO();
+        return $dao->buscarImagens($id);
+    }
+
+    $galleryImages = obterGaleriaAnimal($selected['id']);
 }
 
 if (!$selected) {
@@ -64,17 +67,18 @@ if (!$selected) {
 
         <div class="row">
             <div class="col-md-4 col-sm-12">
-                <img id="img-main" class="img-thumbnail m-4" src="<?php echo htmlspecialchars($selected['imagem'] ?? ''); ?>">
+                <div class="position-relative m-4">
+                    <img id="img-main" class="img-thumbnail" src="<?php echo htmlspecialchars(!empty($galleryImages) ? $galleryImages[0] : ($selected['imagem'] ?? '')); ?>"
+                         onclick="openImageModal(0)" style="width:100%;max-width:300px;cursor:pointer;aspect-ratio:1/1;object-fit:cover;">
+                </div>
                 <div class="d-flex px-4 gap-2 flex-wrap">
-                    <?php
-                        $galleryPreview = !empty($galleryImages) ? array_slice($galleryImages, 0, 4) : [];
-                        while (count($galleryPreview) < 4) {
-                            $galleryPreview[] = $selected['imagem'];
-                        }
-                    ?>
-                    <?php foreach ($galleryPreview as $image): ?>
-                        <img class="img-carousel" src="<?php echo htmlspecialchars($image); ?>" onclick="trocarImg(this.src)" style="width: calc(25% - 8px); min-width: 80px;">
-                    <?php endforeach; ?>
+                    <?php if (!empty($galleryImages)): ?>
+                        <?php foreach ($galleryImages as $index => $image): ?>
+                            <img class="img-carousel" src="<?php echo htmlspecialchars($image); ?>" onclick="trocarImg(<?php echo $index; ?>)" style="width: calc(20% - 8px); min-width: 60px;aspect-ratio:1/1;object-fit:cover;">
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <img class="img-carousel" src="<?php echo htmlspecialchars($selected['imagem'] ?? ''); ?>" onclick="trocarImg(0)" style="width: calc(20% - 8px); min-width: 60px;aspect-ratio:1/1;object-fit:cover;">
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="col-md-8 col-sm-12 p-5">
@@ -158,6 +162,30 @@ if (!$selected) {
     </div>
 </div>
 
+<!-- Modal de Imagem Grande com Navegação -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body text-center position-relative">
+                <button type="button" class="btn btn-light position-absolute start-0 top-50 translate-middle-y ms-3" onclick="prevImage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                </button>
+                <img id="modalImage" src="" class="img-fluid rounded" style="max-height:80vh;object-fit:contain;">
+                <button type="button" class="btn btn-light position-absolute end-0 top-50 translate-middle-y me-3" onclick="nextImage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     #div-share { max-width: 315px; }
     #btn-share { background-color: #56CCF2; border-color: #56CCF2; }
@@ -172,12 +200,50 @@ if (!$selected) {
     .img-carousel:hover { filter: brightness(120%); }
     #img-main { max-width: 300px; }
     #img-main, .img-carousel { cursor: pointer; object-fit: cover; aspect-ratio: 1 / 1; object-position: center center; }
+    #imageModal { background: rgba(0,0,0,0.9); }
 </style>
 
 <script>
-    function trocarImg(img) { document.getElementById("img-main").src = img; }
+    var galleryImages = <?php echo json_encode($galleryImages); ?>;
+    var currentImageIndex = 0;
+
+    function trocarImg(index) {
+        if (galleryImages && galleryImages.length > 0) {
+            document.getElementById("img-main").src = galleryImages[index];
+        }
+    }
+
+    function openImageModal(index) {
+        if (!galleryImages || galleryImages.length === 0) return;
+        currentImageIndex = index;
+        document.getElementById("modalImage").src = galleryImages[index];
+        var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        modal.show();
+    }
+
+    function nextImage() {
+        if (!galleryImages || galleryImages.length === 0) return;
+        currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+        document.getElementById("modalImage").src = galleryImages[currentImageIndex];
+    }
+
+    function prevImage() {
+        if (!galleryImages || galleryImages.length === 0) return;
+        currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+        document.getElementById("modalImage").src = galleryImages[currentImageIndex];
+    }
+
     function share() { navigator.clipboard.writeText(window.location.href); }
     function shareWhatsapp() { const link = encodeURIComponent(window.location.href); window.open(`https://wa.me/?text=${link}`, "_blank"); }
     function shareInstagram() { navigator.clipboard.writeText(window.location.href); alert("Link copiado para colar no Instagram!"); window.open("https://www.instagram.com/", "_blank"); }
     function shareFacebook() { const link = encodeURIComponent(window.location.href); window.open(`https://www.facebook.com/sharer/sharer.php?u=${link}`, "_blank"); }
+
+    // Navegação com teclado
+    document.addEventListener('keydown', function(e) {
+        if (document.getElementById('imageModal').classList.contains('show')) {
+            if (e.key === 'ArrowRight') nextImage();
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'Escape') bootstrap.Modal.getInstance(document.getElementById('imageModal')).hide();
+        }
+    });
 </script>

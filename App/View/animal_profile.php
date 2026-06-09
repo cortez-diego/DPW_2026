@@ -1,8 +1,7 @@
 <?php
 /**
- * AmigoPet - Dashboard Principal
- * Localização: ~/App/View/dashboard.php
- * Este arquivo serve como o "Layout" ou "Template" principal.
+ * AmigoPet - Perfil do Animal
+ * Localização: ~/App/View/animal_profile.php
  */
 
 ini_set('display_errors', '1');
@@ -20,6 +19,21 @@ if (ob_get_level() === 0) ob_start();
 include 'includes/dashboard/header.php';
 include 'includes/dashboard/menu.php';
 include 'includes/dashboard/navbar.php';
+
+// Se o animal foi passado pelo controller, usa ele; senão tenta $_GET
+$animal = null;
+if (isset($this) && isset($this->view) && isset($this->view->animal)) {
+    $animal = $this->view->animal;
+}
+
+// Se não veio do controller, tenta pegar do $_GET (compatibilidade)
+if (!$animal && isset($_GET['id'])) {
+    $dao = new \App\DAO\AnimalDAO();
+    $animal = $dao->buscarPorId(intval($_GET['id']));
+}
+
+// Passa o animal para o content
+$this->getView()->animal = $animal;
 
 include 'includes/contents/animal_profile_content.php';
 

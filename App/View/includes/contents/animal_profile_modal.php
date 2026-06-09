@@ -44,8 +44,8 @@
 async function openAnimalProfile(petId) {
   if (!petId) return false;
   try {
-    const apiBaseUrl = (window.API_BASE_URL || <?= json_encode(rtrim(getenv('BASE_URL') ?: ($_ENV['BASE_URL'] ?? ''), '/')) ?>).replace(/\/$/, '');
-    const res = await fetch((apiBaseUrl ? apiBaseUrl : '') + '/api/animal.php?id=' + encodeURIComponent(petId));
+    // Usa caminho relativo para funcionar com qualquer porta/host
+    const res = await fetch('/api/animal.php?id=' + encodeURIComponent(petId));
     if (!res.ok) return false;
     const pet = await res.json();
 
@@ -59,9 +59,9 @@ async function openAnimalProfile(petId) {
     document.getElementById('animalProfilePorte').textContent = pet.porte || 'Médio';
 
     const adoptBtn = document.getElementById('animalProfileAdoptBtn');
-    adoptBtn.href = 'adotar.php?id=' + encodeURIComponent(pet.id);
+    adoptBtn.href = '/animal/perfil/' + encodeURIComponent(pet.id);
     const viewBtn = document.getElementById('animalProfileViewBtn');
-    if (viewBtn) viewBtn.href = 'animal_profile.php?id=' + encodeURIComponent(pet.id);
+    if (viewBtn) viewBtn.href = '/animal/perfil/' + encodeURIComponent(pet.id);
 
     const modalEl = document.getElementById('animalProfileModal');
     const modal = new bootstrap.Modal(modalEl);

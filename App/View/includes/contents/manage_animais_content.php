@@ -418,8 +418,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
                             <tbody>
                                 <?php foreach ($animals as $a): ?>
                                     <tr>
-                                        <td style="width:80px;"><img src="<?php echo htmlspecialchars($a['imagem']); ?>" style="width:70px;height:50px;object-fit:cover;border-radius:6px;"></td>
-                                        <td><?php echo htmlspecialchars($a['nome']); ?></td>
+                                        <td style="width:80px;"><img src="<?php echo htmlspecialchars($a['imagem']); ?>" style="width:70px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer;" onclick="openAnimalProfile(<?php echo htmlspecialchars($a['id']); ?>)"></td>
+                                        <td><span style="color:#0d6efd;cursor:pointer;text-decoration:underline;" onclick="openAnimalProfile(<?php echo htmlspecialchars($a['id']); ?>)"><?php echo htmlspecialchars($a['nome']); ?></span></td>
                                         <td><?php echo htmlspecialchars($a['especie']); ?></td>
                                         <td><?php echo ($a['sexo']==='m')? 'Macho' : (($a['sexo']==='f')? 'Fêmea' : 'N/A'); ?></td>
                                         <td>
@@ -588,4 +588,77 @@ document.addEventListener('DOMContentLoaded', function(){
     // initial filter on load
     filterRacasByEspecie();
 });
+</script>
+
+<!-- Modal de Perfil do Animal -->
+<div class="modal fade" id="animalProfileModal" tabindex="-1" aria-labelledby="animalProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="animalProfileModalLabel">Perfil do Animal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body" id="animalProfileContent">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="animalProfileFullLink" href="#" class="btn btn-primary d-none">Ver Perfil Completo</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openAnimalProfile(animalId) {
+    var modal = new bootstrap.Modal(document.getElementById('animalProfileModal'));
+    var content = document.getElementById('animalProfileContent');
+    var fullLink = document.getElementById('animalProfileFullLink');
+
+    content.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></div>';
+    fullLink.classList.add('d-none');
+
+    fetch('/api/animal.php?id=' + animalId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                content.innerHTML = '<div class="alert alert-danger">Erro ao carregar perfil: ' + data.error + '</div>';
+                return;
+            }
+
+            var animal = data.animal;
+            var imagens = data.imagens || [];
+            var fotoPrincipal = imagens.length > 0 ? imagens[0] : (animal.foto || 'https://via.placeholder.com/300');
+
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="${fotoPrincipal}" class="img-fluid rounded mb-3" style="max-height:200px;object-fit:cover;">
+                    </div>
+                    <div class="col-md-8">
+                        <h4>${animal.nome || 'Sem nome'}</h4>
+                        <p><strong>Espécie:</strong> ${animal.especie_nome || 'N/A'}</p>
+                        <p><strong>Raça:</strong> ${animal.racas || 'N/A'}</p>
+                        <p><strong>Sexo:</strong> ${animal.sexo === 'm' ? 'Macho' : (animal.sexo === 'f' ? 'Fêmea' : 'N/A')}</p>
+                        <p><strong>Porte:</strong> ${animal.porte || 'N/A'}</p>
+                        <p><strong>Status:</strong> ${animal.status === 'disponivel' ? 'Disponível' : 'Reservado'}</p>
+                        <p><strong>Descrição:</strong> ${animal.descricao || 'Sem descrição'}</p>
+                    </div>
+                </div>
+            `;
+
+            fullLink.href = '/animal/perfil/' + animalId;
+            fullLink.classList.remove('d-none');
+
+            modal.show();
+        })
+        .catch(error => {
+            content.innerHTML = '<div class="alert alert-danger">Erro ao carregar perfil: ' + error.message + '</div>';
+            modal.show();
+        });
+}
 </script>

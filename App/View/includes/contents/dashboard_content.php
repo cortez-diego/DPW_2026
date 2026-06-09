@@ -95,7 +95,7 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
         left: 0;
         width: 100%;
         height: 100%;
-        transform: scale(1.25); 
+        transform: scale(1.25);
         background-color: #ffffff;
         z-index: 100;
         box-shadow: 0 15px 35px rgba(0,0,0,0.2);
@@ -241,7 +241,7 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
                                         <div class="pet-card-inner shadow-sm h-100 bg-white border-0 rounded-4" data-pet-id="<?php echo $pet['id']; ?>" data-pet-name="<?php echo htmlspecialchars($pet['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <div class="ratio ratio-16x9 overflow-hidden bg-light rounded-top-4">
                                                 <img src="<?php echo $pet['imagem']; ?>" 
-                                                     class="img-fluid" style="object-fit: cover; object-position: top; cursor:pointer;" alt="<?php echo $pet['nome']; ?>" data-pet-id="<?php echo $pet['id']; ?>" data-pet-name="<?php echo htmlspecialchars($pet['nome'], ENT_QUOTES, 'UTF-8'); ?>" onclick="openAnimalProfile(this.dataset.petName || this.dataset.petId)">
+                                                     class="img-fluid" style="object-fit: cover; object-position: top; cursor:pointer;" alt="<?php echo $pet['nome']; ?>" data-pet-id="<?php echo $pet['id']; ?>" data-pet-name="<?php echo htmlspecialchars($pet['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                                             </div>
                                             <div class="p-3">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -278,6 +278,32 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
 
                     <?php // inclui modal de perfil para abrir a partir do carrossel ?>
                     <?php include __DIR__ . '/animal_profile_modal.php'; ?>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Handler direto para o carrossel
+                        document.querySelectorAll('.pet-card-inner').forEach(function(card) {
+                            card.addEventListener('click', function(e) {
+                                if (e.target.closest('a, button')) return;
+                                const petId = this.getAttribute('data-pet-id');
+                                if (petId && typeof openAnimalProfile === 'function') {
+                                    openAnimalProfile(petId);
+                                }
+                            });
+                        });
+
+                        // Handler direto para a tabela
+                        document.querySelectorAll('tbody tr[data-pet-id]').forEach(function(row) {
+                            row.addEventListener('click', function(e) {
+                                if (e.target.closest('a, button')) return;
+                                const petId = this.getAttribute('data-pet-id');
+                                if (petId && typeof openAnimalProfile === 'function') {
+                                    openAnimalProfile(petId);
+                                }
+                            });
+                        });
+                    });
+                    </script>
                 </section>
 
                 <!-- Seção de Gráficos -->
@@ -350,12 +376,12 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                <tr data-pet-id="98" data-pet-name="Thor" style="cursor: pointer;">
                                     <td>
                                             <div class="d-flex align-items-center">
                                             <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=100" 
                                                 class="img-thumbnail me-2" 
-                                                style="width: 40px; height: 40px; object-fit: cover; object-position: top;" alt="Thor" data-pet-id="98">
+                                                style="width: 40px; height: 40px; object-fit: cover; object-position: top;" alt="Thor">
                                             <div>
                                                 <span class="fw-bold d-block">Thor</span>
                                                 <small class="text-muted" style="font-size: 0.7rem;">Macho</small>
@@ -369,12 +395,12 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
                                         <span class="badge" style="background-color: rgba(111, 207, 151, 0.2); color: var(--primary-green); border-radius: 6px;">Concluído</span>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr data-pet-id="99" data-pet-name="Mimi" style="cursor: pointer;">
                                     <td>
                                             <div class="d-flex align-items-center">
                                             <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100" 
                                                 class="img-thumbnail me-2" 
-                                                style="width: 40px; height: 40px; object-fit: cover; object-position: top;" alt="Mimi" data-pet-id="99">
+                                                style="width: 40px; height: 40px; object-fit: cover; object-position: top;" alt="Mimi">
                                             <div>
                                                 <span class="fw-bold d-block">Mimi</span>
                                                 <small class="text-muted" style="font-size: 0.7rem;">Fêmea</small>

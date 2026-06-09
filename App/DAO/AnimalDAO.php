@@ -473,4 +473,104 @@ class AnimalDAO extends DAO
             die();
         }
     }
+
+    // =========================================================================
+    // IMAGENS DO ANIMAL (5 imagens: 1 principal + 4 adicionais)
+    // =========================================================================
+
+    /**
+     * Busca todas as imagens de um animal, ordenadas pela ordem (0 = principal)
+     *
+     * @param int $animalId
+     * @return array Array com caminho das imagens ordenadas
+     */
+    public function buscarImagens($animalId)
+    {
+        try {
+            $sql = "SELECT caminho_imagem, ordem
+                    FROM animal_imagens
+                    WHERE fk_animal_id = :animalId
+                    ORDER BY ordem ASC";
+
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':animalId', $animalId, \PDO::PARAM_INT);
+            $stmt->execute();
+
+            $resultado = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $imagens = [];
+            foreach ($resultado as $row) {
+                $imagens[] = $row['caminho_imagem'];
+            }
+
+            return $imagens;
+
+        } catch (\PDOException $ex) {
+            // Se a tabela não existir, retorna array vazio
+            return [];
+        }
+    }
+
+    /**
+     * Salva todas as imagens de um animal (substitui as existentes)
+     *
+     * @param int $animalId
+     * @param array $imagens Array com 5 caminhos de imagem (índice 0 = principal)
+     * @return bool
+     */
+    public function salvarImagens($animalId, $imagens)
+    {
+        try {
+            // Remove todas as imagens existentes
+            $sqlDelete = "DELETE FROM animal_imagens WHERE fk_animal_id = :animalId";
+            $stmtDelete = $this->getConn()->prepare($sqlDelete);
+            $stmtDelete->bindValue(':animalId', $animalId, \PDO::PARAM_INT);
+            $stmtDelete->execute();
+
+            // Insere as novas imagens
+            $sqlInsert = "INSERT INTO animal_imagens (fk_animal_id, caminho_imagem, ordem)
+                         VALUES (:animalId, :caminho, :ordem)";
+            $stmtInsert = $this->getConn()->prepare($sqlInsert);
+
+            foreach ($imagens as $ordem => $caminho) {
+                if (!empty($caminho)) {
+                    $stmtInsert->bindValue(':animalId', $animalId, \PDO::PARAM_INT);
+                    $stmtInsert->bindValue(':caminho', $caminho);
+                    $stmtInsert->bindValue(':ordem', $ordem, \PDO::PARAM_INT);
+                    $stmtInsert->execute();
+                }
+            }
+
+            return true;
+
+        } catch (\PDOException $ex) {
+            // Se a tabela não existir, retorna false em vez de redirecionar
+            return false;
+        }
+    }
+
+    /**
+     * Atualiza a foto principal na tabela animal (para compatibilidade)
+     *
+     * @param int $animalId
+     * @param string $caminhoFoto
+     * @return bool
+     */
+    public function atualizarFotoPrincipal($animalId, $caminhoFoto)
+    {
+        try {
+            $sql = "UPDATE animal SET foto = :foto WHERE id = :id";
+
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':foto', $caminhoFoto);
+            $stmt->bindValue(':id', $animalId, \PDO::PARAM_INT);
+            $stmt->execute();
+
+            return true;
+
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
 }

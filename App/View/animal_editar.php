@@ -3,6 +3,13 @@
  * AmigoPet - Página de Edição de Animal
  * Localização: ~/App/View/animal_editar.php
  * Arquivo principal que monta o layout e chama a view específica de edição.
+ * 
+ * ATENÇÃO: Você precisa habilitar a extensão GD no PHP para o upload de imagens. No XAMPP:
+ * 
+ * Abra C:\xampp\php\php.ini
+ * Procure por ;extension=gd
+ * Remova o ; no início da linha para descomentar
+ * Salve e reinicie o Apache
  */
 
 ini_set('display_errors', '1');

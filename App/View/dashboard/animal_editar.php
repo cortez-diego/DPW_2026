@@ -6,15 +6,7 @@ $especies = $this->getView()->especies;
 $racas = $this->getView()->racas;
 $racasAll = $this->getView()->racasAll ?? [];
 $racasVinculadas = $this->getView()->racasVinculadas ?? [];
-
-$galleryImages = [];
-$galleryPreviewFile = __DIR__ . '/../../../resources/dashboard/images/animais/' . (int) $animal->__get('id') . '_gallery.json';
-if (file_exists($galleryPreviewFile)) {
-    $data = json_decode(file_get_contents($galleryPreviewFile), true);
-    if (is_array($data['images'] ?? null)) {
-        $galleryImages = array_values($data['images']);
-    }
-}
+$imagens = $this->getView()->imagens ?? ['', '', '', '', ''];
 ?>
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -34,17 +26,6 @@ if (file_exists($galleryPreviewFile)) {
                 <input type="hidden" name="foto_atual" value="<?= htmlspecialchars((string) $animal->__get('foto')) ?>">
 
                 <div class="row g-3 mb-4">
-                    <div class="col-md-4">
-                        <label class="form-label">Imagem principal (cover)</label>
-                        <div class="border rounded p-2 text-center" style="aspect-ratio: 1 / 1; min-height: 220px; overflow: hidden;">
-                            <img id="coverPreview" src="<?= htmlspecialchars((string) $animal->__get('foto')) ?>" alt="Foto do animal" class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div class="mt-3">
-                            <label for="foto" class="form-label">Upload nova imagem principal</label>
-                            <input class="form-control" type="file" id="foto" name="foto" accept="image/*">
-                            <div class="form-text">A imagem será recortada em quadrado e salva com nome baseado em ID, nome, data e caracteres aleatórios.</div>
-                        </div>
-                    </div>
                     <div class="col-md-8">
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -124,27 +105,27 @@ if (file_exists($galleryPreviewFile)) {
 
                 <div class="row g-3 mb-4">
                     <div class="col-12">
-                        <label class="form-label">Imagens adicionais (até 4)</label>
+                        <label class="form-label">Imagens do animal (5 imagens, selecione a principal)</label>
                         <div class="row g-3">
-                            <?php for ($i = 0; $i < 4; $i++): ?>
-                                <?php $previewSrc = $galleryImages[$i] ?? 'https://via.placeholder.com/300?text=Upload'; ?>
+                            <?php for ($i = 0; $i < 5; $i++): ?>
+                                <?php $previewSrc = !empty($imagens[$i]) ? htmlspecialchars($imagens[$i]) : 'https://via.placeholder.com/300?text=Upload'; ?>
                                 <div class="col-6 col-xl-3">
                                     <div class="border rounded p-3 text-center" style="aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: space-between;">
                                         <div>
-                                            <small class="text-muted">Imagem adicional <?= $i + 1 ?></small>
-                                            <img id="preview-<?= $i ?>" src="<?= htmlspecialchars($previewSrc) ?>" alt="Preview <?= $i + 1 ?>" class="img-fluid rounded mb-2" style="width:100%; height:120px; object-fit:cover;">
-                                            <input class="form-control form-control-sm" type="file" id="gallery_image_<?= $i ?>" name="gallery_images[]" accept="image/*" data-preview-target="preview-<?= $i ?>" data-cropped-target="cropped_gallery_<?= $i ?>">
-                                            <input type="hidden" id="cropped_gallery_<?= $i ?>" name="cropped_gallery_<?= $i ?>" value="">
+                                            <small class="text-muted">Imagem <?= $i + 1 ?></small>
+                                            <img id="preview-<?= $i ?>" src="<?= $previewSrc ?>" alt="Preview <?= $i + 1 ?>" class="img-fluid rounded mb-2" style="width:100%; height:120px; object-fit:cover;">
+                                            <input class="form-control form-control-sm" type="file" id="imagem_<?= $i ?>" name="imagem_<?= $i ?>" accept="image/*" data-preview-target="preview-<?= $i ?>" data-cropped-target="cropped_imagem_<?= $i ?>">
+                                            <input type="hidden" id="cropped_imagem_<?= $i ?>" name="cropped_imagem_<?= $i ?>" value="">
                                         </div>
                                         <div class="form-check mt-2 text-start">
-                                            <input class="form-check-input" type="radio" id="gallery_cover_<?= $i ?>" name="gallery_cover" value="<?= $i ?>">
-                                            <label class="form-check-label" for="gallery_cover_<?= $i ?>">Usar como cover</label>
+                                            <input class="form-check-input imagem-principal-radio" type="radio" id="imagem_principal_<?= $i ?>" name="imagem_principal" value="<?= $i ?>" <?= $i === 0 ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="imagem_principal_<?= $i ?>">Principal</label>
                                         </div>
                                     </div>
                                 </div>
                             <?php endfor; ?>
                         </div>
-                        <div class="form-text">Envie imagens extras para o perfil do animal. Marque uma delas como cover para substituir a imagem principal.</div>
+                        <div class="form-text">Envie até 5 imagens do animal. A primeira é definida como principal por padrão. Selecione outra para alterar a principal em tempo real.</div>
                     </div>
                 </div>
 
@@ -221,8 +202,6 @@ document.addEventListener('DOMContentLoaded', function() {
         filterRacas();
     }
 
-    var photoInput = document.getElementById('foto');
-    var coverPreview = document.getElementById('coverPreview');
     var cropPreviewImage = document.getElementById('cropPreviewImage');
     var currentHiddenInput = null;
 
@@ -239,41 +218,17 @@ document.addEventListener('DOMContentLoaded', function() {
     var currentInput = null; // referência ao input de arquivo que acionou o modal
     var currentPreview = null; // elemento <img> que deve ser atualizado após confirmar
 
-    if (photoInput) {
-        photoInput.addEventListener('change', function() {
+    // Handler para os 5 campos de imagem
+    document.querySelectorAll('input[name^="imagem_"]').forEach(function(input) {
+        input.addEventListener('change', function() {
             if (!this.files || !this.files[0]) {
                 return;
             }
-            currentInput = this;
-            currentPreview = coverPreview;
-            currentHiddenInput = document.getElementById('cropped_foto');
-            if (currentHiddenInput) {
-                currentHiddenInput.value = '';
-            }
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                if (cropPreviewImage) {
-                    cropPreviewImage.src = e.target.result;
-                }
-                if (coverPreview) {
-                    coverPreview.src = e.target.result;
-                }
-                if (cropModal) {
-                    cropModal.show();
-                }
-            };
-            reader.readAsDataURL(this.files[0]);
-        });
-    }
-
-    document.querySelectorAll('input[name="gallery_images[]"]').forEach(function(input) {
-        input.addEventListener('change', function() {
             var targetId = this.dataset.previewTarget;
             var preview = targetId ? document.getElementById(targetId) : null;
-            if (!preview || !this.files || !this.files[0]) {
+            if (!preview) {
                 return;
             }
-            // preparar modal de recorte para galeria
             currentInput = this;
             currentPreview = preview;
             var croppedTargetId = this.dataset.croppedTarget;
@@ -351,11 +306,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 cropper.destroy();
                 cropper = null;
             }
+            // Se cancelou o recorte (não confirmou), limpar o campo de upload
+            if (currentInput && !currentHiddenInput.value) {
+                currentInput.value = '';
+                if (currentPreview) {
+                    // Restaurar preview original se existir
+                    var originalSrc = currentPreview.dataset.originalSrc;
+                    if (originalSrc) {
+                        currentPreview.src = originalSrc;
+                    }
+                }
+            }
             // limpar referência ao input atual para evitar efeitos colaterais
             currentInput = null;
             currentPreview = null;
+            currentHiddenInput = null;
         });
     }
+
+    // Salvar preview original antes de alterar
+    document.querySelectorAll('input[name^="imagem_"]').forEach(function(input) {
+        var targetId = input.dataset.previewTarget;
+        var preview = targetId ? document.getElementById(targetId) : null;
+        if (preview) {
+            preview.dataset.originalSrc = preview.src;
+        }
+    });
+
+    // Handler para seleção de imagem principal em tempo real
+    document.querySelectorAll('.imagem-principal-radio').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                // Reordenar visualmente as imagens (opcional - apenas visual)
+                // A reordenação real acontece no salvamento
+                console.log('Imagem principal selecionada: ' + this.value);
+            }
+        });
+    });
 
     // Confirmar recorte: gerar blob, substituir arquivo do input e atualizar preview
     var cropConfirmBtn = document.getElementById('cropConfirmBtn');
@@ -422,11 +409,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (animalEditForm) {
         animalEditForm.addEventListener('submit', function (event) {
             var formDebug = document.getElementById('formDebugStatus');
-            var photoFiles = photoInput && photoInput.files ? photoInput.files.length : 0;
-            var galleryFiles = Array.from(document.querySelectorAll('input[name="gallery_images[]"]')).reduce(function (sum, input) {
+            var imagemFiles = Array.from(document.querySelectorAll('input[name^="imagem_"]')).reduce(function (sum, input) {
                 return sum + (input.files ? input.files.length : 0);
             }, 0);
-            var debugText = 'Enviando form: foto=' + photoFiles + ', galeria=' + galleryFiles + '.';
+            var principalSelected = document.querySelector('input[name="imagem_principal"]:checked');
+            var principalIndex = principalSelected ? principalSelected.value : '0';
+            var debugText = 'Enviando form: imagens=' + imagemFiles + ', principal=' + principalIndex + '.';
             if (formDebug) {
                 formDebug.textContent = debugText;
             }

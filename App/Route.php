@@ -71,6 +71,17 @@ class Route extends Boostrap
             );
         }
 
+        if (!isset($routes['animal_perfil'])) {
+            $routes['animal_perfil'] = array(
+                'route' => '/animal/perfil/{id}',
+                'controller' => 'AnimalController',
+                'action' => 'perfil',
+                'is_dynamic' => 1,
+                'pattern' => 'animal/perfil/{id}'
+            );
+            file_put_contents($logFile, "[$timestamp] Added fallback route: animal_perfil\n", FILE_APPEND);
+        }
+
         file_put_contents($logFile, "[$timestamp] Total routes registered: " . count($routes) . "\n", FILE_APPEND);
         $this->setRoutes($routes);
     }

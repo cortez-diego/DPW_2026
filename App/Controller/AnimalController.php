@@ -14,6 +14,48 @@ class AnimalController extends Action
     // Pasta de upload relativa à raiz do projeto
     private $uploadDir = 'resources/dashboard/images/animais/';
 
+    public function __construct()
+    {
+        parent::__construct();
+        // A criação da tabela será feita sob demanda no primeiro uso
+    }
+
+    /**
+     * Cria a tabela animal_imagens se não existir (execução automática)
+     */
+    private function criarTabelaImagensSeNecessario()
+    {
+        try {
+            $connection = new \FW\DB\Connection();
+            $conn = $connection->getConn();
+            if (!$conn) return;
+
+            $sql = "CREATE TABLE IF NOT EXISTS animal_imagens (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                fk_animal_id INT NOT NULL,
+                caminho_imagem VARCHAR(255) NOT NULL,
+                ordem INT NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY uk_animal_ordem (fk_animal_id, ordem)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+            $conn->exec($sql);
+
+            // Log de sucesso
+            $root = realpath(__DIR__ . '/../../');
+            $logFile = ($root && is_writable($root)) ? $root . '/controller_debug.log' : sys_get_temp_dir() . '/controller_debug.log';
+            $timestamp = date('Y-m-d H:i:s');
+            file_put_contents($logFile, "[$timestamp] Tabela animal_imagens verificada/criada\n", FILE_APPEND);
+        } catch (\Throwable $ex) {
+            // Log de erro
+            $root = realpath(__DIR__ . '/../../');
+            $logFile = ($root && is_writable($root)) ? $root . '/controller_debug.log' : sys_get_temp_dir() . '/controller_debug.log';
+            $timestamp = date('Y-m-d H:i:s');
+            file_put_contents($logFile, "[$timestamp] Erro ao criar tabela animal_imagens: " . $ex->getMessage() . "\n", FILE_APPEND);
+        }
+    }
+
     private function getProjectRoot(): string
     {
         return realpath(__DIR__ . '/../../') ?: __DIR__ . '/../../';
@@ -109,7 +151,9 @@ class AnimalController extends Action
 
     public function cadastrar()
     {
-        $foto = $this->processarUploadFoto();
+        // Processar as 5 imagens (índice 0 = principal)
+        $imagens = $this->processarUploadImagens();
+        $fotoPrincipal = $imagens[0] ?? '';
 
         $model = new AnimalModel();
         $model->__set('nome',            $_POST['nome']            ?? '');
@@ -121,11 +165,14 @@ class AnimalController extends Action
         $model->__set('descricao',       $_POST['descricao']       ?? '');
         $model->__set('porte',           $_POST['porte']           ?? '');
         $model->__set('localizacao',     $_POST['localizacao']     ?? '');
-        $model->__set('foto',            $foto);
+        $model->__set('foto',            $fotoPrincipal);
         $model->__set('status',          $_POST['status']          ?? 'disponivel');
 
         $dao = new AnimalDAO();
         $animalId = $dao->inserir($model);
+
+        // Salvar as 5 imagens no banco
+        $dao->salvarImagens($animalId, $imagens);
 
         // Vincular raça se fornecida
         if (!empty($_POST['fk_raca_id'])) {
@@ -139,21 +186,24 @@ class AnimalController extends Action
 
     public function editar($params)
     {
+        // Criar tabela se não existir
+        $this->criarTabelaImagensSeNecessario();
+
         $root = realpath(__DIR__ . '/../../');
         $logFile = ($root && is_writable($root)) ? $root . '/controller_debug.log' : sys_get_temp_dir() . '/controller_debug.log';
         $timestamp = date('Y-m-d H:i:s');
-        
+
         try {
             file_put_contents($logFile, "[$timestamp] AnimalController::editar called\n", FILE_APPEND);
             file_put_contents($logFile, "[$timestamp] params: " . print_r($params, true) . "\n", FILE_APPEND);
-            
+
             $id = null;
             if (is_array($params)) {
                 $id = $params['id'] ?? ($params[0] ?? null);
             } else {
                 $id = $params;
             }
-            
+
             file_put_contents($logFile, "[$timestamp] extracted id: " . var_export($id, true) . "\n", FILE_APPEND);
 
             $id = is_numeric($id) ? (int) $id : null;
@@ -191,6 +241,15 @@ class AnimalController extends Action
                 $racasVinculadas[] = (int) $ar->fk_raca_id;
             }
 
+            // Buscar as 5 imagens do banco
+            $animalImagens = $animalDAO->buscarImagens($id);
+            // Garante que tenha 5 posições (preenche com vazio se necessário)
+            for ($i = 0; $i < 5; $i++) {
+                if (!isset($animalImagens[$i])) {
+                    $animalImagens[$i] = '';
+                }
+            }
+
             file_put_contents($logFile, "[$timestamp] All data loaded successfully\n", FILE_APPEND);
 
             $this->getView()->title           = 'Editar Animal';
@@ -200,6 +259,7 @@ class AnimalController extends Action
             $this->getView()->racas           = $racas;
             $this->getView()->racasAll        = $racasAll;
             $this->getView()->racasVinculadas = $racasVinculadas;
+            $this->getView()->imagens         = $animalImagens;
             $this->getView()->params          = $params;
 
             file_put_contents($logFile, "[$timestamp] About to render template\n", FILE_APPEND);
@@ -215,57 +275,79 @@ class AnimalController extends Action
 
     public function alterar()
     {
-        // DEBUG: log $_FILES and $_POST for troubleshooting upload issues
-        $logFile = sys_get_temp_dir() . '/animal_alterar_debug.log';
+        $root = realpath(__DIR__ . '/../../');
+        $logFile = ($root && is_writable($root)) ? $root . '/controller_debug.log' : sys_get_temp_dir() . '/controller_debug.log';
         $timestamp = date('Y-m-d H:i:s');
-        error_log("[$timestamp] ALTERAR() CALLED\n", 3, $logFile);
-        error_log("REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD'] . "\n", 3, $logFile);
-        error_log("FILES: " . var_export($_FILES, true) . "\n", 3, $logFile);
-        error_log("POST: " . var_export($_POST, true) . "\n", 3, $logFile);
 
-        $id = isset($_POST['id']) ? (int) $_POST['id'] : null;
-        $fotoAtual = $_POST['foto_atual'] ?? '';
+        try {
+            file_put_contents($logFile, "[$timestamp] AnimalController::alterar called\n", FILE_APPEND);
 
-        $useGalleryCover = isset($_POST['gallery_cover']) && is_numeric($_POST['gallery_cover'])
-            ? (int) $_POST['gallery_cover']
-            : null;
+            $id = isset($_POST['id']) ? (int) $_POST['id'] : null;
+            file_put_contents($logFile, "[$timestamp] ID: $id\n", FILE_APPEND);
 
-        if ($useGalleryCover !== null) {
-            $foto = $this->processarUploadFoto($fotoAtual, $id, $_POST['nome'] ?? '', 'gallery_images', $useGalleryCover);
-        } else {
-            $foto = $this->processarUploadFoto($fotoAtual, $id, $_POST['nome'] ?? '');
+            // Criar tabela se não existir
+            $this->criarTabelaImagensSeNecessario();
+
+            // Processar as 5 imagens (índice 0 = principal)
+            $imagens = $this->processarUploadImagens($id);
+            file_put_contents($logFile, "[$timestamp] Imagens processadas: " . count($imagens) . "\n", FILE_APPEND);
+
+            // Reordenar imagens baseado na seleção de principal
+            $principalIndex = isset($_POST['imagem_principal']) ? (int) $_POST['imagem_principal'] : 0;
+            if ($principalIndex > 0 && isset($imagens[$principalIndex])) {
+                // Move a imagem selecionada para a posição 0
+                $principal = $imagens[$principalIndex];
+                unset($imagens[$principalIndex]);
+                array_splice($imagens, 0, 0, [$principal]);
+                // Reindexar array
+                $imagens = array_values($imagens);
+            }
+
+            $fotoPrincipal = $imagens[0] ?? '';
+
+            $model = new AnimalModel();
+            $model->__set('id',              $_POST['id']              ?? null);
+            $model->__set('nome',            $_POST['nome']            ?? '');
+            $model->__set('data_nascimento', $_POST['data_nascimento'] ?? null);
+            $model->__set('sexo',            $_POST['sexo']            ?? '');
+            $model->__set('fk_especie_id',   $_POST['fk_especie_id']   ?? null);
+            $model->__set('cor',             $_POST['cor']             ?? '');
+            $model->__set('castrado',        !empty($_POST['castrado']));
+            $model->__set('descricao',       $_POST['descricao']       ?? '');
+            $model->__set('porte',           $_POST['porte']           ?? '');
+            $model->__set('localizacao',     $_POST['localizacao']     ?? '');
+            $model->__set('foto',            $fotoPrincipal);
+            $model->__set('status',          $_POST['status']          ?? 'disponivel');
+
+            $dao = new AnimalDAO();
+            $dao->alterar($model);
+            file_put_contents($logFile, "[$timestamp] Animal alterado com sucesso\n", FILE_APPEND);
+
+            // Salvar as 5 imagens no banco
+            $imagensSalvas = $dao->salvarImagens($id, $imagens);
+            if ($imagensSalvas) {
+                file_put_contents($logFile, "[$timestamp] Imagens salvas no banco\n", FILE_APPEND);
+            } else {
+                file_put_contents($logFile, "[$timestamp] Falha ao salvar imagens no banco (tabela pode não existir)\n", FILE_APPEND);
+            }
+
+            $racaIds = $_POST['fk_raca_id'] ?? [];
+            if (!is_array($racaIds)) {
+                $racaIds = [$racaIds];
+            }
+            $racaIds = array_filter(array_map('intval', $racaIds));
+
+            $animalRacaDAO = new AnimalRacaDAO();
+            $animalRacaDAO->sincronizar((int) $model->__get('id'), $racaIds);
+
+            header('Location: /App/View/manage_animais.php');
+            die();
+        } catch (\Throwable $ex) {
+            file_put_contents($logFile, "[$timestamp] Exception: " . $ex->getMessage() . "\n", FILE_APPEND);
+            file_put_contents($logFile, "[$timestamp] File: " . $ex->getFile() . ":" . $ex->getLine() . "\n", FILE_APPEND);
+            file_put_contents($logFile, "[$timestamp] Stack: " . $ex->getTraceAsString() . "\n", FILE_APPEND);
+            throw $ex;
         }
-
-        $model = new AnimalModel();
-        $model->__set('id',              $_POST['id']              ?? null);
-        $model->__set('nome',            $_POST['nome']            ?? '');
-        $model->__set('data_nascimento', $_POST['data_nascimento'] ?? null);
-        $model->__set('sexo',            $_POST['sexo']            ?? '');
-        $model->__set('fk_especie_id',   $_POST['fk_especie_id']   ?? null);
-        $model->__set('cor',             $_POST['cor']             ?? '');
-        $model->__set('castrado',        !empty($_POST['castrado']));
-        $model->__set('descricao',       $_POST['descricao']       ?? '');
-        $model->__set('porte',           $_POST['porte']           ?? '');
-        $model->__set('localizacao',     $_POST['localizacao']     ?? '');
-        $model->__set('foto',            $foto);
-        $model->__set('status',          $_POST['status']          ?? 'disponivel');
-
-        $dao = new AnimalDAO();
-        $dao->alterar($model);
-
-        $racaIds = $_POST['fk_raca_id'] ?? [];
-        if (!is_array($racaIds)) {
-            $racaIds = [$racaIds];
-        }
-        $racaIds = array_filter(array_map('intval', $racaIds));
-
-        $animalRacaDAO = new AnimalRacaDAO();
-        $animalRacaDAO->sincronizar((int) $model->__get('id'), $racaIds);
-
-        $this->processarUploadGaleria((int) $model->__get('id'), $useGalleryCover);
-
-        header('Location: /dashboard/animal/listar');
-        die();
     }
 
     public function excluir()
@@ -285,9 +367,87 @@ class AnimalController extends Action
         die();
     }
 
+    public function perfil($params)
+    {
+        $id = null;
+        if (is_array($params)) {
+            $id = $params['id'] ?? ($params[0] ?? null);
+        } else {
+            $id = $params;
+        }
+
+        $id = is_numeric($id) ? (int) $id : null;
+        if (!$id) {
+            header('Location: /dashboard');
+            die();
+        }
+
+        $animalDAO = new AnimalDAO();
+        $animal = $animalDAO->buscarPorId($id);
+
+        if (!$animal) {
+            header('Location: /dashboard');
+            die();
+        }
+
+        $this->getView()->title = 'Perfil do Animal';
+        $this->getView()->title_pagina = 'Perfil do Animal';
+        $this->getView()->animal = $animal;
+        $this->getView()->params = $params;
+
+        $this->render('../animal_profile', 'dashboard');
+    }
+
     // ------------------------------------------------------------------ //
     //  Upload de foto
     // ------------------------------------------------------------------ //
+
+    /**
+     * Processa o upload das 5 imagens do animal.
+     *
+     * @param  int|null $animalId  ID do animal (edição) ou null (cadastro)
+     * @return array Array com 5 caminhos de imagem (índice 0 = principal)
+     */
+    private function processarUploadImagens(?int $animalId = null): array
+    {
+        $imagens = ['', '', '', '', '']; // 5 posições vazias
+        $animalNome = $_POST['nome'] ?? 'animal';
+
+        // Processar cada uma das 5 imagens
+        for ($i = 0; $i < 5; $i++) {
+            $fieldName = 'imagem_' . $i;
+            $croppedFieldName = 'cropped_imagem_' . $i;
+
+            // Se estiver editando, tenta manter a imagem existente se não houver nova
+            if ($animalId && !isset($_FILES[$fieldName]) && !isset($_POST[$croppedFieldName])) {
+                $dao = new AnimalDAO();
+                $imagensExistentes = $dao->buscarImagens($animalId);
+                if (isset($imagensExistentes[$i])) {
+                    $imagens[$i] = $imagensExistentes[$i];
+                }
+                continue;
+            }
+
+            // Tenta dados base64 de crop primeiro
+            if (!empty($_POST[$croppedFieldName])) {
+                $result = $this->saveBase64Image($_POST[$croppedFieldName], $animalId, $animalNome);
+                if ($result) {
+                    $imagens[$i] = $result;
+                    continue;
+                }
+            }
+
+            // Tenta upload de arquivo
+            if (isset($_FILES[$fieldName]) && $_FILES[$fieldName]['error'] === UPLOAD_ERR_OK) {
+                $result = $this->processarUploadFoto('', $animalId, $animalNome, $fieldName);
+                if ($result) {
+                    $imagens[$i] = $result;
+                }
+            }
+        }
+
+        return $imagens;
+    }
 
     /**
      * Processa o upload da foto do animal.
