@@ -71,7 +71,7 @@ function pushLog($role, $action, $details = '') {
     // Persistir log em auditoria (DB)
     try {
         $audDao = new \App\DAO\AuditoriaDAO();
-        $audDao->inserir($role, $action, $details);
+        $audDao->registrar($role, $action, $details);
     } catch (\Throwable $ex) {
         // Fallback para session caso DAO falhe
         if (session_status() === PHP_SESSION_NONE) session_start();
@@ -147,23 +147,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
                 }
             }
 
-            // Handle image upload
-            $fotoUrl = '';
-            if (!empty($_FILES['imagem_file']) && is_uploaded_file($_FILES['imagem_file']['tmp_name'])) {
-                $uploadDir = __DIR__ . '/../../../resources/dashboard/images/animais/';
-                if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-                $ext = pathinfo($_FILES['imagem_file']['name'], PATHINFO_EXTENSION);
-                $filename = bin2hex(random_bytes(8)) . '.' . ($ext ?: 'jpg');
-                $target = $uploadDir . $filename;
-                if (move_uploaded_file($_FILES['imagem_file']['tmp_name'], $target)) {
-                    $fotoUrl = '/resources/dashboard/images/animais/' . $filename;
-                } else {
-                    if (session_status() === PHP_SESSION_NONE) session_start();
-                    $_SESSION['flash_message'] = ['type'=>'danger','text'=>'Upload falhou. Verifique permissões de pasta.'];
+            // Processar as 5 imagens
+            $imagens = [];
+            $uploadDir = __DIR__ . '/../../../resources/dashboard/images/animais/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+            for ($i = 0; $i < 5; $i++) {
+                // Verificar se há imagem recortada (base64)
+                if (!empty($_POST['cropped_imagem_' . $i])) {
+                    $base64Image = $_POST['cropped_imagem_' . $i];
+                    $imageData = base64_decode($base64Image);
+                    if ($imageData) {
+                        $filename = bin2hex(random_bytes(8)) . '.jpg';
+                        $target = $uploadDir . $filename;
+                        if (file_put_contents($target, $imageData)) {
+                            $imagens[$i] = '/resources/dashboard/images/animais/' . $filename;
+                        }
+                    }
                 }
-            } else {
-                $fotoUrl = trim($_POST['imagem'] ?? '');
+                // Se não houver imagem recortada, verificar upload normal
+                elseif (!empty($_FILES['imagem_' . $i]) && is_uploaded_file($_FILES['imagem_' . $i]['tmp_name'])) {
+                    $ext = pathinfo($_FILES['imagem_' . $i]['name'], PATHINFO_EXTENSION);
+                    $filename = bin2hex(random_bytes(8)) . '.' . ($ext ?: 'jpg');
+                    $target = $uploadDir . $filename;
+                    if (move_uploaded_file($_FILES['imagem_' . $i]['tmp_name'], $target)) {
+                        $imagens[$i] = '/resources/dashboard/images/animais/' . $filename;
+                    }
+                }
             }
+
+            // Reordenar imagens baseado na seleção de principal
+            $principalIndex = isset($_POST['imagem_principal']) ? (int) $_POST['imagem_principal'] : 0;
+            if ($principalIndex > 0 && isset($imagens[$principalIndex])) {
+                $principal = $imagens[$principalIndex];
+                unset($imagens[$principalIndex]);
+                array_splice($imagens, 0, 0, [$principal]);
+                $imagens = array_values($imagens);
+            }
+
+            $fotoUrl = $imagens[0] ?? '';
 
             $model = new \App\Model\AnimalModel();
             $model->__set('nome', $nome);
@@ -179,6 +201,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
             $model->__set('status', isset($_POST['em_adocao']) ? 'reservado' : 'disponivel');
 
             $newId = $animalDao->inserir($model);
+
+            // Salvar as 5 imagens no banco
+            if ($newId && !empty($imagens)) {
+                $animalDao->salvarImagens((int)$newId, $imagens);
+            }
 
             // Vincular raça se foi selecionada/ criada
             if ($newId && $fk_raca_id) {
@@ -319,6 +346,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
                                 <button class="btn btn-outline-secondary" type="button" id="btnNewEspecie">+</button>
                             </div>
                             <input class="form-control mt-2 d-none" name="new_especie" id="new_especie" placeholder="Nova espécie">
+                            <button class="btn btn-sm btn-primary mt-2 d-none" type="button" id="btnAddEspecie">Adicionar</button>
                             <div class="mt-1 small text-muted">Sugestões: <a href="#" class="quick-especie">Cachorro</a>, <a href="#" class="quick-especie">Gato</a></div>
                         </div>
 
@@ -340,6 +368,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
                                     <option value="<?php echo (int)$esp2->__get('id'); ?>"><?php echo htmlspecialchars($esp2->__get('nome')); ?></option>
                                 <?php endforeach; } catch(Throwable $e) {} ?>
                             </select>
+                            <button class="btn btn-sm btn-primary mt-2 d-none" type="button" id="btnAddRaca">Adicionar</button>
                             <div class="form-text">Clique no + para adicionar uma nova raça e selecione a espécie associada.</div>
                         </div>
 
@@ -354,6 +383,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
                                 <button class="btn btn-outline-secondary" type="button" id="btnNewPorte">+</button>
                             </div>
                             <input class="form-control mt-2 d-none" id="new_porte" placeholder="Novo porte (opcional)">
+                            <button class="btn btn-sm btn-primary mt-2 d-none" type="button" id="btnAddPorte">Adicionar</button>
                         </div>
 
                         <div class="col-md-3">
@@ -387,16 +417,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
                             </div>
                         </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label">Imagem</label>
-                            <div class="d-flex gap-2">
-                                <input type="file" name="imagem_file" accept="image/*" class="form-control">
-                                <input type="text" name="imagem" class="form-control" placeholder="ou URL da imagem">
+                        <div class="col-12">
+                            <label class="form-label">Imagens do animal (5 imagens, selecione a principal)</label>
+                            <div class="row g-3">
+                                <?php for ($i = 0; $i < 5; $i++): ?>
+                                    <?php $previewSrc = 'https://via.placeholder.com/300?text=Upload'; ?>
+                                    <div class="col-6 col-xl-3">
+                                        <div class="border rounded p-3 text-center" style="aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: space-between;">
+                                            <div>
+                                                <small class="text-muted">Imagem <?= $i + 1 ?></small>
+                                                <img id="preview-<?= $i ?>" src="<?= $previewSrc ?>" alt="Preview <?= $i + 1 ?>" class="img-fluid rounded mb-2" style="width:100%; height:120px; object-fit:cover;">
+                                                <input class="form-control form-control-sm" type="file" id="imagem_<?= $i ?>" name="imagem_<?= $i ?>" accept="image/*" data-preview-target="preview-<?= $i ?>" data-cropped-target="cropped_imagem_<?= $i ?>">
+                                                <input type="hidden" id="cropped_imagem_<?= $i ?>" name="cropped_imagem_<?= $i ?>" value="">
+                                            </div>
+                                            <div class="form-check mt-2 text-start">
+                                                <input class="form-check-input imagem-principal-radio" type="radio" id="imagem_principal_<?= $i ?>" name="imagem_principal" value="<?= $i ?>" <?= $i === 0 ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="imagem_principal_<?= $i ?>">Principal</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endfor; ?>
                             </div>
-                            <div class="form-text">O upload salva a imagem e grava a URL. O recorte de paisagem ainda não está implementado.</div>
+                            <div class="form-text">Envie até 5 imagens do animal. A primeira é definida como principal por padrão. Selecione outra para alterar a principal em tempo real.</div>
                         </div>
 
-                        <div class="col-md-8">
+                        <div class="col-12">
                             <label class="form-label">Descrição</label>
                             <input class="form-control" name="descricao" placeholder="Descrição curta">
                         </div>
@@ -409,7 +454,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
         <?php endif; ?>
 
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-12">
                 <div class="card-amigopet p-3 mb-3">
                     <h5 class="mb-3">Lista de Animais</h5>
                     <div class="table-responsive">
@@ -419,7 +464,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
                                 <?php foreach ($animals as $a): ?>
                                     <tr>
                                         <td style="width:80px;"><img src="<?php echo htmlspecialchars($a['imagem']); ?>" style="width:70px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer;" onclick="openAnimalProfile(<?php echo htmlspecialchars($a['id']); ?>)"></td>
-                                        <td><span style="color:#0d6efd;cursor:pointer;text-decoration:underline;" onclick="openAnimalProfile(<?php echo htmlspecialchars($a['id']); ?>)"><?php echo htmlspecialchars($a['nome']); ?></span></td>
+                                        <td><span style="color:#000;cursor:pointer;" onclick="openAnimalProfile(<?php echo htmlspecialchars($a['id']); ?>)"><?php echo htmlspecialchars($a['nome']); ?></span></td>
                                         <td><?php echo htmlspecialchars($a['especie']); ?></td>
                                         <td><?php echo ($a['sexo']==='m')? 'Macho' : (($a['sexo']==='f')? 'Fêmea' : 'N/A'); ?></td>
                                         <td>
@@ -528,41 +573,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ma_action'])) {
 document.addEventListener('DOMContentLoaded', function(){
     var btnNewEspecie = document.getElementById('btnNewEspecie');
     var newEspecie = document.getElementById('new_especie');
-    if (btnNewEspecie && newEspecie) btnNewEspecie.addEventListener('click', function(){ newEspecie.classList.toggle('d-none'); });
+    var btnAddEspecie = document.getElementById('btnAddEspecie');
+    var especieSelect = document.getElementById('fk_especie_id');
+
+    if (btnNewEspecie && newEspecie) btnNewEspecie.addEventListener('click', function(){
+        newEspecie.classList.toggle('d-none');
+        if (btnAddEspecie) btnAddEspecie.classList.toggle('d-none');
+    });
+
+    if (btnAddEspecie && newEspecie && especieSelect) btnAddEspecie.addEventListener('click', function(){
+        var val = newEspecie.value.trim();
+        if (!val) return;
+        var opt = document.createElement('option');
+        opt.value = val;
+        opt.text = val;
+        opt.selected = true;
+        especieSelect.appendChild(opt);
+        newEspecie.value = '';
+        newEspecie.classList.add('d-none');
+        btnAddEspecie.classList.add('d-none');
+    });
 
     var btnNewRaca = document.getElementById('btnNewRaca');
     var newRaca = document.getElementById('new_raca');
     var newRacaEsp = document.getElementById('new_raca_especie_id');
-    var especieSelect = document.getElementById('fk_especie_id');
+    var btnAddRaca = document.getElementById('btnAddRaca');
+    var raceSelect = document.getElementById('fk_raca_id');
+
     if (btnNewRaca && newRaca) btnNewRaca.addEventListener('click', function(){
         newRaca.classList.toggle('d-none');
         if (newRacaEsp) newRacaEsp.classList.toggle('d-none');
-        // prefill species for new race with currently selected species
+        if (btnAddRaca) btnAddRaca.classList.toggle('d-none');
         if (newRacaEsp && especieSelect && especieSelect.value) newRacaEsp.value = especieSelect.value;
+    });
+
+    if (btnAddRaca && newRaca && newRacaEsp && raceSelect) btnAddRaca.addEventListener('click', function(){
+        var val = newRaca.value.trim();
+        var espId = newRacaEsp.value;
+        if (!val || !espId) return;
+        var opt = document.createElement('option');
+        opt.value = val;
+        opt.text = val;
+        opt.setAttribute('data-especie', espId);
+        opt.selected = true;
+        raceSelect.appendChild(opt);
+        newRaca.value = '';
+        newRaca.classList.add('d-none');
+        newRacaEsp.classList.add('d-none');
+        btnAddRaca.classList.add('d-none');
+        filterRacasByEspecie();
     });
 
     var btnNewPorte = document.getElementById('btnNewPorte');
     var newPorte = document.getElementById('new_porte');
+    var btnAddPorte = document.getElementById('btnAddPorte');
     var porteSelect = document.getElementById('porte_select');
-    if (btnNewPorte && newPorte && porteSelect) btnNewPorte.addEventListener('click', function(){
+
+    if (btnNewPorte && newPorte) btnNewPorte.addEventListener('click', function(){
         newPorte.classList.toggle('d-none');
+        if (btnAddPorte) btnAddPorte.classList.toggle('d-none');
         if (!newPorte.classList.contains('d-none')) newPorte.focus();
         else newPorte.value = '';
     });
-    if (newPorte) newPorte.addEventListener('change', function(){
-        var val = this.value.trim(); if (!val) return;
-        // add new option to select
-        var opt = document.createElement('option'); opt.value = val; opt.text = val; opt.selected = true;
+
+    if (btnAddPorte && newPorte && porteSelect) btnAddPorte.addEventListener('click', function(){
+        var val = newPorte.value.trim();
+        if (!val) return;
+        var opt = document.createElement('option');
+        opt.value = val;
+        opt.text = val;
+        opt.selected = true;
         porteSelect.appendChild(opt);
+        newPorte.value = '';
+        newPorte.classList.add('d-none');
+        btnAddPorte.classList.add('d-none');
     });
 
     var quicks = document.querySelectorAll('.quick-especie');
-    quicks.forEach(function(el){ el.addEventListener('click', function(e){ e.preventDefault(); var v = this.textContent.trim(); var input = document.getElementById('new_especie'); if (input){ input.classList.remove('d-none'); input.value = v; } }); });
+    quicks.forEach(function(el){ el.addEventListener('click', function(e){ e.preventDefault(); var v = this.textContent.trim(); var input = document.getElementById('new_especie'); if (input){ input.classList.remove('d-none'); input.value = v; if (btnAddEspecie) btnAddEspecie.classList.remove('d-none'); } }); });
 
     // Filter races by selected species
     function filterRacasByEspecie() {
         var especieVal = especieSelect ? especieSelect.value : '';
-        var raceSelect = document.getElementById('fk_raca_id');
         if (!raceSelect) return;
         var options = raceSelect.querySelectorAll('option[data-especie]');
         options.forEach(function(opt){
@@ -572,7 +664,6 @@ document.addEventListener('DOMContentLoaded', function(){
                 else opt.style.display = 'none';
             }
         });
-        // If currently selected option is hidden, clear selection
         if (raceSelect.value) {
             var cur = raceSelect.selectedOptions[0];
             if (cur && cur.style.display === 'none') raceSelect.value = '';
@@ -580,12 +671,10 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     if (especieSelect) especieSelect.addEventListener('change', function(){
-        // when species changes, prefill new_raca_especie_id and filter races
         if (newRacaEsp && especieSelect.value) newRacaEsp.value = especieSelect.value;
         filterRacasByEspecie();
     });
 
-    // initial filter on load
     filterRacasByEspecie();
 });
 </script>
@@ -661,4 +750,229 @@ function openAnimalProfile(animalId) {
             modal.show();
         });
 }
+</script>
+
+<!-- Modal de recorte simples -->
+<div id="cropModal" class="modal fade" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cropModalLabel">Recorte de imagem</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p>Arraste/zoom e ajuste a seleção quadrada. Confirme para aplicar o recorte.</p>
+                <div class="crop-preview position-relative mx-auto" style="max-width: 700px;">
+                    <img id="cropPreviewImage" src="" alt="Preview de recorte" class="img-fluid rounded" style="max-width:100%; display:block; margin:0 auto;">
+                </div>
+                <div id="cropStatus" class="mt-3 small text-muted">Aguardando imagem...</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" id="cropConfirmBtn" class="btn btn-primary">Confirmar recorte</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cropper.js -->
+<link rel="stylesheet" href="https://unpkg.com/cropperjs@1.5.13/dist/cropper.min.css">
+<script src="https://unpkg.com/cropperjs@1.5.13/dist/cropper.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var cropPreviewImage = document.getElementById('cropPreviewImage');
+    var currentHiddenInput = null;
+
+    function getCropModal() {
+        var cropModalElement = document.getElementById('cropModal');
+        if (!cropModalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            return null;
+        }
+        return new bootstrap.Modal(cropModalElement, { backdrop: 'static', keyboard: false });
+    }
+
+    var cropModal = getCropModal();
+    var cropper = null;
+    var currentInput = null;
+    var currentPreview = null;
+
+    // Handler para os 5 campos de imagem
+    document.querySelectorAll('input[name^="imagem_"]').forEach(function(input) {
+        input.addEventListener('change', function() {
+            if (!this.files || !this.files[0]) {
+                return;
+            }
+            var targetId = this.dataset.previewTarget;
+            var preview = targetId ? document.getElementById(targetId) : null;
+            if (!preview) {
+                return;
+            }
+            currentInput = this;
+            currentPreview = preview;
+            var croppedTargetId = this.dataset.croppedTarget;
+            currentHiddenInput = croppedTargetId ? document.getElementById(croppedTargetId) : null;
+            if (currentHiddenInput) {
+                currentHiddenInput.value = '';
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                if (cropPreviewImage) {
+                    cropPreviewImage.src = e.target.result;
+                }
+                if (cropModal) {
+                    cropModal.show();
+                }
+            };
+            reader.readAsDataURL(this.files[0]);
+        });
+    });
+
+    // Inicializa/destrói Cropper ao mostrar/ocultar modal
+    var cropModalElement = document.getElementById('cropModal');
+    if (cropModalElement) {
+        cropModalElement.addEventListener('shown.bs.modal', function () {
+            if (!cropPreviewImage) return;
+            var status = document.getElementById('cropStatus');
+            if (status) {
+                status.textContent = 'Inicializando recorte...';
+            }
+
+            function initCropper() {
+                if (typeof Cropper === 'undefined') {
+                    if (status) {
+                        status.textContent = 'Cropper ainda não carregado. Tentando novamente...';
+                    }
+                    return false;
+                }
+                if (cropper) {
+                    try { cropper.destroy(); } catch (e) {}
+                    cropper = null;
+                }
+                cropper = new Cropper(cropPreviewImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    background: false,
+                    autoCropArea: 0.9,
+                    responsive: true,
+                    movable: true,
+                    zoomable: true,
+                    rotatable: false,
+                    scalable: false,
+                });
+                if (status) {
+                    status.textContent = 'Arraste/zoom para ajustar o recorte e clique em Confirmar recorte.';
+                }
+                return true;
+            }
+
+            if (cropPreviewImage.complete && cropPreviewImage.naturalWidth !== 0) {
+                if (!initCropper()) {
+                    setTimeout(initCropper, 150);
+                }
+            } else {
+                cropPreviewImage.onload = function () {
+                    if (!initCropper()) {
+                        setTimeout(initCropper, 150);
+                    }
+                    cropPreviewImage.onload = null;
+                };
+            }
+        });
+
+        cropModalElement.addEventListener('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            if (currentInput && !currentHiddenInput.value) {
+                currentInput.value = '';
+                if (currentPreview) {
+                    var originalSrc = currentPreview.dataset.originalSrc;
+                    if (originalSrc) {
+                        currentPreview.src = originalSrc;
+                    }
+                }
+            }
+            currentInput = null;
+            currentPreview = null;
+            currentHiddenInput = null;
+        });
+    }
+
+    // Salvar preview original antes de alterar
+    document.querySelectorAll('input[name^="imagem_"]').forEach(function(input) {
+        var targetId = input.dataset.previewTarget;
+        var preview = targetId ? document.getElementById(targetId) : null;
+        if (preview) {
+            preview.dataset.originalSrc = preview.src;
+        }
+    });
+
+    // Handler para seleção de imagem principal em tempo real
+    document.querySelectorAll('.imagem-principal-radio').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                console.log('Imagem principal selecionada: ' + this.value);
+            }
+        });
+    });
+
+    // Confirmar recorte
+    var cropConfirmBtn = document.getElementById('cropConfirmBtn');
+    if (cropConfirmBtn) {
+        cropConfirmBtn.addEventListener('click', function () {
+            var status = document.getElementById('cropStatus');
+            if (!cropper || !currentInput) {
+                if (status) {
+                    status.textContent = 'Recorte não inicializado.';
+                }
+                return;
+            }
+            var canvas = cropper.getCroppedCanvas({ width: 800, height: 800, imageSmoothingQuality: 'high' });
+            if (!canvas) {
+                if (status) {
+                    status.textContent = 'Não foi possível gerar o canvas de recorte.';
+                }
+                return;
+            }
+            canvas.toBlob(function (blob) {
+                if (!blob) {
+                    if (status) {
+                        status.textContent = 'Falha ao gerar blob de imagem recortada.';
+                    }
+                    return;
+                }
+                var filename = 'gallery_' + Date.now() + '.jpg';
+                try {
+                    var file = new File([blob], filename, { type: 'image/jpeg' });
+                } catch (e) {
+                    var file = blob;
+                    file.name = filename;
+                }
+
+                var dt = new DataTransfer();
+                dt.items.add(file);
+                currentInput.files = dt.files;
+
+                var objectUrl = URL.createObjectURL(blob);
+                if (currentPreview) {
+                    currentPreview.src = objectUrl;
+                }
+
+                if (currentHiddenInput) {
+                    currentHiddenInput.value = canvas.toDataURL('image/jpeg', 0.9);
+                }
+
+                if (status) {
+                    status.textContent = 'Imagem recortada e pronta para enviar.';
+                }
+
+                if (cropModal) {
+                    cropModal.hide();
+                }
+            }, 'image/jpeg', 0.9);
+        });
+    }
+});
 </script>

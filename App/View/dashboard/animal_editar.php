@@ -42,30 +42,51 @@ $imagens = $this->getView()->imagens ?? ['', '', '', '', ''];
 
                             <div class="col-md-6">
                                 <label for="fk_especie_id" class="form-label">Espécie</label>
-                                <select class="form-select" id="fk_especie_id" name="fk_especie_id">
-                                    <option value="">-- selecione --</option>
-                                    <?php foreach ($this->getView()->especies as $esp): ?>
-                                        <option value="<?= (int) $esp->__get('id') ?>" <?= (int)$animal->__get('fk_especie_id') === (int)$esp->__get('id') ? 'selected' : '' ?>><?= htmlspecialchars($esp->__get('nome')) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" id="fk_especie_id" name="fk_especie_id">
+                                        <option value="">-- selecione --</option>
+                                        <?php foreach ($this->getView()->especies as $esp): ?>
+                                            <option value="<?= (int) $esp->__get('id') ?>" <?= (int)$animal->__get('fk_especie_id') === (int)$esp->__get('id') ? 'selected' : '' ?>><?= htmlspecialchars($esp->__get('nome')) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnNewEspecie">+</button>
+                                </div>
+                                <input class="form-control mt-2 d-none" id="new_especie" placeholder="Nova espécie">
+                                <button class="btn btn-sm btn-primary mt-2 d-none" type="button" id="btnAddEspecie">Adicionar</button>
                             </div>
                             <div class="col-md-6">
                                 <label for="fk_raca_id" class="form-label">Raça</label>
-                                <select class="form-select" id="fk_raca_id" name="fk_raca_id">
-                                    <option value="">-- selecione --</option>
-                                    <?php foreach ($this->getView()->racasAll as $rc): ?>
-                                        <option value="<?= (int) $rc->__get('id') ?>" data-especie="<?= (int) $rc->__get('fk_especie_id') ?>" <?= in_array((int)$rc->__get('id'), $this->getView()->racasVinculadas, true) ? 'selected' : '' ?>><?= htmlspecialchars($rc->__get('nome')) ?></option>
+                                <div class="input-group">
+                                    <select class="form-select" id="fk_raca_id" name="fk_raca_id">
+                                        <option value="">-- selecione --</option>
+                                        <?php foreach ($this->getView()->racasAll as $rc): ?>
+                                            <option value="<?= (int) $rc->__get('id') ?>" data-especie="<?= (int) $rc->__get('fk_especie_id') ?>" <?= in_array((int)$rc->__get('id'), $this->getView()->racasVinculadas, true) ? 'selected' : '' ?>><?= htmlspecialchars($rc->__get('nome')) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnNewRaca">+</button>
+                                </div>
+                                <input class="form-control mt-2 d-none" id="new_raca" placeholder="Nova raça">
+                                <select class="form-select mt-2 d-none" id="new_raca_especie_id">
+                                    <option value="">-- espécie da raça --</option>
+                                    <?php foreach ($this->getView()->especies as $esp): ?>
+                                        <option value="<?= (int) $esp->__get('id') ?>"><?= htmlspecialchars($esp->__get('nome')) ?></option>
                                     <?php endforeach; ?>
                                 </select>
+                                <button class="btn btn-sm btn-primary mt-2 d-none" type="button" id="btnAddRaca">Adicionar</button>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="porte" class="form-label">Porte</label>
-                                <select class="form-select" id="porte" name="porte">
-                                    <option value="pequeno" <?= $animal->__get('porte') === 'pequeno' ? 'selected' : '' ?>>Pequeno</option>
-                                    <option value="medio" <?= $animal->__get('porte') === 'medio' ? 'selected' : '' ?>>Médio</option>
-                                    <option value="grande" <?= $animal->__get('porte') === 'grande' ? 'selected' : '' ?>>Grande</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" id="porte" name="porte">
+                                        <option value="pequeno" <?= $animal->__get('porte') === 'pequeno' ? 'selected' : '' ?>>Pequeno</option>
+                                        <option value="medio" <?= $animal->__get('porte') === 'medio' ? 'selected' : '' ?>>Médio</option>
+                                        <option value="grande" <?= $animal->__get('porte') === 'grande' ? 'selected' : '' ?>>Grande</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnNewPorte">+</button>
+                                </div>
+                                <input class="form-control mt-2 d-none" id="new_porte" placeholder="Novo porte (opcional)">
+                                <button class="btn btn-sm btn-primary mt-2 d-none" type="button" id="btnAddPorte">Adicionar</button>
                             </div>
                             <div class="col-md-6">
                                 <label for="sexo" class="form-label">Sexo</label>
@@ -337,11 +358,88 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.imagem-principal-radio').forEach(function(radio) {
         radio.addEventListener('change', function() {
             if (this.checked) {
-                // Reordenar visualmente as imagens (opcional - apenas visual)
-                // A reordenação real acontece no salvamento
                 console.log('Imagem principal selecionada: ' + this.value);
             }
         });
+    });
+
+    // Botões Adicionar para espécie, raça e porte
+    var btnNewEspecie = document.getElementById('btnNewEspecie');
+    var newEspecie = document.getElementById('new_especie');
+    var btnAddEspecie = document.getElementById('btnAddEspecie');
+    var especieSelect = document.getElementById('fk_especie_id');
+
+    if (btnNewEspecie && newEspecie) btnNewEspecie.addEventListener('click', function(){
+        newEspecie.classList.toggle('d-none');
+        if (btnAddEspecie) btnAddEspecie.classList.toggle('d-none');
+    });
+
+    if (btnAddEspecie && newEspecie && especieSelect) btnAddEspecie.addEventListener('click', function(){
+        var val = newEspecie.value.trim();
+        if (!val) return;
+        var opt = document.createElement('option');
+        opt.value = val;
+        opt.text = val;
+        opt.selected = true;
+        especieSelect.appendChild(opt);
+        newEspecie.value = '';
+        newEspecie.classList.add('d-none');
+        btnAddEspecie.classList.add('d-none');
+    });
+
+    var btnNewRaca = document.getElementById('btnNewRaca');
+    var newRaca = document.getElementById('new_raca');
+    var newRacaEsp = document.getElementById('new_raca_especie_id');
+    var btnAddRaca = document.getElementById('btnAddRaca');
+    var raceSelect = document.getElementById('fk_raca_id');
+
+    if (btnNewRaca && newRaca) btnNewRaca.addEventListener('click', function(){
+        newRaca.classList.toggle('d-none');
+        if (newRacaEsp) newRacaEsp.classList.toggle('d-none');
+        if (btnAddRaca) btnAddRaca.classList.toggle('d-none');
+        if (newRacaEsp && especieSelect && especieSelect.value) newRacaEsp.value = especieSelect.value;
+    });
+
+    if (btnAddRaca && newRaca && newRacaEsp && raceSelect) btnAddRaca.addEventListener('click', function(){
+        var val = newRaca.value.trim();
+        var espId = newRacaEsp.value;
+        if (!val || !espId) return;
+        var opt = document.createElement('option');
+        opt.value = val;
+        opt.text = val;
+        opt.setAttribute('data-especie', espId);
+        opt.selected = true;
+        raceSelect.appendChild(opt);
+        newRaca.value = '';
+        newRaca.classList.add('d-none');
+        newRacaEsp.classList.add('d-none');
+        btnAddRaca.classList.add('d-none');
+        filterRacas();
+    });
+
+    var btnNewPorte = document.getElementById('btnNewPorte');
+    var newPorte = document.getElementById('new_porte');
+    var btnAddPorte = document.getElementById('btnAddPorte');
+    var porteSelect = document.getElementById('porte');
+
+    if (btnNewPorte && newPorte) btnNewPorte.addEventListener('click', function(){
+        newPorte.classList.toggle('d-none');
+        if (btnAddPorte) btnAddPorte.classList.toggle('d-none');
+        if (!newPorte.classList.contains('d-none')) newPorte.focus();
+        else newPorte.value = '';
+    });
+
+    if (btnAddPorte && newPorte && porteSelect) btnAddPorte.addEventListener('click', function(){
+        var val = newPorte.value.trim();
+        if (!val) return;
+        var opt = document.createElement('option');
+        opt.value = val;
+        opt.text = val;
+        opt.selected = true;
+        porteSelect.appendChild(opt);
+        newPorte.value = '';
+        newPorte.classList.add('d-none');
+        btnAddPorte.classList.add('d-none');
     });
 
     // Confirmar recorte: gerar blob, substituir arquivo do input e atualizar preview
