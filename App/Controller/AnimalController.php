@@ -417,13 +417,13 @@ class AnimalController extends Action
         for ($i = 0; $i < 5; $i++) {
             $fieldName = 'imagem_' . $i;
             $croppedFieldName = 'cropped_imagem_' . $i;
+            $existenteFieldName = 'imagem_existente_' . $i;
 
             // Se estiver editando, tenta manter a imagem existente se não houver nova
             if ($animalId && !isset($_FILES[$fieldName]) && !isset($_POST[$croppedFieldName])) {
-                $dao = new AnimalDAO();
-                $imagensExistentes = $dao->buscarImagens($animalId);
-                if (isset($imagensExistentes[$i])) {
-                    $imagens[$i] = $imagensExistentes[$i];
+                // Usa o campo hidden com o caminho da imagem existente
+                if (!empty($_POST[$existenteFieldName])) {
+                    $imagens[$i] = $_POST[$existenteFieldName];
                 }
                 continue;
             }

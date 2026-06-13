@@ -137,6 +137,7 @@ $imagens = $this->getView()->imagens ?? ['', '', '', '', ''];
                                             <img id="preview-<?= $i ?>" src="<?= $previewSrc ?>" alt="Preview <?= $i + 1 ?>" class="img-fluid rounded mb-2" style="width:100%; height:120px; object-fit:cover;">
                                             <input class="form-control form-control-sm" type="file" id="imagem_<?= $i ?>" name="imagem_<?= $i ?>" accept="image/*" data-preview-target="preview-<?= $i ?>" data-cropped-target="cropped_imagem_<?= $i ?>">
                                             <input type="hidden" id="cropped_imagem_<?= $i ?>" name="cropped_imagem_<?= $i ?>" value="">
+                                            <input type="hidden" id="imagem_existente_<?= $i ?>" name="imagem_existente_<?= $i ?>" value="<?= !empty($imagens[$i]) ? htmlspecialchars($imagens[$i]) : '' ?>">
                                         </div>
                                         <div class="form-check mt-2 text-start">
                                             <input class="form-check-input imagem-principal-radio" type="radio" id="imagem_principal_<?= $i ?>" name="imagem_principal" value="<?= $i ?>" <?= $i === 0 ? 'checked' : '' ?>>

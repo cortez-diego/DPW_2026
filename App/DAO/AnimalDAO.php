@@ -241,7 +241,8 @@ class AnimalDAO extends DAO
                         TIMESTAMPDIFF(MONTH, a.data_nascimento, CURDATE()) AS idade_meses,
                         o.id    AS ong_id,
                         o.nome  AS ong_nome,
-                        GROUP_CONCAT(r.nome ORDER BY r.nome SEPARATOR ', ') AS racas
+                        GROUP_CONCAT(r.nome ORDER BY r.nome SEPARATOR ', ') AS racas,
+                        COALESCE((SELECT caminho_imagem FROM animal_imagens WHERE fk_animal_id = a.id AND ordem = 0 LIMIT 1), a.foto) AS foto
                     FROM animal a
                     LEFT JOIN especie      e  ON e.id = a.fk_especie_id
                     LEFT JOIN ong_animal  oa  ON oa.fk_animal_id = a.id
@@ -294,7 +295,8 @@ class AnimalDAO extends DAO
                         TIMESTAMPDIFF(MONTH, a.data_nascimento, CURDATE()) AS idade_meses,
                         o.id    AS ong_id,
                         o.nome  AS ong_nome,
-                        GROUP_CONCAT(r.nome ORDER BY r.nome SEPARATOR ', ') AS racas
+                        GROUP_CONCAT(r.nome ORDER BY r.nome SEPARATOR ', ') AS racas,
+                        COALESCE((SELECT caminho_imagem FROM animal_imagens WHERE fk_animal_id = a.id AND ordem = 0 LIMIT 1), a.foto) AS foto
                     FROM animal a
                     LEFT JOIN especie      e  ON e.id = a.fk_especie_id
                     LEFT JOIN ong_animal  oa  ON oa.fk_animal_id = a.id
@@ -521,6 +523,16 @@ class AnimalDAO extends DAO
     public function salvarImagens($animalId, $imagens)
     {
         try {
+            // Filtra apenas imagens não vazias
+            $imagensValidas = array_filter($imagens, function($caminho) {
+                return !empty($caminho);
+            });
+
+            // Se não houver imagens válidas, não faz nada (mantém as existentes)
+            if (empty($imagensValidas)) {
+                return true;
+            }
+
             // Remove todas as imagens existentes
             $sqlDelete = "DELETE FROM animal_imagens WHERE fk_animal_id = :animalId";
             $stmtDelete = $this->getConn()->prepare($sqlDelete);

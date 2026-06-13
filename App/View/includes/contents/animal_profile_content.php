@@ -2,6 +2,24 @@
 // Buscar animal no backend (DAO) ao invés do mock
 $selected = null;
 
+// Carrega autoloader se não estiver carregado (para chamadas via AJAX)
+if (!class_exists('App\DAO\AnimalDAO')) {
+    // Tenta múltiplos caminhos possíveis para o autoloader
+    $autoloadPaths = [
+        __DIR__ . '/../../../vendor/autoload.php',
+        __DIR__ . '/../../vendor/autoload.php',
+        __DIR__ . '/vendor/autoload.php',
+        dirname(__DIR__, 4) . '/vendor/autoload.php'
+    ];
+
+    foreach ($autoloadPaths as $autoload) {
+        if (file_exists($autoload)) {
+            require_once $autoload;
+            break;
+        }
+    }
+}
+
 // Tenta pegar o animal do controller (passado via $this->view->animal)
 if (isset($this) && isset($this->view) && isset($this->view->animal)) {
     $model = $this->view->animal;
@@ -67,11 +85,11 @@ if (!$selected) {
 
         <div class="row">
             <div class="col-md-4 col-sm-12">
-                <div class="position-relative m-4">
+                <div class="position-relative m-2">
                     <img id="img-main" class="img-thumbnail" src="<?php echo htmlspecialchars(!empty($galleryImages) ? $galleryImages[0] : ($selected['imagem'] ?? '')); ?>"
-                         onclick="openImageModal(0)" style="width:100%;max-width:300px;cursor:pointer;aspect-ratio:1/1;object-fit:cover;">
+                         onclick="openImageModal(0)" style="width:100%;max-width:100%;cursor:pointer;aspect-ratio:1/1;object-fit:cover;">
                 </div>
-                <div class="d-flex px-4 gap-2 flex-wrap">
+                <div class="d-flex px-2 gap-2 flex-wrap">
                     <?php if (!empty($galleryImages)): ?>
                         <?php foreach ($galleryImages as $index => $image): ?>
                             <img class="img-carousel" src="<?php echo htmlspecialchars($image); ?>" onclick="trocarImg(<?php echo $index; ?>)" style="width: calc(20% - 8px); min-width: 60px;aspect-ratio:1/1;object-fit:cover;">
@@ -81,7 +99,7 @@ if (!$selected) {
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="col-md-8 col-sm-12 p-5">
+            <div class="col-md-8 col-sm-12 p-3">
                 <h1><?php echo htmlspecialchars($selected['nome'] ?? ''); ?></h1>
                 <p><?php echo htmlspecialchars($selected['sexo'] ?? ''); ?> | <?php echo htmlspecialchars($selected['porte'] ?? 'Médio'); ?> | <?php echo htmlspecialchars($selected['idade'] ?? ''); ?></p>
                 <div>

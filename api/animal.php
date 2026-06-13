@@ -36,11 +36,16 @@ $result = [
             $m = (int)$m; $anos = intdiv($m,12); $meses = $m%12;
             return trim(($anos>0?($anos.' ano'.($anos>1?'s':'')):'').($anos>0&&$meses>0?' ':'').($meses>0?($meses.' mês'.($meses>1?'es':'')):''));
         })($animal->__get('idade_meses')) : '',
-        'especie_nome' => $animal->__get('especie_nome'),
+        'especie' => $animal->__get('especie_nome'),
         'racas' => $animal->__get('racas'),
         'cor' => $animal->__get('cor'),
+        'nascimento' => $animal->__get('data_nascimento'),
         'status' => $animal->__get('status'),
-        'ong_nome' => $animal->__get('ong_nome')
+        'ong' => $animal->__get('ong_nome'),
+        'castrado' => $animal->__get('castrado') ? 'Sim' : 'Não',
+        'alergias' => '',
+        'observacoes_veterinarias' => '',
+        'vacinas' => []
     ],
     'imagens' => $imagens
 ];

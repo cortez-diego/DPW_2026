@@ -7,34 +7,14 @@
 
 <!-- Modal grande para perfil do animal -->
 <div class="modal fade" id="animalProfileModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body p-0">
-        <div class="row g-0">
-          <div class="col-md-6">
-            <img id="animalProfileImage" src="" alt="" style="width:100%; height:100%; object-fit:cover;">
-          </div>
-          <div class="col-md-6">
-            <div class="p-4">
-              <h2 id="animalProfileName" style="font-weight:700;"></h2>
-              <p id="animalProfileBadge" class="text-muted"></p>
-              <p id="animalProfileDescription" class="text-secondary"></p>
-
-              <ul class="list-unstyled">
-                <li><strong>Raça:</strong> <span id="animalProfileRaca"></span></li>
-                <li><strong>Idade:</strong> <span id="animalProfileIdade"></span></li>
-                <li><strong>Sexo:</strong> <span id="animalProfileSexo"></span></li>
-                <li><strong>Porte:</strong> <span id="animalProfilePorte"></span></li>
-              </ul>
-
-              <div class="mt-3">
-                <a href="#" id="animalProfileAdoptBtn" class="btn btn-primary me-2" style="background-color:#6FCF97; border:none;">Solicitar Adoção</a>
-                <a href="#" id="animalProfileViewBtn" class="btn btn-outline-secondary me-2" target="_blank">Ver Perfil Completo</a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 80vw;">
+    <div class="modal-content" style="max-height: 95vh;">
+      <div class="modal-header py-2">
+        <h5 class="modal-title" id="animalProfileModalLabel">Perfil do Animal</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body p-0" style="overflow-y: auto; max-height: calc(95vh - 50px);">
+        <div id="animalProfileContent"></div>
       </div>
     </div>
   </div>
@@ -44,30 +24,34 @@
 async function openAnimalProfile(petId) {
   if (!petId) return false;
   try {
-    // Usa caminho relativo para funcionar com qualquer porta/host
-    const res = await fetch('/api/animal.php?id=' + encodeURIComponent(petId));
-    if (!res.ok) return false;
-    const pet = await res.json();
+    // Carrega o conteúdo do perfil via AJAX
+    const contentDiv = document.getElementById('animalProfileContent');
+    contentDiv.innerHTML = '<div class="p-4 text-center"><div class="spinner-border text-primary" role="status"></div></div>';
 
-    document.getElementById('animalProfileImage').src = pet.foto || '';
-    document.getElementById('animalProfileName').textContent = pet.nome || '';
-    document.getElementById('animalProfileBadge').textContent = (pet.especie || '') + ' · ' + (pet.racas || '');
-    document.getElementById('animalProfileDescription').textContent = pet.descricao || '';
-    document.getElementById('animalProfileRaca').textContent = pet.racas || '';
-    document.getElementById('animalProfileIdade').textContent = pet.idade || '';
-    document.getElementById('animalProfileSexo').textContent = pet.sexo || '';
-    document.getElementById('animalProfilePorte').textContent = pet.porte || 'Médio';
+    const res = await fetch('/App/View/includes/contents/animal_profile_content.php?id=' + encodeURIComponent(petId));
+    if (!res.ok) {
+      contentDiv.innerHTML = '<div class="p-4"><div class="alert alert-danger">Erro ao carregar perfil do animal.</div></div>';
+      return false;
+    }
 
-    const adoptBtn = document.getElementById('animalProfileAdoptBtn');
-    adoptBtn.href = '/animal/perfil/' + encodeURIComponent(pet.id);
-    const viewBtn = document.getElementById('animalProfileViewBtn');
-    if (viewBtn) viewBtn.href = '/animal/perfil/' + encodeURIComponent(pet.id);
+    const html = await res.text();
+    contentDiv.innerHTML = html;
+
+    // Executa os scripts do conteúdo carregado
+    const scripts = contentDiv.querySelectorAll('script');
+    scripts.forEach(script => {
+      const newScript = document.createElement('script');
+      newScript.textContent = script.textContent;
+      script.parentNode.replaceChild(newScript, script);
+    });
 
     const modalEl = document.getElementById('animalProfileModal');
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
     return true;
   } catch (e) {
+    const contentDiv = document.getElementById('animalProfileContent');
+    contentDiv.innerHTML = '<div class="p-4"><div class="alert alert-danger">Erro ao carregar perfil do animal.</div></div>';
     return false;
   }
 }
