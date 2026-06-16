@@ -319,6 +319,34 @@ class AdotanteDAO extends DAO
             die();
         }
     }
+
+    public  function buscarPorCpf($cpf)
+    {
+        try {
+            $sql = "SELECT * 
+            FROM adotante
+            WHERE cpf = :cpf";
+
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':cpf', $cpf);
+            $stmt->execute();
+            $resultado = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($resultado) {
+                $adotanteModel = new AdotanteModel();
+
+                $global = new FuncoesGlobais();
+                $global->popularModel($adotanteModel, $resultado);
+
+                return $adotanteModel;
+            }
+
+            return false;
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
+
     public function listar()
     {
         try {

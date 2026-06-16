@@ -55,12 +55,12 @@
                             required>
                     </div>
                     <div class="col-md-4">
-                        <label for="confirmacaoSenha" class="form-label">Confirmação de Senha</label>
+                        <label for="senha_confirmacao" class="form-label">Confirmação de Senha</label>
                         <input
                             type="password"
                             class="form-control"
-                            id="confirmacaoSenha"
-                            name="confirmacaoSenha"
+                            id="senha_confirmacao"
+                            name="senha_confirmacao"
                             placeholder="Confirme sua senha"
                             required>
                     </div>
