@@ -152,7 +152,7 @@ class AdotanteDAO extends DAO
         }
     }
 
-    public function inserirExcessao($obj)
+    public function inserirComExcecao($obj)
     {
         try {
             $nome = $obj->__get("nome");
