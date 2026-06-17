@@ -69,7 +69,7 @@ class CadastroController extends Action
             die();
         }
 
-        if(empty($numero)) {
+        if($numero === '') {
             $numero = null;
         }
 
