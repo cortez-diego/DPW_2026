@@ -69,6 +69,10 @@ class CadastroController extends Action
             die();
         }
 
+        if(empty($numero)) {
+            $numero = null;
+        }
+
 
         $loginDao = new LoginDAO();
         $verificacaoEmail = $loginDao->buscarPorEmail($email);
@@ -108,14 +112,15 @@ class CadastroController extends Action
 
         $adotanteModel->__set('fk_login_id', $loginId);
         try{
-            
-            $adotanteDao->inserirExcessao($adotanteModel);
+            $adotanteDao->inserirComExcecao($adotanteModel);
         } catch(\PDOException $ex) {
             $loginDao->excluir($loginId);
             header('Location: /cadastro?erro=9');
             die();
         }
-        
+
+        header('Location: /');
+        die();
        
     }
 
