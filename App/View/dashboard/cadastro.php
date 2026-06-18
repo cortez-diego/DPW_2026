@@ -1,14 +1,64 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Cadastro de Usuário</h1>
-        <a href="/dashboard/adotante/listar" class="btn btn-secondary">
+        <a href="/" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Voltar
         </a>
     </div>
 
     <div class="card shadow">
         <div class="card-body">
-            <form method="POST" action="/dashboard/adotante/cadastrar">
+            <?php if (isset($_GET['erro'])): ?>
+
+                <?php
+                $mensagem = '';
+
+                switch ($_GET['erro']) {
+                    case '1':
+                        $mensagem = 'Preencha nome, CPF e e-mail.';
+                        break;
+
+                    case '2':
+                        $mensagem = 'Preencha a senha e a confirmação de senha.';
+                        break;
+
+                    case '3':
+                        $mensagem = 'As senhas não conferem.';
+                        break;
+
+                    case '4':
+                        $mensagem = 'Preencha a data de nascimento.';
+                        break;
+
+                    case '5':
+                        $mensagem = 'Preencha o telefone principal.';
+                        break;
+
+                    case '6':
+                        $mensagem = 'Este e-mail já está cadastrado.';
+                        break;
+                    case '7':
+                        $mensagem = 'CPF Inválido.';
+                        break;
+
+                    case '8':
+                        $mensagem = 'Este CPF já está cadastrado.';
+                        break;
+
+                    case '9':
+                        $mensagem = 'Ocorreu um erro ao realizar o cadastro. Tente novamente.';
+                        break;
+                }
+                ?>
+
+                <?php if (!empty($mensagem)): ?>
+                    <div class="alert alert-danger">
+                        <?= $mensagem ?>
+                    </div>
+                <?php endif; ?>
+
+            <?php endif; ?>
+            <form method="POST" action="/cadastro/cadastrar">
 
                 <!-- Dados Pessoais -->
                 <h5 class="mb-3 text-primary">Dados Pessoais</h5>
@@ -19,7 +69,9 @@
                     </div>
                     <div class="col-md-3">
                         <label for="cpf" class="form-label">CPF</label>
-                        <input type="text" class="form-control" id="cpf" name="cpf" maxlength="14" placeholder="000.000.000-00">
+
+                        <input type="text" class="form-control" id="cpf" name="cpf" maxlength="14" placeholder="000.000.000-00" required>
+
                     </div>
                     <div class="col-md-3">
                         <label for="data_nascimento" class="form-label">Data de Nascimento</label>
@@ -27,7 +79,7 @@
                     </div>
                     <div class="col-md-4">
                         <label for="telefone_1" class="form-label">Telefone 1</label>
-                        <input type="text" class="form-control" id="telefone_1" name="telefone_1" placeholder="(00) 00000-0000">
+                        <input type="text" class="form-control" id="telefone_1" name="telefone_1" placeholder="(00) 00000-0000" required>
                     </div>
                     <div class="col-md-4">
                         <label for="telefone_2" class="form-label">Telefone 2 <small class="text-muted">(opcional)</small></label>
@@ -76,7 +128,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="logradouro" class="form-label">Logradouro</label>
-                        <input type="text" class="form-control" id="logradouro" name="logradouro" readonly>
+                        <input type="text" class="form-control" id="logradouro" name="logradouro">
                     </div>
                     <div class="col-md-3">
                         <label for="numero" class="form-label">Número</label>
@@ -88,15 +140,15 @@
                     </div>
                     <div class="col-md-4">
                         <label for="bairro" class="form-label">Bairro</label>
-                        <input type="text" class="form-control" id="bairro" name="bairro" readonly>
+                        <input type="text" class="form-control" id="bairro" name="bairro">
                     </div>
                     <div class="col-md-3">
                         <label for="cidade" class="form-label">Cidade</label>
-                        <input type="text" class="form-control" id="cidade" name="cidade" readonly>
+                        <input type="text" class="form-control" id="cidade" name="cidade">
                     </div>
                     <div class="col-md-1">
                         <label for="estado" class="form-label">UF</label>
-                        <input type="text" class="form-control" id="estado" name="estado" readonly maxlength="2">
+                        <input type="text" class="form-control" id="estado" name="estado" maxlength="2">
                     </div>
                 </div>
                 <!-- Botões -->
@@ -104,7 +156,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Salvar
                     </button>
-                    <a href="/dashboard/adotante/listar" class="btn btn-secondary">
+                    <a href="/" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Cancelar
                     </a>
                 </div>
