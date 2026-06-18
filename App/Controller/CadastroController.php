@@ -22,70 +22,80 @@ class CadastroController extends Action
 
     public function cadastrar()
     {
+        $global = new FuncoesGlobais();
 
-        $globalfunction = new FuncoesGlobais();
-        
-        $nome = $_POST['nome'] ?? '';
-        $cpf = $_POST['cpf'] ?? '';
-        $data_nascimento = $_POST['data_nascimento'] ?? '';
-        $cep = $_POST['cep'] ?? '';
-        $email = $_POST['email'] ?? '';
+        $nome = trim($_POST['nome'] ?? '');
+        $nome = preg_replace('/\s+/', ' ', $nome);
+
+        $cpf = trim($_POST['cpf'] ?? '');
+        $data_nascimento = trim($_POST['data_nascimento'] ?? '');
+        $cep = trim($_POST['cep'] ?? '');
+        $email = strtolower(trim($_POST['email'] ?? ''));
         $senha = $_POST['senha'] ?? '';
         $senha_confirmacao = $_POST['senha_confirmacao'] ?? '';
-        $estado =  $_POST['estado'] ?? '';
-        $cidade = $_POST['cidade'] ?? '';
-        $bairro = $_POST['bairro'] ?? '';
-        $logradouro = $_POST['logradouro']  ?? '';
-        $numero = $_POST['numero'] ?? null;
-        $complemento = $_POST['complemento'] ?? '';
-        $telefone_1 =  $_POST['telefone_1'] ?? '';
-        $telefone_2 = $_POST['telefone_2'] ?? '';
+        $estado = trim($_POST['estado'] ?? '');
+        $cidade = trim($_POST['cidade'] ?? '');
+        $bairro = trim($_POST['bairro'] ?? '');
+        $logradouro = trim($_POST['logradouro'] ?? '');
+        $numero = trim($_POST['numero'] ?? '');
+        $complemento = trim($_POST['complemento'] ?? '');
+        $telefone_1 = trim($_POST['telefone_1'] ?? '');
+        $telefone_2 = trim($_POST['telefone_2'] ?? '');
 
-        $telefone_limpo_1 = $globalfunction->limparTelefone($telefone_1);
-        $telefone_limpo_2 = $globalfunction->limparTelefone($telefone_2);
+        $telefone_limpo_1 = $global->limparTelefone($telefone_1);
+        $telefone_limpo_2 = $global->limparTelefone($telefone_2);
 
-        if(empty($nome) || empty($cpf) || empty($email)) {
+        if (empty($nome) || empty($cpf) || empty($email)) {
             header("Location: /cadastro?erro=1");
             die();
         }
 
-        if(empty($senha) || empty($senha_confirmacao)) {
+        if (empty($senha) || empty($senha_confirmacao)) {
             header("Location: /cadastro?erro=2");
             die();
         }
-        
-        if($senha !== $senha_confirmacao) {
+
+        if ($senha !== $senha_confirmacao) {
             header('Location: /cadastro?erro=3');
             die();
         }
 
-        if(empty($data_nascimento)) {
+    
+        if (empty($data_nascimento)) {
             header('Location: /cadastro?erro=4');
             die();
         }
 
-        if(empty($telefone_limpo_1)) {
+        if (empty($telefone_limpo_1)) {
             header('Location: /cadastro?erro=5');
             die();
         }
 
-        if($numero === '') {
+        if ($numero === '') {
             $numero = null;
         }
 
-
         $loginDao = new LoginDAO();
-        $verificacaoEmail = $loginDao->buscarPorEmail($email);
-        
-        if($verificacaoEmail) {
+        $verificacaoSeExisteEmail = $loginDao->buscarPorEmail($email);
+
+        if ($verificacaoSeExisteEmail) {
             header('Location: /cadastro?erro=6');
             die();
         }
 
+
+        $cpfValido = $global->cpfValido($cpf);
+        if (!$cpfValido) {
+            header('Location: /cadastro?erro=7');
+            die();
+        }
+
+        $cpfLimpo = $global->limparCpf($cpf);
+
         $adotanteDao = new AdotanteDAO();
-        $verificacaoCpf = $adotanteDao->buscarPorCPF($cpf);
-        
-        if($verificacaoCpf) {
+        $verificacaoSeExisteCpf = $adotanteDao->buscarPorCPF($cpf);
+
+        if ($verificacaoSeExisteCpf) {
             header('Location: /cadastro?erro=8');
             die();
         }
@@ -98,7 +108,7 @@ class CadastroController extends Action
 
         $adotanteModel = new AdotanteModel();
         $adotanteModel->__set('nome',   $nome);
-        $adotanteModel->__set('cpf',    $cpf);
+        $adotanteModel->__set('cpf',    $cpfLimpo);
         $adotanteModel->__set('data_nascimento', $data_nascimento);
         $adotanteModel->__set('cep',    $cep);
         $adotanteModel->__set('estado', $estado);
@@ -109,11 +119,11 @@ class CadastroController extends Action
         $adotanteModel->__set('complemento', $complemento);
         $adotanteModel->__set('telefone_1', $telefone_limpo_1);
         $adotanteModel->__set('telefone_2', $telefone_limpo_2);
-
         $adotanteModel->__set('fk_login_id', $loginId);
-        try{
+
+        try {
             $adotanteDao->inserirComExcecao($adotanteModel);
-        } catch(\PDOException $ex) {
+        } catch (\PDOException $ex) {
             $loginDao->excluir($loginId);
             header('Location: /cadastro?erro=9');
             die();
@@ -121,7 +131,6 @@ class CadastroController extends Action
 
         header('Location: /');
         die();
-       
     }
 
     public function validaAutenticacao() {}
