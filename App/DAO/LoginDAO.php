@@ -173,15 +173,15 @@ class LoginDAO extends DAO
         try {
             $logins = array();
 
-            $sql = "SELECT 
+            $sql = "SELECT
                 id,
                 email,
                 status,
                 tipo_usuario,
                 data_cadastro,
                 data_atualizacao
-            FROM 
-                login 
+            FROM
+                login
             ";
 
             $stmt = $this->getConn()->prepare($sql);
@@ -198,6 +198,55 @@ class LoginDAO extends DAO
 
             return $logins;
         } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
+
+    public function atualizarTipoUsuario($id, $tipoUsuario)
+    {
+        try {
+            $conn = $this->getConn();
+
+            // Verificar se o ID existe antes de atualizar
+            $checkExistsSql = "SELECT id, tipo_usuario FROM login WHERE id = :id";
+            $checkExistsStmt = $conn->prepare($checkExistsSql);
+            $checkExistsStmt->bindValue(':id', $id);
+            $checkExistsStmt->execute();
+            $existsResult = $checkExistsStmt->fetch(\PDO::FETCH_ASSOC);
+
+            error_log("Verificação de existência: ID=$id, Existe=" . ($existsResult ? 'SIM' : 'NÃO') . ", Valor atual=" . ($existsResult['tipo_usuario'] ?? 'NULL'));
+
+            if (!$existsResult) {
+                error_log("ERRO: ID=$id não encontrado na tabela login");
+                return false;
+            }
+
+            $sql = "UPDATE login SET tipo_usuario = :tipoUsuario WHERE id = :id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':id', $id);
+            $stmt->bindValue(':tipoUsuario', $tipoUsuario);
+
+            // Log antes da execução
+            error_log("Antes da execução: ID=$id, Tipo=$tipoUsuario, SQL=$sql");
+
+            $result = $stmt->execute();
+
+            // Log após a execução
+            error_log("Após execução: Resultado=" . ($result ? 'true' : 'false') . ", rowCount=" . $stmt->rowCount());
+
+            // Verificar o valor atual no banco
+            $checkSql = "SELECT tipo_usuario FROM login WHERE id = :id";
+            $checkStmt = $conn->prepare($checkSql);
+            $checkStmt->bindValue(':id', $id);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->fetch(\PDO::FETCH_ASSOC);
+
+            error_log("Valor no banco após atualização: " . ($checkResult['tipo_usuario'] ?? 'NULL'));
+
+            return true;
+        } catch (\PDOException $ex) {
+            error_log("PDOException na atualização: " . $ex->getMessage());
             header('Location:/error103');
             die();
         }

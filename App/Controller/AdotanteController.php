@@ -46,9 +46,73 @@ class AdotanteController extends Action
         $model->__set('status', $_POST['status']     ?? 'bom');
 
         $dao = new AdotanteDAO();
-        $dao->inserir($model);
+        $adotanteId = $dao->inserir($model);
 
         header('Location: /dashboard/adotante/listar');
+        die();
+    }
+
+    public function cadastroPublico()
+    {
+        $this->getView()->title = 'Cadastro';
+        $this->getView()->title_pagina = 'Cadastro de Usuário';
+
+        $this->render('cadastro', null);
+    }
+
+    public function cadastrarPublico()
+    {
+        $email = $_POST['email'] ?? '';
+        $senha = $_POST['senha'] ?? '';
+        $confirmarSenha = $_POST['confirmar_senha'] ?? '';
+
+        // Validar senha
+        if ($senha !== $confirmarSenha) {
+            header('Location: /cadastro?erro=1');
+            die();
+        }
+
+        if (strlen($senha) < 8) {
+            header('Location: /cadastro?erro=2');
+            die();
+        }
+
+        // Verificar se email já existe
+        $loginDAO = new \App\DAO\LoginDAO();
+        if ($loginDAO->buscarPorEmail($email)) {
+            header('Location: /cadastro?erro=3');
+            die();
+        }
+
+        // Inserir login
+        $loginModel = new \App\Model\LoginModel();
+        $loginModel->__set('email', $email);
+        $loginModel->__set('senha', $senha);
+        $loginModel->__set('status', 'a');
+        $loginModel->__set('tipo_usuario', 'adotante');
+        $loginId = $loginDAO->inserir($loginModel);
+
+        // Inserir adotante
+        $adotanteModel = new AdotanteModel();
+        $adotanteModel->__set('nome', $_POST['nome'] ?? '');
+        $adotanteModel->__set('cpf', $_POST['cpf'] ?? '');
+        $adotanteModel->__set('data_nascimento', $_POST['data_nascimento'] ?? null);
+        $adotanteModel->__set('cep', $_POST['cep'] ?? '');
+        $adotanteModel->__set('estado', $_POST['estado'] ?? '');
+        $adotanteModel->__set('cidade', $_POST['cidade'] ?? '');
+        $adotanteModel->__set('bairro', $_POST['bairro'] ?? '');
+        $adotanteModel->__set('logradouro', $_POST['logradouro'] ?? '');
+        $adotanteModel->__set('numero', $_POST['numero'] ?? '');
+        $adotanteModel->__set('complemento', $_POST['complemento'] ?? '');
+        $adotanteModel->__set('telefone_1', $_POST['telefone_1'] ?? '');
+        $adotanteModel->__set('telefone_2', $_POST['telefone_2'] ?? '');
+        $adotanteModel->__set('status', 'a');
+        $adotanteModel->__set('fk_login_id', $loginId);
+
+        $adotanteDAO = new AdotanteDAO();
+        $adotanteDAO->inserir($adotanteModel);
+
+        header('Location: /login?sucesso=1');
         die();
     }
 

@@ -122,7 +122,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
             <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
-            <a href="/App/View/usuarios.php" class="nav-item-amigopet">
+            <a href="/usuarios" class="nav-item-amigopet">
                 <i data-lucide="users"></i> <span>Gerenciar Usuários</span>
             </a>
             <a href="/App/View/configuracoes.php" class="nav-item-amigopet">
@@ -172,7 +172,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
             <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
-            <a href="/App/View/usuarios.php" class="nav-item-amigopet">
+            <a href="/usuarios" class="nav-item-amigopet">
                 <i data-lucide="users"></i> <span>Gerenciar Usuários</span>
             </a>
             <a href="denuncias.php" class="nav-item-amigopet">

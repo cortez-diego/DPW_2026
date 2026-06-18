@@ -82,6 +82,50 @@ class Route extends Boostrap
             file_put_contents($logFile, "[$timestamp] Added fallback route: animal_perfil\n", FILE_APPEND);
         }
 
+        if (!isset($routes['cadastro'])) {
+            $routes['cadastro'] = array(
+                'route' => '/cadastro',
+                'controller' => 'SiteController',
+                'action' => 'cadastro',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added fallback route: cadastro\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['adotante_cadastrar_publico'])) {
+            $routes['adotante_cadastrar_publico'] = array(
+                'route' => '/adotante/cadastrarPublico',
+                'controller' => 'AdotanteController',
+                'action' => 'cadastrarPublico',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added fallback route: adotante_cadastrar_publico\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['usuario_atualizar_cargo'])) {
+            $routes['usuario_atualizar_cargo'] = array(
+                'route' => '/usuario/atualizarCargo',
+                'controller' => 'UsuarioController',
+                'action' => 'atualizarCargo',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added fallback route: usuario_atualizar_cargo\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['usuarios'])) {
+            $routes['usuarios'] = array(
+                'route' => '/usuarios',
+                'controller' => 'UsuarioController',
+                'action' => 'index',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added fallback route: usuarios\n", FILE_APPEND);
+        }
+
         file_put_contents($logFile, "[$timestamp] Total routes registered: " . count($routes) . "\n", FILE_APPEND);
         $this->setRoutes($routes);
     }

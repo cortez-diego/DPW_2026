@@ -276,14 +276,14 @@ class AdotanteDAO extends DAO
         try {
             $adotantes = array();
 
-            $sql = "SELECT 
+            $sql = "SELECT
                 a.*,
                 l.email
-            FROM 
+            FROM
                 adotante a
-            JOIN 
-                login l 
-            ON 
+            JOIN
+                login l
+            ON
                 a.fk_login_id = l.id
             ";
 
@@ -300,6 +300,33 @@ class AdotanteDAO extends DAO
             }
 
             return $adotantes;
+        } catch (\PDOException $ex) {
+            header('Location:/error103');
+            die();
+        }
+    }
+
+    public function buscarPorLoginId($loginId)
+    {
+        try {
+            $sql = "SELECT *
+            FROM adotante
+            WHERE fk_login_id = :loginId";
+
+            $stmt = $this->getConn()->prepare($sql);
+            $stmt->bindValue(':loginId', $loginId);
+            $stmt->execute();
+            $resultado = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($resultado) {
+                $adotanteModel = new AdotanteModel();
+
+                $global = new FuncoesGlobais();
+                $global->popularModel($adotanteModel, $resultado);
+
+                return $adotanteModel;
+            }
+
+            return false;
         } catch (\PDOException $ex) {
             header('Location:/error103');
             die();

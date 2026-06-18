@@ -18,7 +18,7 @@ if (!in_array($role, ['admin', 'moderador'])) {
     exit;
 }
 
-include 'includes/contents/usuarios_content.php'; 
+include 'includes/contents/usuarios_content.php';
 
 include 'includes/dashboard/footer.php';
 ?>
