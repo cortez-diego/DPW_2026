@@ -302,3 +302,37 @@ alter table adotante
 -- adição da contraint para o CPF do Adotante
 ALTER TABLE adotante
 ADD CONSTRAINT uq_adotante_cpf UNIQUE (cpf);
+
+
+-- Adição de duas Novas Rotas para o Cadastro
+INSERT INTO routes (
+    nome_rota,
+    slug,
+    controller,
+    action,
+    status,
+    is_dynamic
+) VALUES (
+    'Cadastro_Usuario',
+    'cadastro',
+    'CadastroController',
+    'cadastro',
+    1,
+    0
+);
+
+INSERT INTO routes (
+    nome_rota,
+    slug,
+    controller,
+    action,
+    status,
+    is_dynamic
+) VALUES (
+    'Cadastro_Usuario_Cadastrar',
+    'cadastro/cadastrar',
+    'CadastroController',
+    'cadastrar',
+    1,
+    0
+);
