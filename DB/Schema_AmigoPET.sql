@@ -292,3 +292,47 @@ ALTER TABLE login
 -- Alteração da tabela adotante, adicionado o valor bom com padrao da coluna status    
 alter table adotante 
 	modify status enum('pessimo','ruim', 'bom', 'muito bom', 'excelente') not null default 'bom';
+    
+-- alteração da Tabela do adotante, adicionando colunas não nulas e unicas
+ alter table adotante 
+	modify nome varchar(100) not null,
+    modify cpf varchar(14) not null unique,
+    modify telefone_1 varchar(20) not null,
+    modify data_nascimento date not null;   
+-- adição da contraint para o CPF do Adotante
+ALTER TABLE adotante
+ADD CONSTRAINT uq_adotante_cpf UNIQUE (cpf);
+
+
+-- Adição de duas Novas Rotas para o Cadastro
+INSERT INTO routes (
+    nome_rota,
+    slug,
+    controller,
+    action,
+    status,
+    is_dynamic
+) VALUES (
+    'Cadastro_Usuario',
+    'cadastro',
+    'CadastroController',
+    'cadastro',
+    1,
+    0
+);
+
+INSERT INTO routes (
+    nome_rota,
+    slug,
+    controller,
+    action,
+    status,
+    is_dynamic
+) VALUES (
+    'Cadastro_Usuario_Cadastrar',
+    'cadastro/cadastrar',
+    'CadastroController',
+    'cadastrar',
+    1,
+    0
+);

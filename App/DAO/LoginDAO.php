@@ -15,19 +15,13 @@ class LoginDAO extends DAO
 
             $email = $obj->__get('email');
             $senha = $obj->__get('senha');
-            $status = $obj->__get('status');
-            $tipo_usuario = $obj->__get('tipo_usuario');
 
             $sql = "INSERT INTO login (
                 email,
-                senha,
-                status,
-                tipo_usuario
+                senha
             ) VALUES (
                 :email,
-                :senha,
-                :status,
-                :tipo_usuario
+                :senha
             )";
 
             $conn = $this->getConn();
@@ -35,8 +29,6 @@ class LoginDAO extends DAO
             $stmt = $conn->prepare($sql);
             $stmt->bindValue(':email', $email);
             $stmt->bindValue(':senha', password_hash($senha, PASSWORD_DEFAULT));
-            $stmt->bindValue(':status', $status);
-            $stmt->bindValue(':tipo_usuario', $tipo_usuario);
             $stmt->execute();
 
             return $conn->lastInsertId();
