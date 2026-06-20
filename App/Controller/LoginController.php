@@ -51,6 +51,122 @@ class LoginController extends Action
         $_SESSION['tipo_usuario'] = $login->__get('tipo_usuario');
         $_SESSION['status'] = $login->__get('status');
 
+        // Fetch user's name from appropriate table based on tipo_usuario
+        $tipoUsuario = $login->__get('tipo_usuario');
+        $loginId = $login->__get('id');
+        $nomeUsuario = 'Usuário';
+
+        error_log("Login attempt - tipo_usuario: $tipoUsuario, login_id: $loginId");
+
+        try {
+            $conn = $loginDAO->getConn();
+            if (!$conn) {
+                error_log("Database connection is null in LoginController");
+            } else {
+                switch ($tipoUsuario) {
+                    case 'adotante':
+                        $stmt = $conn->prepare("SELECT nome FROM adotante WHERE fk_login_id = :login_id");
+                        $stmt->bindValue(':login_id', $loginId);
+                        $stmt->execute();
+                        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+                        if ($result) {
+                            $nomeUsuario = $result['nome'];
+                            error_log("Found adotante name: $nomeUsuario");
+                        } else {
+                            error_log("No adotante found for login_id: $loginId");
+                        }
+                        break;
+                    case 'ong':
+                        // Check if ong table has fk_login_id, if not, try a different approach
+                        $stmt = $conn->prepare("SELECT nome FROM ong WHERE fk_login_id = :login_id");
+                        $stmt->bindValue(':login_id', $loginId);
+                        $stmt->execute();
+                        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+                        if ($result) {
+                            $nomeUsuario = $result['nome'];
+                            error_log("Found ong name: $nomeUsuario");
+                        } else {
+                            error_log("No ong found for login_id: $loginId, trying alternative approach");
+                            // Try to find by matching with login table
+                            $stmt2 = $conn->prepare("SELECT o.nome FROM ong o JOIN login l ON o.id = l.id WHERE l.id = :login_id");
+                            $stmt2->bindValue(':login_id', $loginId);
+                            $stmt2->execute();
+                            $result2 = $stmt2->fetch(\PDO::FETCH_ASSOC);
+                            if ($result2) {
+                                $nomeUsuario = $result2['nome'];
+                                error_log("Found ong name via join: $nomeUsuario");
+                            } else {
+                                // Use email as fallback
+                                $nomeUsuario = $login->__get('email');
+                                error_log("No ong found via join for login_id: $loginId, using email as name: $nomeUsuario");
+                            }
+                        }
+                        break;
+                    case 'veterinario':
+                        $stmt = $conn->prepare("SELECT nome FROM veterinario WHERE fk_login_id = :login_id");
+                        $stmt->bindValue(':login_id', $loginId);
+                        $stmt->execute();
+                        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+                        if ($result) {
+                            $nomeUsuario = $result['nome'];
+                            error_log("Found veterinario name: $nomeUsuario");
+                        } else {
+                            error_log("No veterinario found for login_id: $loginId, trying alternative approach");
+                            $stmt2 = $conn->prepare("SELECT v.nome FROM veterinario v JOIN login l ON v.id = l.id WHERE l.id = :login_id");
+                            $stmt2->bindValue(':login_id', $loginId);
+                            $stmt2->execute();
+                            $result2 = $stmt2->fetch(\PDO::FETCH_ASSOC);
+                            if ($result2) {
+                                $nomeUsuario = $result2['nome'];
+                                error_log("Found veterinario name via join: $nomeUsuario");
+                            } else {
+                                // Use email as fallback
+                                $nomeUsuario = $login->__get('email');
+                                error_log("No veterinario found via join for login_id: $loginId, using email as name: $nomeUsuario");
+                            }
+                        }
+                        break;
+                    case 'administrador':
+                        // Administrador table doesn't have fk_login_id, try joining by id
+                        $stmt = $conn->prepare("SELECT a.nome FROM administrador a JOIN login l ON a.id = l.id WHERE l.id = :login_id");
+                        $stmt->bindValue(':login_id', $loginId);
+                        $stmt->execute();
+                        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+                        if ($result) {
+                            $nomeUsuario = $result['nome'];
+                            error_log("Found administrador name via join: $nomeUsuario");
+                        } else {
+                            // Use email as fallback if no record found
+                            $nomeUsuario = $login->__get('email');
+                            error_log("No administrador found via join for login_id: $loginId, using email as name: $nomeUsuario");
+                        }
+                        break;
+                    case 'rastreador':
+                        $stmt = $conn->prepare("SELECT r.nome FROM rastreador r JOIN login l ON r.id = l.id WHERE l.id = :login_id");
+                        $stmt->bindValue(':login_id', $loginId);
+                        $stmt->execute();
+                        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+                        if ($result) {
+                            $nomeUsuario = $result['nome'];
+                            error_log("Found rastreador name via join: $nomeUsuario");
+                        } else {
+                            // Use email as fallback
+                            $nomeUsuario = $login->__get('email');
+                            error_log("No rastreador found via join for login_id: $loginId, using email as name: $nomeUsuario");
+                        }
+                        break;
+                    default:
+                        error_log("Unknown tipo_usuario: $tipoUsuario");
+                }
+            }
+        } catch (\Exception $e) {
+            error_log("Error fetching user name: " . $e->getMessage());
+            $nomeUsuario = 'Usuário';
+        }
+
+        error_log("Setting session nome: $nomeUsuario");
+        $_SESSION['nome'] = $nomeUsuario;
+
         header('Location: /dashboard');
         die();
     }

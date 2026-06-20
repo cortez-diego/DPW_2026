@@ -27,10 +27,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         foreach ($denuncias as &$d) {
             if ((string)$d['id'] === (string)$rid) {
                 if (!isset($d['respostas']) || !is_array($d['respostas'])) $d['respostas'] = [];
+                $tipoUsuario = $_SESSION['tipo_usuario'] ?? 'adotante';
+                $roleMap = [
+                    'administrador' => 'admin',
+                    'ong' => 'ong',
+                    'veterinario' => 'vet',
+                    'rastreador' => 'campo',
+                    'adotante' => 'usuario'
+                ];
+                $role = $roleMap[$tipoUsuario] ?? 'usuario';
+
                 $d['respostas'][] = [
                     'texto' => $resposta,
-                    'por' => $_SESSION['sim_user_name'] ?? 'Sistema',
-                    'cargo' => $_SESSION['sim_user_role'] ?? 'moderador',
+                    'por' => $_SESSION['nome'] ?? 'Sistema',
+                    'cargo' => $role,
                     'data' => date('d/m/Y H:i')
                 ];
             }

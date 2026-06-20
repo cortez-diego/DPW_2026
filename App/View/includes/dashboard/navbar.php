@@ -1,23 +1,14 @@
 <?php
 /**
- * AmigoPet - Navbar com Simulador de Cargos
+ * AmigoPet - Navbar
  * Localização: ~/App/View/Includes/dashboard/navbar.php
  */
 
-// Inicia a sessão para o simulador funcionar (Se não houver cargo, padrão é 'usuario')
+// Inicia a sessão se necessário
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-/** * LÓGICA DE SIMULAÇÃO 
- * Para o Backend: Substituir estas linhas pela verificação real de autenticação/sessão do usuário.
- * Ex: $userRole = $_SESSION['user']['role'];
- */
-if (isset($_GET['sim_role'])) {
-    $_SESSION['sim_user_role'] = $_GET['sim_role'];
-    header("Location: " . strtok($_SERVER["REQUEST_URI"], '?')); // Limpa a URL
-    exit;
-}
-
-$userRole = $_SESSION['sim_user_role'] ?? 'usuario';
+// Usa o tipo de usuário real da sessão
+$userRole = $_SESSION['tipo_usuario'] ?? 'usuario';
 
 // Carrega notificações para o resumo do sino da navbar
 $notificacoesMock = [];
@@ -59,19 +50,6 @@ $unreadCount = count(array_filter($notificacoesMock, function($n) { return !$n['
             </ul>
 
             <div class="d-flex align-items-center gap-3">
-                <!-- SIMULADOR DE CARGO (Remover no deploy final) -->
-                <div class="d-flex align-items-center bg-light px-2 py-1 rounded-3 border">
-                    <small class="text-muted me-2" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Simular:</small>
-                    <select class="form-select form-select-sm border-0 bg-transparent fw-bold" onchange="location.href='?sim_role='+this.value" style="font-size: 0.8rem; cursor: pointer; color: var(--secondary-orange);">
-                        <option value="usuario" <?php echo $userRole == 'usuario' ? 'selected' : ''; ?>>Usuário</option>
-                        <option value="admin" <?php echo $userRole == 'admin' ? 'selected' : ''; ?>>Administrador</option>
-                        <option value="ong" <?php echo $userRole == 'ong' ? 'selected' : ''; ?>>ONG</option>
-                        <option value="moderador" <?php echo $userRole == 'moderador' ? 'selected' : ''; ?>>Equipe Moderadora</option>
-                        <option value="campo" <?php echo $userRole == 'campo' ? 'selected' : ''; ?>>Equipe de Campo</option>
-                        <option value="vet" <?php echo $userRole == 'vet' ? 'selected' : ''; ?>>Veterinário</option>
-                    </select>
-                </div>
-
                 <div class="dropdown">
                     <button type="button" class="notification-btn dropdown-toggle btn btn-link p-0" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Notificações">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -112,10 +90,48 @@ $unreadCount = count(array_filter($notificacoesMock, function($n) { return !$n['
                     </ul>
                 </div>
                 
-                <div class="d-flex align-items-center">
-                    <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">
-                        <?php echo strtoupper(substr($userRole, 0, 1)); ?>
-                    </div>
+                <div class="dropdown">
+                    <button type="button" class="btn btn-link p-0" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position: relative; padding: 0;">
+                        <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;" title="<?php echo htmlspecialchars($_SESSION['nome'] ?? 'Usuário'); ?>">
+                            <?php echo strtoupper(substr($_SESSION['nome'] ?? 'U', 0, 1)); ?>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; bottom: 0; right: 0; background: var(--primary-green); border-radius: 50%; padding: 2px;">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end py-2 shadow" aria-labelledby="userProfileDropdown" style="min-width: 280px;">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
+                                    <?php echo strtoupper(substr($_SESSION['nome'] ?? 'U', 0, 1)); ?>
+                                </div>
+                                <div>
+                                    <div class="fw-bold"><?php echo htmlspecialchars($_SESSION['nome'] ?? 'Usuário'); ?></div>
+                                    <div class="text-muted small text-capitalize"><?php echo htmlspecialchars($userRole); ?></div>
+                                </div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2" href="/perfil/editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Editar Perfil
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="/logout">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                Sair
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

@@ -4,13 +4,24 @@
  * Localização: ~/App/View/Includes/dashboard/menu.php
  */
 
-// Garantir que a sessão está ativa para ler o cargo simulado
-if (session_status() === PHP_SESSION_NONE) { 
-    session_start(); 
+// Garantir que a sessão está ativa para ler o cargo do usuário
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// Pega o cargo atual da sessão (definido no simulador da navbar/header)
-$role = $_SESSION['sim_user_role'] ?? 'usuario';
+// Pega o tipo de usuário real da sessão
+$tipoUsuario = $_SESSION['tipo_usuario'] ?? 'adotante';
+
+// Mapeia o tipo_usuario do banco para os roles do menu
+$roleMap = [
+    'administrador' => 'admin',
+    'ong' => 'ong',
+    'veterinario' => 'vet',
+    'rastreador' => 'campo',
+    'adotante' => 'usuario'
+];
+
+$role = $roleMap[$tipoUsuario] ?? 'usuario';
 
 // Helper para identificar a página atual e aplicar a classe 'active'
 $currentPage = basename($_SERVER['PHP_SELF']);

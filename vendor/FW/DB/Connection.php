@@ -41,8 +41,10 @@ class Connection
                 $this->pass
             );
         } catch (\PDOException $ex) {
-            echo "Ocorreu erro: " . $ex->getMessage();
-            die();
+            // Log the error instead of dying
+            error_log("Database connection error: " . $ex->getMessage());
+            // Set conn to null so the application can handle the lack of connection
+            $this->conn = null;
         }
     }
 

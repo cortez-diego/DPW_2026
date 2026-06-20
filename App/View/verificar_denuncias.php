@@ -10,9 +10,25 @@ include 'includes/dashboard/menu.php';
 include 'includes/dashboard/navbar.php';
 
 // Controle de acesso: administradores, moderadores, ONGs e veterinários
-$role = $_SESSION['sim_user_role'] ?? 'usuario';
-if (!in_array($role, ['admin', 'moderador', 'ong', 'veterinario'])) {
-    echo "<script>alert('Acesso negado. Área restrita a equipe de moderação e ONGs.'); window.location.href='dashboard.php';</script>";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$tipoUsuario = $_SESSION['tipo_usuario'] ?? 'adotante';
+
+// Mapeia o tipo_usuario do banco para os roles do sistema
+$roleMap = [
+    'administrador' => 'admin',
+    'ong' => 'ong',
+    'veterinario' => 'vet',
+    'rastreador' => 'campo',
+    'adotante' => 'usuario'
+];
+
+$role = $roleMap[$tipoUsuario] ?? 'usuario';
+
+if (!in_array($role, ['admin', 'ong', 'vet'])) {
+    header('Location: /dashboard');
     exit;
 }
 

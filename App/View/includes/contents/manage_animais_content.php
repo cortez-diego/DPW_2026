@@ -6,7 +6,20 @@
  */
 
 if (session_status() === PHP_SESSION_NONE) session_start();
-$role = $_SESSION['sim_user_role'] ?? 'usuario';
+
+// Pega o tipo de usuário real da sessão
+$tipoUsuario = $_SESSION['tipo_usuario'] ?? 'adotante';
+
+// Mapeia o tipo_usuario do banco para os roles do sistema
+$roleMap = [
+    'administrador' => 'admin',
+    'ong' => 'ong',
+    'veterinario' => 'vet',
+    'rastreador' => 'campo',
+    'adotante' => 'usuario'
+];
+
+$role = $roleMap[$tipoUsuario] ?? 'usuario';
 
 // Acesso restrito: apenas cargos que não sejam 'usuario' podem acessar
 $allowedRoles = ['admin','ong','vet','campo','moderador'];

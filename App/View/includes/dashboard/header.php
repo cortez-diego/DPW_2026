@@ -5,24 +5,23 @@
  */
 
 // 1. Inicia a sessão no topo de tudo
-if (session_status() === PHP_SESSION_NONE) { 
-    session_start(); 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-/** * 2. LÓGICA DE SIMULAÇÃO DE CARGO
- * Movida para cá para que o menu.php (carregado depois) já receba o valor correto.
- */
-if (isset($_GET['sim_role'])) {
-    $_SESSION['sim_user_role'] = $_GET['sim_role'];
-    
-    // Remove o parâmetro da URL e recarrega para limpar o estado
-    $clean_url = strtok($_SERVER["REQUEST_URI"], '?');
-    header("Location: " . $clean_url);
-    exit;
-}
+// Define o cargo real do usuário
+$tipoUsuario = $_SESSION['tipo_usuario'] ?? 'adotante';
 
-// Define o cargo padrão caso não exista
-$userRole = $_SESSION['sim_user_role'] ?? 'usuario';
+// Mapeia o tipo_usuario do banco para os roles do menu
+$roleMap = [
+    'administrador' => 'admin',
+    'ong' => 'ong',
+    'veterinario' => 'vet',
+    'rastreador' => 'campo',
+    'adotante' => 'usuario'
+];
+
+$userRole = $roleMap[$tipoUsuario] ?? 'usuario';
 
 $siteNome = "AmigoPet";
 $siteTitulo = "Painel Administrativo";

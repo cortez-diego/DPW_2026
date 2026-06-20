@@ -12,9 +12,25 @@ include 'includes/dashboard/navbar.php';
  * CONTROLE DE ACESSO:
  * Apenas administradores podem aceder a esta página de configurações globais.
  */
-$role = $_SESSION['sim_user_role'] ?? 'usuario';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$tipoUsuario = $_SESSION['tipo_usuario'] ?? 'adotante';
+
+// Mapeia o tipo_usuario do banco para os roles do sistema
+$roleMap = [
+    'administrador' => 'admin',
+    'ong' => 'ong',
+    'veterinario' => 'vet',
+    'rastreador' => 'campo',
+    'adotante' => 'usuario'
+];
+
+$role = $roleMap[$tipoUsuario] ?? 'usuario';
+
 if ($role !== 'admin') {
-    echo "<script>alert('Acesso negado. Apenas administradores podem acessar esta área.'); window.location.href='dashboard.php';</script>";
+    header('Location: /dashboard');
     exit;
 }
 

@@ -70,7 +70,8 @@ abstract class Action implements Validar {
             file_put_contents($logFile, "[$timestamp] No route match found\n", FILE_APPEND);
         } catch (\Throwable $ex) {
             file_put_contents($logFile, "[$timestamp] Exception in loadRouteFromDatabase: " . $ex->getMessage() . "\n", FILE_APPEND);
-            throw $ex;
+            // Don't throw the exception - just log it and continue
+            // This allows the application to work even if database route loading fails
         }
     }
 
@@ -135,7 +136,7 @@ abstract class Action implements Validar {
         $this->view->include = $include;
 
         if (file_exists("App/View/$layout.php")) {
-            require_once "App/View/$layout.php";
+            require "App/View/$layout.php";
         } else {
             $this->content();
         }

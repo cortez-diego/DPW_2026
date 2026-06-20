@@ -106,7 +106,6 @@ class AdotanteController extends Action
         $adotanteModel->__set('complemento', $_POST['complemento'] ?? '');
         $adotanteModel->__set('telefone_1', $_POST['telefone_1'] ?? '');
         $adotanteModel->__set('telefone_2', $_POST['telefone_2'] ?? '');
-        $adotanteModel->__set('status', 'a');
         $adotanteModel->__set('fk_login_id', $loginId);
 
         $adotanteDAO = new AdotanteDAO();

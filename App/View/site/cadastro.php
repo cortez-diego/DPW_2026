@@ -436,65 +436,86 @@
 </div>
 
 <script>
-// Máscara CPF: 000.000.000-00
-document.getElementById('cpf').addEventListener('input', function(e) {
-    var v = e.target.value.replace(/\D/g, '');
-    v = v.substring(0, 11);
-    if (v.length > 9) {
-        v = v.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
-    } else if (v.length > 6) {
-        v = v.replace(/^(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
-    } else if (v.length > 3) {
-        v = v.replace(/^(\d{3})(\d{0,3})/, '$1.$2');
+document.addEventListener('DOMContentLoaded', function() {
+    // Máscara CPF: 000.000.000-00
+    var cpfInput = document.getElementById('cpf');
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function(e) {
+            var v = e.target.value.replace(/\D/g, '');
+            v = v.substring(0, 11);
+            if (v.length > 9) {
+                v = v.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
+            } else if (v.length > 6) {
+                v = v.replace(/^(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+            } else if (v.length > 3) {
+                v = v.replace(/^(\d{3})(\d{0,3})/, '$1.$2');
+            }
+            e.target.value = v;
+        });
     }
-    e.target.value = v;
-});
 
-// Máscara CEP: 00000-000
-document.getElementById('cep').addEventListener('input', function(e) {
-    var v = e.target.value.replace(/\D/g, '');
-    v = v.substring(0, 8);
-    if (v.length > 5) {
-        v = v.replace(/^(\d{5})(\d{0,3})/, '$1-$2');
+    // Máscara CEP: 00000-000
+    var cepInput = document.getElementById('cep');
+    if (cepInput) {
+        cepInput.addEventListener('input', function(e) {
+            var v = e.target.value.replace(/\D/g, '');
+            v = v.substring(0, 8);
+            if (v.length > 5) {
+                v = v.replace(/^(\d{5})(\d{0,3})/, '$1-$2');
+            }
+            e.target.value = v;
+        });
+
+        // ViaCEP
+        cepInput.addEventListener('blur', function() {
+            var cep = this.value.replace(/\D/g, '');
+            if (cep.length !== 8) return;
+
+            fetch('https://viacep.com.br/ws/' + cep + '/json/')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.erro) return;
+                    var logradouro = document.getElementById('logradouro');
+                    var bairro = document.getElementById('bairro');
+                    var cidade = document.getElementById('cidade');
+                    var estado = document.getElementById('estado');
+                    var numero = document.getElementById('numero');
+                    
+                    if (logradouro) logradouro.value = data.logradouro || '';
+                    if (bairro) bairro.value = data.bairro || '';
+                    if (cidade) cidade.value = data.localidade || '';
+                    if (estado) estado.value = data.uf || '';
+                    if (numero) numero.focus();
+                })
+                .catch(function(err) {
+                    console.error('Erro ao buscar CEP:', err);
+                });
+        });
     }
-    e.target.value = v;
-});
 
-// Máscara Telefone
-function mascaraTelefone(campo) {
-    campo.addEventListener('input', function(e) {
-        var v = e.target.value.replace(/\D/g, '');
-        v = v.substring(0, 11);
-        if (v.length > 10) {
-            v = v.replace(/^(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-        } else if (v.length > 6) {
-            v = v.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
-        } else if (v.length > 2) {
-            v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
-        } else if (v.length > 0) {
-            v = v.replace(/^(\d{0,2})/, '($1');
-        }
-        e.target.value = v;
-    });
-}
-mascaraTelefone(document.getElementById('telefone_1'));
-mascaraTelefone(document.getElementById('telefone_2'));
-
-// ViaCEP
-document.getElementById('cep').addEventListener('blur', function() {
-    var cep = this.value.replace(/\D/g, '');
-    if (cep.length !== 8) return;
-
-    fetch('https://viacep.com.br/ws/' + cep + '/json/')
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.erro) return;
-            document.getElementById('logradouro').value  = data.logradouro  || '';
-            document.getElementById('bairro').value      = data.bairro      || '';
-            document.getElementById('cidade').value      = data.localidade   || '';
-            document.getElementById('estado').value      = data.uf           || '';
-            document.getElementById('numero').focus();
-        })
-        .catch(function() {});
+    // Máscara Telefone
+    var telefone1 = document.getElementById('telefone_1');
+    var telefone2 = document.getElementById('telefone_2');
+    
+    function mascaraTelefone(campo) {
+        if (!campo) return;
+        campo.addEventListener('input', function(e) {
+            var v = e.target.value.replace(/\D/g, '');
+            v = v.substring(0, 11);
+            if (v.length > 10) {
+                v = v.replace(/^(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            } else if (v.length > 6) {
+                v = v.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+            } else if (v.length > 2) {
+                v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+            } else if (v.length > 0) {
+                v = v.replace(/^(\d{0,2})/, '($1');
+            }
+            e.target.value = v;
+        });
+    }
+    
+    mascaraTelefone(telefone1);
+    mascaraTelefone(telefone2);
 });
 </script>

@@ -11,5 +11,7 @@ try {
     $route = new \App\Route();
 } catch (\Throwable $ex) {
     http_response_code(500);
-    die("500 Internal Server Error");
+    $errorMsg = "Error: " . $ex->getMessage() . " in " . $ex->getFile() . " line " . $ex->getLine();
+    error_log($errorMsg);
+    die($errorMsg);
 }

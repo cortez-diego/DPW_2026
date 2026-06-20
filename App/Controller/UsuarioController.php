@@ -12,7 +12,7 @@ class UsuarioController extends Action
         $this->getView()->title = 'Gerenciar Usuários';
         $this->getView()->title_pagina = 'Gerenciamento de Usuários';
 
-        $this->render('usuarios', 'dashboard');
+        $this->render('includes/contents/usuarios_content', 'dashboard');
     }
 
     public function atualizarCargo()
@@ -47,8 +47,18 @@ class UsuarioController extends Action
 
     public function validaAutenticacao()
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!isset($_SESSION['id']) || $_SESSION['id'] == '' || !isset($_SESSION['nome']) || $_SESSION['nome'] == '') {
             header('Location: /login');
+            die();
+        }
+
+        // Check if user is administrator for usuarios page
+        if ($_SESSION['tipo_usuario'] !== 'administrador') {
+            header('Location: /dashboard');
             die();
         }
     }

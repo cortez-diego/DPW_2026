@@ -31,6 +31,11 @@ class Route extends Boostrap
         file_put_contents($logFile, "[$timestamp] DB Routes count: " . count($dbRoutes) . "\n", FILE_APPEND);
 
         foreach ($dbRoutes as $dbRoute) {
+            // Skip any route that points to CadastroController (which doesn't exist)
+            if ($dbRoute['controller'] === 'CadastroController') {
+                file_put_contents($logFile, "[$timestamp] Skipping invalid route: " . $dbRoute['nome_rota'] . " -> CadastroController\n", FILE_APPEND);
+                continue;
+            }
             $routes[$dbRoute['nome_rota']] = array(
                 'route' => '/' . $dbRoute['slug'],
                 'controller' => $dbRoute['controller'],
@@ -82,16 +87,25 @@ class Route extends Boostrap
             file_put_contents($logFile, "[$timestamp] Added fallback route: animal_perfil\n", FILE_APPEND);
         }
 
-        if (!isset($routes['cadastro'])) {
-            $routes['cadastro'] = array(
-                'route' => '/cadastro',
-                'controller' => 'SiteController',
-                'action' => 'cadastro',
-                'is_dynamic' => 0,
-                'pattern' => null
-            );
-            file_put_contents($logFile, "[$timestamp] Added fallback route: cadastro\n", FILE_APPEND);
-        }
+        // Force cadastro route to use SiteController (override database if needed)
+        $routes['cadastro'] = array(
+            'route' => '/cadastro',
+            'controller' => 'SiteController',
+            'action' => 'cadastro',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Forced route: cadastro -> SiteController\n", FILE_APPEND);
+
+        // Force dashboard route to use DashboardController (override database if needed)
+        $routes['dashboard'] = array(
+            'route' => '/dashboard',
+            'controller' => 'DashboardController',
+            'action' => 'index',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Forced route: dashboard -> DashboardController\n", FILE_APPEND);
 
         if (!isset($routes['adotante_cadastrar_publico'])) {
             $routes['adotante_cadastrar_publico'] = array(
@@ -124,6 +138,17 @@ class Route extends Boostrap
                 'pattern' => null
             );
             file_put_contents($logFile, "[$timestamp] Added fallback route: usuarios\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['dashboard'])) {
+            $routes['dashboard'] = array(
+                'route' => '/dashboard',
+                'controller' => 'DashboardController',
+                'action' => 'index',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added fallback route: dashboard\n", FILE_APPEND);
         }
 
         file_put_contents($logFile, "[$timestamp] Total routes registered: " . count($routes) . "\n", FILE_APPEND);

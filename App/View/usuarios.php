@@ -2,23 +2,12 @@
 /**
  * AmigoPet - Página de Gerenciamento de Usuários
  * Localização: ~/App/View/usuarios.php
+ * NOTA: Este arquivo não é mais usado. O UsuarioController agora renderiza
+ * 'includes/contents/usuarios_content' com o layout 'dashboard'.
+ * O controle de acesso é feito no UsuarioController::validaAutenticacao().
  */
 
-include 'includes/dashboard/header.php';
-include 'includes/dashboard/menu.php';
-include 'includes/dashboard/navbar.php';
-
-/**
- * CONTROLE DE ACESSO:
- * Apenas administradores ou moderadores podem acessar esta página.
- */
-$role = $_SESSION['sim_user_role'] ?? 'usuario';
-if (!in_array($role, ['admin', 'moderador'])) {
-    echo "<script>window.location.href='dashboard.php';</script>";
-    exit;
-}
-
-include 'includes/contents/usuarios_content.php';
-
-include 'includes/dashboard/footer.php';
+// Redirecionar para o controller correto
+header('Location: /usuarios');
+exit;
 ?>
