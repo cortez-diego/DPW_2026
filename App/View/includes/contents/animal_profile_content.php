@@ -126,7 +126,7 @@ if (!$selected) {
                         </div>
                         <br>
                     </div>
-                    <a href="adotar.php?id=<?php echo $selected['id']; ?>" class="btn btn-primary">Adotar Animal</a>
+                    <a href="/adotar?id=<?php echo $selected['id']; ?>" class="btn btn-primary">Adotar Animal</a>
                     <button class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#infos">Mais informações</button>
                 </div>
             </div>

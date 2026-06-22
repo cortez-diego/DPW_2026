@@ -2,13 +2,11 @@
 /**
  * AmigoPet - Página de Perfil do Usuário
  * Localização: ~/App/View/perfil.php
+ * NOTA: Este arquivo não é mais usado. O PerfilController agora renderiza
+ * 'includes/contents/perfil_content' com o layout 'dashboard'.
  */
 
-include 'includes/dashboard/header.php';
-include 'includes/dashboard/menu.php';
-include 'includes/dashboard/navbar.php';
-
-include 'includes/contents/perfil_content.php'; 
-
-include 'includes/dashboard/footer.php';
+// Redirecionar para o controller correto
+header('Location: /perfil');
+exit;
 ?>

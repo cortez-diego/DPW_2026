@@ -180,11 +180,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     // Redireciona após o POST para evitar que o navegador volte
     // ao estado antigo do formulário quando o usuário navega entre páginas.
     if (!headers_sent()) {
-        header('Location: configuracoes.php');
+        header('Location: /configuracoes');
         exit;
     }
 
-    echo '<script>window.location.href = "configuracoes.php";</script>';
+    echo '<script>window.location.href = "/configuracoes";</script>';
     exit;
 }
 

@@ -161,21 +161,19 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
             <a href="/App/View/manage_animais.php" class="nav-item-amigopet">
                 <i class="fa-solid fa-paw"></i> <span>Gerenciar Animais</span>
             </a>
-            <a href="coordenar.php" class="nav-item-amigopet">
+            <a href="/coordenar-adocoes" class="nav-item-amigopet">
                 <i data-lucide="clipboard-list"></i> <span>Coordenar Adoções</span>
             </a>
-            <a href="doacoes.php" class="nav-item-amigopet">
+            <a href="/doacoes" class="nav-item-amigopet">
                 <i data-lucide="coins"></i> <span>Recursos e Doações</span>
             </a>
-            <a href="voluntarios.php" class="nav-item-amigopet">
+            <a href="/voluntarios" class="nav-item-amigopet">
                 <i data-lucide="users-2"></i> <span>Voluntários</span>
             </a>
-            <a href="parcerias.php" class="nav-item-amigopet">
+            <!-- <a href="parcerias.php" class="nav-item-amigopet">
                 <i data-lucide="briefcase"></i> <span>Parcerias</span>
             </a>
-            <a href="manage_animais.php" class="nav-item-amigopet">
-                <i class="fa-solid fa-paw"></i> <span>Gerenciar Animais</span>
-            </a>
+            
 
         <?php elseif ($role == 'moderador'): ?>
             <!-- MENU: EQUIPE MODERADORA -->
@@ -211,21 +209,21 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
             <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
-            <a href="/App/View/chamados.php" class="nav-item-amigopet">
+            <a href="/chamados" class="nav-item-amigopet">
                 <i data-lucide="phone-incoming"></i> <span>Receber Chamados</span>
             </a>
-            <a href="resgates.php" class="nav-item-amigopet">
+            <a href="/resgates" class="nav-item-amigopet">
                 <i data-lucide="map-pin"></i> <span>Status de Resgate</span>
             </a>
-            <a href="localizacao.php" class="nav-item-amigopet">
+            <!-- <a href="localizacao.php" class="nav-item-amigopet">
                 <i data-lucide="navigation"></i> <span>Registrar Localização</span>
-            </a>
+            </a> -->
             <a href="comunicacao.php" class="nav-item-amigopet">
                 <i data-lucide="messages-square"></i> <span>Comunicação Interna</span>
             </a>
-            <a href="campo-relatorios.php" class="nav-item-amigopet">
+            <!-- <a href="campo-relatorios.php" class="nav-item-amigopet">
                 <i data-lucide="clipboard-edit"></i> <span>Relatórios de Campo</span>
-            </a>
+            </a> -->
             <a href="/App/View/manage_animais.php" class="nav-item-amigopet">
                 <i class="fa-solid fa-paw"></i> <span>Gerenciar Animais</span>
             </a>

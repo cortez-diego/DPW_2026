@@ -4,23 +4,106 @@
  * Localização: ~/App/View/includes/contents/perfil_content.php
  */
 
-// Simulação de dados do usuário (Substituir por consulta ao banco de dados no backend)
+// Get user data from session and database
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $usuario = [
-    'nome' => 'Ana Oliveira',
-    'email' => 'ana.oliveira@email.com',
-    'telefone' => '(11) 98765-4321',
-    'cpf' => '123.456.789-00',
-    'rg' => '12.345.678-9',
-    'endereco' => 'Rua das Flores, 123 - Jardins',
-    'cidade' => 'São Paulo',
-    'estado' => 'SP',
-    'cep' => '01234-567',
-    'bio' => 'Apaixonada por animais e voluntária nas horas vagas. Já adotei dois gatinhos pelo AmigoPet!',
-    'foto' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200',
-    'data_cadastro' => '15/01/2024',
-    'adocoes_concluidas' => 2,
-    'processos_ativos' => 1
+    'nome' => '',
+    'email' => '',
+    'telefone' => '',
+    'cpf' => '',
+    'rg' => '',
+    'endereco' => '',
+    'cidade' => '',
+    'estado' => '',
+    'cep' => '',
+    'bio' => '',
+    'foto' => 'https://via.placeholder.com/200',
+    'data_cadastro' => '',
+    'adocoes_concluidas' => 0,
+    'processos_ativos' => 0
 ];
+
+if (isset($_SESSION['id']) && !empty($_SESSION['id'])) {
+    $userId = $_SESSION['id'];
+    $tipoUsuario = $_SESSION['tipo_usuario'] ?? 'adotante';
+    $email = $_SESSION['email'] ?? '';
+
+    // Always use email as fallback for name
+    $usuario['nome'] = $email;
+    $usuario['email'] = $email;
+
+    // Try to get user data based on their type
+    try {
+        if ($tipoUsuario === 'adotante') {
+            $dao = new \App\DAO\AdotanteDAO();
+            $model = $dao->buscarPorId($userId);
+            if ($model) {
+                $usuario['nome'] = $model->__get('nome') ?: $email;
+                $usuario['email'] = $email;
+                $usuario['telefone'] = $model->__get('telefone_1');
+                $usuario['cpf'] = $model->__get('cpf');
+                $usuario['endereco'] = $model->__get('logradouro') . ', ' . $model->__get('numero');
+                $usuario['cidade'] = $model->__get('cidade');
+                $usuario['estado'] = $model->__get('estado');
+                $usuario['cep'] = $model->__get('cep');
+                $usuario['bio'] = $model->__get('bio') ?: '';
+                $usuario['foto'] = $model->__get('avatar') ?: 'https://via.placeholder.com/200';
+                $usuario['data_cadastro'] = date('d/m/Y', strtotime($model->__get('data_cadastro') ?? 'now'));
+            }
+        } elseif ($tipoUsuario === 'administrador') {
+            $dao = new \App\DAO\AdministradorDAO();
+            $model = $dao->buscarPorId($userId);
+            if ($model) {
+                $usuario['nome'] = $model->__get('nome') ?: $email;
+                $usuario['email'] = $email;
+                $usuario['telefone'] = $model->__get('telefone');
+                $usuario['cpf'] = $model->__get('cpf');
+                $usuario['bio'] = $model->__get('bio') ?: '';
+                $usuario['foto'] = $model->__get('avatar') ?: 'https://via.placeholder.com/200';
+                $usuario['data_cadastro'] = date('d/m/Y', strtotime($model->__get('data_cadastro') ?? 'now'));
+            }
+        } elseif ($tipoUsuario === 'ong') {
+            // OngDAO doesn't exist, use login table
+            $dao = new \App\DAO\LoginDAO();
+            $model = $dao->buscarPorId($userId);
+            if ($model) {
+                $usuario['nome'] = $model->__get('log_nome') ?: $email;
+                $usuario['email'] = $model->__get('log_email') ?: $email;
+                $usuario['foto'] = 'https://via.placeholder.com/200';
+                $usuario['data_cadastro'] = date('d/m/Y', strtotime($model->__get('log_data_cadastro') ?? 'now'));
+            }
+        } elseif ($tipoUsuario === 'veterinario') {
+            $dao = new \App\DAO\VeterinarioDAO();
+            $model = $dao->buscarPorId($userId);
+            if ($model) {
+                $usuario['nome'] = $model->__get('nome') ?: $email;
+                $usuario['email'] = $email;
+                $usuario['telefone'] = $model->__get('telefone');
+                $usuario['cpf'] = $model->__get('cpf');
+                $usuario['bio'] = $model->__get('bio') ?: '';
+                $usuario['foto'] = $model->__get('avatar') ?: 'https://via.placeholder.com/200';
+                $usuario['data_cadastro'] = date('d/m/Y', strtotime($model->__get('data_cadastro') ?? 'now'));
+            }
+        } elseif ($tipoUsuario === 'rastreador') {
+            // RastreadorDAO buscarPorId is not implemented, use login table
+            $dao = new \App\DAO\LoginDAO();
+            $model = $dao->buscarPorId($userId);
+            if ($model) {
+                $usuario['nome'] = $model->__get('log_nome') ?: $email;
+                $usuario['email'] = $model->__get('log_email') ?: $email;
+                $usuario['foto'] = 'https://via.placeholder.com/200';
+                $usuario['data_cadastro'] = date('d/m/Y', strtotime($model->__get('log_data_cadastro') ?? 'now'));
+            }
+        }
+    } catch (\Exception $e) {
+        // Use email as fallback
+        $usuario['nome'] = $email;
+        $usuario['email'] = $email;
+    }
+}
 ?>
 
 <style>
@@ -176,6 +259,17 @@ $usuario = [
     }
 </style>
 
+<?php
+if (isset($_SESSION['success_message'])) {
+    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">' . htmlspecialchars($_SESSION['success_message']) . '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+    unset($_SESSION['success_message']);
+}
+if (isset($_SESSION['error_message'])) {
+    echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">' . htmlspecialchars($_SESSION['error_message']) . '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+    unset($_SESSION['error_message']);
+}
+?>
+
 <div class="main-content">
     <div class="container-fluid">
         <div class="row g-4">
@@ -186,10 +280,12 @@ $usuario = [
                     <div class="profile-header"></div>
                     <div class="px-4 pb-4 text-center">
                         <div class="avatar-wrapper">
-                            <img src="<?php echo $usuario['foto']; ?>" alt="Avatar" class="profile-avatar">
-                            <button class="btn btn-edit-avatar" title="Mudar Foto">
+                            <img src="<?php echo $usuario['foto']; ?>" alt="Avatar" class="profile-avatar" id="avatarPreview">
+                            <button class="btn btn-edit-avatar" title="Mudar Foto" onclick="document.getElementById('avatarInput').click()">
                                 <i data-lucide="camera" style="width: 18px;"></i>
                             </button>
+                            <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display: none;" onchange="previewAvatar(event)">
+                            <input type="hidden" name="avatar_atual" value="<?php echo $usuario['foto']; ?>">
                         </div>
                         <h4 class="mt-3 mb-1" style="font-family: 'Poppins'; font-weight: 700;"><?php echo $usuario['nome']; ?></h4>
                         <p class="text-muted small mb-4">Membro desde <?php echo $usuario['data_cadastro']; ?></p>
@@ -239,7 +335,7 @@ $usuario = [
                         </li>
                     </ul>
 
-                    <form id="profileForm">
+                    <form id="profileForm" method="POST" action="/perfil" enctype="multipart/form-data">
                         <div class="tab-content">
                             
                             <!-- TAB 1: Dados Pessoais (Públicos/Gerais) -->
@@ -334,10 +430,43 @@ $usuario = [
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 
-    // Simulação de salvamento
+    // AJAX form submission to bypass server security blocks
     document.getElementById('profileForm').onsubmit = function(e) {
         e.preventDefault();
-        alert('Perfil atualizado com sucesso!');
+        
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Salvando...';
+        
+        fetch('/perfil-salvar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erro ao salvar perfil. Tente novamente.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Salvar Alterações';
+        });
     }
 });
+
+function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatarPreview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+}
 </script>

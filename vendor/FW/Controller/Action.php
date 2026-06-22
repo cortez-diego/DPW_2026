@@ -6,7 +6,7 @@ use FW\Controller\Validar;
 use FW\DB\Connection;
 
 abstract class Action implements Validar {
-    private $view;
+    protected $view;
     private $params = [];
     private $routeInfo = [];
 

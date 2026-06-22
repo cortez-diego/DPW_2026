@@ -101,15 +101,15 @@ $animaisDisponiveis = $animalDao->listarDisponiveis();
                     'idade' => ($modelPet->__get('idade_meses') !== null) ? (intdiv((int)$modelPet->__get('idade_meses'),12) . 'a ' . ((int)$modelPet->__get('idade_meses')%12) . 'm') : ''
                 ];
             ?>
-            <div class="col-xl-3 col-lg-4 col-md-6 pet-item" 
+            <div class="col-xl-3 col-lg-4 col-md-6 pet-item"
                  data-pet-id="<?php echo $pet['id']; ?>"
-                 data-search="<?php echo strtolower("{$pet['nome']} {$pet['especie']} {$pet['raca']} {$pet['idade']} {$pet['sexo']}"); ?>">
+                 data-search="<?php echo strtolower("{$pet['nome']} {$pet['especie']} {$pet['raca']} {$pet['idade']} {$pet['sexo']} " . (strtolower($pet['sexo']) == 'm' ? 'macho' : 'femea')); ?>">
                 
                 <div class="pet-card-adocao shadow-sm h-100 border">
                     <div class="pet-img-wrapper position-relative">
                         <img src="<?php echo $pet['imagem']; ?>" alt="<?php echo $pet['nome']; ?>" data-pet-id="<?php echo $pet['id']; ?>">
                         <div class="gender-badge">
-                            <?php if ($pet['sexo'] == 'Macho'): ?>
+                            <?php if (strtolower($pet['sexo']) == 'm'): ?>
                                 <span class="text-info">♂ Macho</span>
                             <?php else: ?>
                                 <span style="color: #F2994A;">♀ Fêmea</span>

@@ -176,7 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!$selectedPet): ?>
             <div class="alert alert-warning">
                 <strong>Pet não encontrado.</strong> Volte à página de adoção e selecione um animal novamente.
-                <a href="adocao.php" class="alert-link">Voltar para adoção</a>
+                <a href="/adocao" class="alert-link">Voltar para adoção</a>
             </div>
         <?php else: ?>
             <?php if ($submitted): ?>
@@ -210,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="col-xl-8">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            <form method="POST" action="adotar.php?id=<?php echo $selectedPet['id']; ?>">
+                            <form method="POST" action="/adotar?id=<?php echo $selectedPet['id']; ?>">
                                 <input type="hidden" name="pet_id" value="<?php echo $selectedPet['id']; ?>">
 
                                 <div class="form-section-title">Dados Pessoais</div>
@@ -287,7 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <button type="submit" class="btn btn-primary">
                                         <i data-lucide="heart" class="me-1"></i> Enviar solicitação
                                     </button>
-                                    <a href="adocao.php" class="btn btn-secondary">
+                                    <a href="/adocao" class="btn btn-secondary">
                                         <i data-lucide="arrow-left" class="me-1"></i> Voltar à lista
                                     </a>
                                 </div>

@@ -62,6 +62,18 @@ try {
 // Debug: inserir comentário HTML com contagem de registros vindos do DB
 $__carrossel_db_count = isset($lista) && is_array($lista) ? count($lista) : 0;
 echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
+
+// Check if user is ONG or admin to show create chamado button
+$tipoUsuario = $_SESSION['tipo_usuario'] ?? 'adotante';
+$roleMap = [
+    'administrador' => 'admin',
+    'ong' => 'ong',
+    'veterinario' => 'vet',
+    'rastreador' => 'campo',
+    'adotante' => 'usuario'
+];
+$role = $roleMap[$tipoUsuario] ?? 'usuario';
+$canCreateChamado = in_array($role, ['admin', 'ong']);
 ?>
 
 <style>
@@ -200,12 +212,22 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
         <!-- Cabeçalho (Puxando da Sessão / Mock) -->
         <div class="row mb-4">
             <div class="col-12 text-md-start text-center">
-                <h1 class="h3" style="font-family: 'Poppins', sans-serif; font-weight: 600;">
-                    <?php echo htmlspecialchars($configGeralMock['dashboard_titulo']); ?>
-                </h1>
-                <p class="text-muted">
-                    <?php echo htmlspecialchars($configGeralMock['dashboard_subtitulo']); ?>
-                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3" style="font-family: 'Poppins', sans-serif; font-weight: 600;">
+                            <?php echo htmlspecialchars($configGeralMock['dashboard_titulo']); ?>
+                        </h1>
+                        <p class="text-muted">
+                            <?php echo htmlspecialchars($configGeralMock['dashboard_subtitulo']); ?>
+                        </p>
+                    </div>
+                    <?php if ($canCreateChamado): ?>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createChamadoModal">
+                            <i data-lucide="phone-call" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle;"></i>
+                            Criar Chamado de Resgate
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
 
@@ -331,12 +353,12 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
                     <h5 class="mb-4" style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1.1rem;">
                         <i data-lucide="newspaper" class="me-1 text-primary" style="width: 20px;"></i> Notícias
                     </h5>
-                    
+
                     <div class="news-list">
-                        <?php 
+                        <?php
                         $hasNews = false;
-                        foreach ($publicacoesMock as $pub): 
-                            if ($pub['status'] === 'Ativo'): 
+                        foreach ($publicacoesMock as $pub):
+                            if ($pub['status'] === 'Ativo'):
                                 $hasNews = true;
                         ?>
                             <div class="news-item">
@@ -344,14 +366,14 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
                                 <h6 class="mb-1 mt-1" style="font-weight: 600; font-size: 0.9rem;"><?php echo $pub['titulo']; ?></h6>
                                 <p class="text-muted small mb-0">Publicado por <?php echo $pub['autor']; ?> em <?php echo $pub['data']; ?>.</p>
                             </div>
-                        <?php 
+                        <?php
                             endif;
-                        endforeach; 
-                        
+                        endforeach;
+
                         if (!$hasNews): ?>
                             <p class="text-muted small">Nenhuma novidade no momento.</p>
                         <?php endif; ?>
-                        
+
                         <div class="text-center mt-3">
                             <a href="#" class="btn btn-sm btn-light w-100 text-muted" style="font-size: 0.75rem; font-weight: 600;">Ver todas as publicações</a>
                         </div>
@@ -423,3 +445,114 @@ echo "<!-- carrossel_db_count: {$__carrossel_db_count} -->\n";
         </div>
     </div>
 </div>
+
+<?php if ($canCreateChamado): ?>
+<!-- Modal para Criar Chamado Manual -->
+<div class="modal fade" id="createChamadoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h6 class="modal-title">
+                    <i data-lucide="phone-call" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle;"></i>
+                    Criar Chamado de Resgate
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createChamadoForm">
+                    <input type="hidden" name="origem" value="manual">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tipo de Chamado *</label>
+                        <select class="form-select" name="tipo" id="chamadoTipo" required>
+                            <option value="resgate">Resgate</option>
+                            <option value="abandono">Abandono</option>
+                            <option value="maus_tratos">Maus Tratos</option>
+                            <option value="perdido">Perdido</option>
+                            <option value="encontrado">Encontrado</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Urgência *</label>
+                        <select class="form-select" name="urgencia" id="chamadoUrgencia" required>
+                            <option value="baixa">Baixa</option>
+                            <option value="media">Média</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Assunto *</label>
+                        <input type="text" class="form-control" name="assunto" id="chamadoAssunto" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Localização *</label>
+                        <input type="text" class="form-control" name="localizacao" id="chamadoLocalizacao" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descrição *</label>
+                        <textarea class="form-control" name="descricao" id="chamadoDescricao" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nome do Contato</label>
+                        <input type="text" class="form-control" name="contato_nome" id="chamadoContatoNome">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Telefone do Contato</label>
+                        <input type="tel" class="form-control" name="contato_telefone" id="chamadoContatoTelefone" placeholder="(00) 00000-0000">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="criarChamado()">
+                    <i data-lucide="phone-call" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i>
+                    Criar Chamado
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function criarChamado() {
+    const form = document.getElementById('createChamadoForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    fetch('/chamados-criar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Chamado criado com sucesso!');
+            form.reset();
+            bootstrap.Modal.getInstance(document.getElementById('createChamadoModal')).hide();
+        } else {
+            alert('Erro ao criar chamado: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erro ao criar chamado. Tente novamente.');
+    });
+}
+</script>
+<?php endif; ?>

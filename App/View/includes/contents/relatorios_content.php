@@ -40,7 +40,7 @@ $adocoes = $_SESSION['adocoes'] ?? [];
         <div class="row g-4">
             <div class="col-lg-6">
                 <div class="card shadow-sm h-100">
-         * Localização: ~/App/View/includes/contents/relatorios_content.php
+                    <div class="card-body">
                         <h6 class="fw-semibold">Doações (últimos meses)</h6>
                         <div class="report-chart">
                             <canvas id="donationsChart"></canvas>
