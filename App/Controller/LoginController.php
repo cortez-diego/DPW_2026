@@ -77,8 +77,8 @@ class LoginController extends Action
                         }
                         break;
                     case 'ong':
-                        // Check if ong table has fk_login_id, if not, try a different approach
-                        $stmt = $conn->prepare("SELECT nome FROM ong WHERE fk_login_id = :login_id");
+                        // ONG table doesn't have fk_login_id, use id directly
+                        $stmt = $conn->prepare("SELECT nome FROM ong WHERE id = :login_id");
                         $stmt->bindValue(':login_id', $loginId);
                         $stmt->execute();
                         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -86,20 +86,9 @@ class LoginController extends Action
                             $nomeUsuario = $result['nome'];
                             error_log("Found ong name: $nomeUsuario");
                         } else {
-                            error_log("No ong found for login_id: $loginId, trying alternative approach");
-                            // Try to find by matching with login table
-                            $stmt2 = $conn->prepare("SELECT o.nome FROM ong o JOIN login l ON o.id = l.id WHERE l.id = :login_id");
-                            $stmt2->bindValue(':login_id', $loginId);
-                            $stmt2->execute();
-                            $result2 = $stmt2->fetch(\PDO::FETCH_ASSOC);
-                            if ($result2) {
-                                $nomeUsuario = $result2['nome'];
-                                error_log("Found ong name via join: $nomeUsuario");
-                            } else {
-                                // Use email as fallback
-                                $nomeUsuario = $login->__get('email');
-                                error_log("No ong found via join for login_id: $loginId, using email as name: $nomeUsuario");
-                            }
+                            error_log("No ong found for id: $loginId, using email as name");
+                            // Use email as fallback
+                            $nomeUsuario = $login->__get('email');
                         }
                         break;
                     case 'veterinario':

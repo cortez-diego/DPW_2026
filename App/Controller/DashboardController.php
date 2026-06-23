@@ -17,7 +17,7 @@ class DashboardController extends Action
             die();
         }
 
-        $this->render('dashboard/dashboard_index', 'dashboard');
+        $this->render('dashboard/dashboard', 'dashboard');
     }
 
     public function validaAutenticacao()

@@ -9,6 +9,33 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 // Usa o tipo de usuário real da sessão
 $userRole = $_SESSION['tipo_usuario'] ?? 'usuario';
+$userId = $_SESSION['id'] ?? null;
+
+// Buscar ONG ou Clínica vinculada ao usuário
+$vinculado = null;
+try {
+    require_once __DIR__ . '/../../../../vendor/autoload.php';
+    $conexao = new \FW\DB\Connection();
+    $conn = $conexao->getConn();
+
+    if ($userRole === 'ong' && $userId) {
+        // Buscar ONG vinculada
+        $sql = "SELECT id, nome, cnpj FROM ong WHERE id = (SELECT fk_ong_id FROM login WHERE id = :user_id)";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':user_id' => $userId]);
+        $vinculado = $stmt->fetch(\PDO::FETCH_ASSOC);
+    } elseif ($userRole === 'veterinario' && $userId) {
+        // Buscar Clínica vinculada
+        $sql = "SELECT c.id, c.nome, c.cnpj FROM clinica c 
+                INNER JOIN vet_clinica vc ON c.id = vc.fk_clinica_id 
+                WHERE vc.fk_veterinario_id = :user_id";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':user_id' => $userId]);
+        $vinculado = $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+} catch (\PDOException $e) {
+    error_log("Error fetching linked entity: " . $e->getMessage());
+}
 
 // Carrega notificações para o resumo do sino da navbar
 $notificacoesMock = [];
@@ -108,6 +135,13 @@ $unreadCount = count(array_filter($notificacoesMock, function($n) { return !$n['
                                 <div>
                                     <div class="fw-bold"><?php echo htmlspecialchars($_SESSION['nome'] ?? 'Usuário'); ?></div>
                                     <div class="text-muted small text-capitalize"><?php echo htmlspecialchars($userRole); ?></div>
+                                    <?php if ($vinculado): ?>
+                                        <div class="small text-primary mt-1">
+                                            <i data-lucide="building-2" style="width: 12px; height: 12px; display: inline;"></i>
+                                            <?php echo htmlspecialchars($vinculado['nome']); ?>
+                                        </div>
+                                        <div class="small text-muted"><?php echo htmlspecialchars($vinculado['cnpj']); ?></div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </li>

@@ -9,10 +9,43 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use App\DAO\LoginDAO;
 use App\DAO\AdotanteDAO;
+use FW\DB\Connection;
 
 // Buscar usuários do banco de dados
 $loginDAO = new LoginDAO();
 $usuariosLista = $loginDAO->listar();
+
+// Buscar ONGs e Clínicas para seleção
+$ongs = [];
+$clinicas = [];
+$vetClinicas = []; // Mapeamento de veterinário -> clínica
+try {
+    $conexao = new Connection();
+    $conn = $conexao->getConn();
+
+    // Buscar ONGs
+    $sql = "SELECT id, nome FROM ong WHERE status = 'a' ORDER BY nome ASC";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $ongs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+    // Buscar Clínicas
+    $sql = "SELECT id, nome FROM clinica ORDER BY nome ASC";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $clinicas = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+    // Buscar vínculos de veterinários com clínicas
+    $sql = "SELECT fk_veterinario_id, fk_clinica_id FROM vet_clinica";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $vetClinicaLinks = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    foreach ($vetClinicaLinks as $link) {
+        $vetClinicas[$link['fk_veterinario_id']] = $link['fk_clinica_id'];
+    }
+} catch (\PDOException $e) {
+    error_log("Error loading ONGs/Clinicas: " . $e->getMessage());
+}
 
 // Mapeamento de tipos de usuário para exibição
 // Valores devem corresponder exatamente ao enum do banco de dados
@@ -100,7 +133,8 @@ foreach ($usuariosLista as $login) {
     }
 </style>
 
-<div class="container-fluid">
+<div class="main-content">
+    <div class="container-fluid">
         
         <div class="row mb-4 align-items-center">
             <div class="col-md-6">
@@ -156,13 +190,36 @@ foreach ($usuariosLista as $login) {
                                 <small class="text-muted"><?php echo $telefone; ?></small>
                             </td>
                             <td>
-                                <select class="form-select form-select-sm" style="font-size: 0.85rem; padding: 4px 8px;" onchange="atualizarCargo(<?php echo $u->__get('id'); ?>, this.value)">
+                                <select class="form-select form-select-sm" style="font-size: 0.85rem; padding: 4px 8px;" onchange="atualizarCargo(<?php echo $u->__get('id'); ?>, this.value, this)">
                                     <?php foreach ($tiposUsuario as $key => $label): ?>
-                                        <option value="<?php echo $key; ?>" <?php echo $tipoUsuario == $key ? 'selected' : ''; ?>>
+                                        <option value="<?php echo $key; ?>" <?php echo $tipoUsuario == $key ? 'selected' : ''; ?> data-user-id="<?php echo $u->__get('id'); ?>">
                                             <?php echo $label; ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
+                                <div id="ong-select-<?php echo $u->__get('id'); ?>" class="mt-2" style="display: <?php echo $tipoUsuario == 'ong' ? 'block' : 'none'; ?>;">
+                                    <select class="form-select form-select-sm" style="font-size: 0.85rem; padding: 4px 8px;" onchange="vincularONG(<?php echo $u->__get('id'); ?>, this.value)">
+                                        <option value="">Selecione uma ONG...</option>
+                                        <?php 
+                                        $fkOngId = $u->__get('fk_ong_id');
+                                        foreach ($ongs as $ong): 
+                                        ?>
+                                            <option value="<?php echo $ong['id']; ?>" <?php echo ($tipoUsuario == 'ong' && $fkOngId && $fkOngId == $ong['id']) ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($ong['nome']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div id="clinica-select-<?php echo $u->__get('id'); ?>" class="mt-2" style="display: <?php echo $tipoUsuario == 'veterinario' ? 'block' : 'none'; ?>;">
+                                    <select class="form-select form-select-sm" style="font-size: 0.85rem; padding: 4px 8px;" onchange="vincularClinica(<?php echo $u->__get('id'); ?>, this.value)">
+                                        <option value="">Selecione uma Clínica...</option>
+                                        <?php foreach ($clinicas as $clinica): ?>
+                                            <option value="<?php echo $clinica['id']; ?>" <?php echo ($tipoUsuario == 'veterinario' && isset($vetClinicas[$u->__get('id')]) && $vetClinicas[$u->__get('id')] == $clinica['id']) ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($clinica['nome']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             </td>
                             <td>
                                 <span class="status-badge-dot <?php echo $statusClasse; ?>"></span>
@@ -188,8 +245,8 @@ foreach ($usuariosLista as $login) {
                 </table>
             </div>
         </div>
-
     </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -207,7 +264,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function atualizarCargo(userId, novoTipo) {
+function atualizarCargo(userId, novoTipo, selectElement) {
+    // Hide all dropdowns first
+    document.getElementById('ong-select-' + userId).style.display = 'none';
+    document.getElementById('clinica-select-' + userId).style.display = 'none';
+
+    // Show appropriate dropdown based on selected role
+    if (novoTipo === 'ong') {
+        document.getElementById('ong-select-' + userId).style.display = 'block';
+    } else if (novoTipo === 'veterinario') {
+        document.getElementById('clinica-select-' + userId).style.display = 'block';
+    }
+
     if (confirm('Deseja realmente alterar o cargo deste usuário?')) {
         const formData = new FormData();
         formData.append('id', userId);
@@ -236,5 +304,61 @@ function atualizarCargo(userId, novoTipo) {
         // Reverter seleção se cancelado
         location.reload();
     }
+}
+
+function vincularONG(userId, ongId) {
+    if (!ongId) {
+        alert('Selecione uma ONG');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('id', userId);
+    formData.append('fk_ong_id', ongId);
+
+    fetch('/usuario/vincularONG', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('ONG vinculada com sucesso!');
+        } else {
+            alert('Erro ao vincular ONG: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao vincular ONG');
+    });
+}
+
+function vincularClinica(userId, clinicaId) {
+    if (!clinicaId) {
+        alert('Selecione uma clínica');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('id', userId);
+    formData.append('fk_clinica_id', clinicaId);
+
+    fetch('/usuario/vincularClinica', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Clínica vinculada com sucesso!');
+        } else {
+            alert('Erro ao vincular clínica: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao vincular clínica');
+    });
 }
 </script>

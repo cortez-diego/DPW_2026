@@ -179,7 +179,8 @@ class LoginDAO extends DAO
                 status,
                 tipo_usuario,
                 data_cadastro,
-                data_atualizacao
+                data_atualizacao,
+                fk_ong_id
             FROM
                 login
             ";

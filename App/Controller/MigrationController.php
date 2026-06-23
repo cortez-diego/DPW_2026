@@ -237,6 +237,85 @@ class MigrationController extends Action
         }
     }
 
+    public function casosVeterinario()
+    {
+        // Run the casos_veterinario table migration
+        
+        $migrationFile = __DIR__ . '/../../DB/migrations/20260621_add_casos_veterinario_table.sql';
+        
+        if (!file_exists($migrationFile)) {
+            echo "Migration file not found: $migrationFile";
+            return;
+        }
+        
+        $sql = file_get_contents($migrationFile);
+        
+        try {
+            $conexao = new Connection();
+            $conn = $conexao->getConn();
+            
+            // Split SQL by statements to handle the ALTER TABLE separately
+            $statements = explode(';', $sql);
+            foreach ($statements as $statement) {
+                $statement = trim($statement);
+                if (!empty($statement)) {
+                    try {
+                        $conn->exec($statement);
+                    } catch (\PDOException $e) {
+                        // Ignore foreign key errors if the constraint already exists
+                        if (strpos($e->getMessage(), 'foreign key constraint') === false) {
+                            throw $e;
+                        }
+                    }
+                }
+            }
+            
+            echo "Casos Veterinario table migration executed successfully!";
+        } catch (\PDOException $e) {
+            echo "Casos Veterinario table migration failed: " . $e->getMessage();
+        }
+    }
+
+    public function addFkOngId()
+    {
+        // Add fk_ong_id column to login table
+        
+        $migrationFile = __DIR__ . '/../../DB/migrations/20260623_add_fk_ong_id_to_login.sql';
+        
+        if (!file_exists($migrationFile)) {
+            echo "Migration file not found: $migrationFile";
+            return;
+        }
+        
+        $sql = file_get_contents($migrationFile);
+        
+        try {
+            $conexao = new Connection();
+            $conn = $conexao->getConn();
+            
+            // Split SQL by semicolon and execute each statement
+            $statements = explode(';', $sql);
+            
+            foreach ($statements as $statement) {
+                $statement = trim($statement);
+                if (!empty($statement)) {
+                    try {
+                        $conn->exec($statement);
+                    } catch (\PDOException $e) {
+                        // Ignore errors if column already exists
+                        if (strpos($e->getMessage(), 'Duplicate column name') === false) {
+                            throw $e;
+                        }
+                    }
+                }
+            }
+            
+            echo "fk_ong_id column migration executed successfully!";
+        } catch (\PDOException $e) {
+            echo "fk_ong_id column migration failed: " . $e->getMessage();
+        }
+    }
+
     public function validaAutenticacao()
     {
         // Migration controller doesn't require authentication

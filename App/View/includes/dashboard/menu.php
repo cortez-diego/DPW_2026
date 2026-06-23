@@ -43,8 +43,9 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
        Correções Locais da Sidebar (Garante o funcionamento do Botão e Animações)
        ========================================================================== */
     .sidebar-amigopet {
-        overflow: visible !important; /* Crucial: Permite que o botão vaze para fora da barra */
-        z-index: 1020 !important; /* Corrigido: Mantém a barra lateral ABAIXO da navbar (1030) */
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        z-index: 1020 !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
@@ -151,6 +152,12 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
             <a href="/App/View/manage_animais.php" class="nav-item-amigopet">
                 <i class="fa-solid fa-paw"></i> <span>Gerenciar Animais</span>
             </a>
+            <a href="/ongs" class="nav-item-amigopet">
+                <i data-lucide="building-2"></i> <span>Gerenciar ONGs</span>
+            </a>
+            <a href="/clinicas" class="nav-item-amigopet">
+                <i data-lucide="hospital"></i> <span>Gerenciar Clínicas</span>
+            </a>
 
         <?php elseif ($role == 'ong'): ?>
             <!-- MENU: ONG -->
@@ -170,10 +177,12 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
             <a href="/voluntarios" class="nav-item-amigopet">
                 <i data-lucide="users-2"></i> <span>Voluntários</span>
             </a>
+            <a href="/enviar-caso-veterinario" class="nav-item-amigopet">
+                <i data-lucide="stethoscope"></i> <span>Enviar Caso Veterinário</span>
+            </a>
             <!-- <a href="parcerias.php" class="nav-item-amigopet">
                 <i data-lucide="briefcase"></i> <span>Parcerias</span>
-            </a>
-            
+            </a> -->
 
         <?php elseif ($role == 'moderador'): ?>
             <!-- MENU: EQUIPE MODERADORA -->
@@ -234,13 +243,10 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
             <a href="/dashboard" class="nav-item-amigopet <?php echo $isDashboard ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i> <span>Painel inicial</span>
             </a>
-            <a href="/App/View/avaliar.php" class="nav-item-amigopet">
+            <a href="/casos-veterinario" class="nav-item-amigopet">
                 <i data-lucide="stethoscope"></i> <span>Avaliar Casos</span>
             </a>
-            <a href="atendimentos.php" class="nav-item-amigopet">
-                <i data-lucide="heart-pulse"></i> <span>Registrar Atendimentos</span>
-            </a>
-            <a href="historico.php" class="nav-item-amigopet">
+            <a href="/historico-medico" class="nav-item-amigopet">
                 <i data-lucide="history"></i> <span>Histórico Médico</span>
             </a>
             <a href="prescricoes.php" class="nav-item-amigopet">

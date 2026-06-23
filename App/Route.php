@@ -24,6 +24,15 @@ class Route extends Boostrap
             'action' => 'error404'
         );
 
+        // Force dashboard route to override any database route
+        $routes['dashboard'] = array(
+            'route' => '/dashboard',
+            'controller' => 'DashboardController',
+            'action' => 'index',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Forced dashboard route\n", FILE_APPEND);
 
         $routeManager = RouteManager::getInstance();
         $dbRoutes = $routeManager->getAllRoutes();
@@ -127,6 +136,28 @@ class Route extends Boostrap
                 'pattern' => null
             );
             file_put_contents($logFile, "[$timestamp] Added fallback route: usuario_atualizar_cargo\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['usuario_vincular_ong'])) {
+            $routes['usuario_vincular_ong'] = array(
+                'route' => '/usuario/vincularONG',
+                'controller' => 'UsuarioController',
+                'action' => 'vincularONG',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: usuario_vincular_ong\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['usuario_vincular_clinica'])) {
+            $routes['usuario_vincular_clinica'] = array(
+                'route' => '/usuario/vincularClinica',
+                'controller' => 'UsuarioController',
+                'action' => 'vincularClinica',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: usuario_vincular_clinica\n", FILE_APPEND);
         }
 
         if (!isset($routes['usuarios'])) {
@@ -275,6 +306,16 @@ class Route extends Boostrap
         );
         file_put_contents($logFile, "[$timestamp] Added route: migrate-voluntarios\n", FILE_APPEND);
 
+        // Add route for addFkOngId migration
+        $routes['migrate-add-fk-ong-id'] = array(
+            'route' => '/migrate-add-fk-ong-id',
+            'controller' => 'MigrationController',
+            'action' => 'addFkOngId',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: migrate-add-fk-ong-id\n", FILE_APPEND);
+
         // Add route for chamados
         $routes['chamados'] = array(
             'route' => '/chamados',
@@ -334,6 +375,207 @@ class Route extends Boostrap
             'pattern' => null
         );
         file_put_contents($logFile, "[$timestamp] Added route: migrate-resgates\n", FILE_APPEND);
+
+        // Add routes for casos-veterinario and enviar-caso-veterinario
+        if (!isset($routes['casos-veterinario'])) {
+            $routes['casos-veterinario'] = array(
+                'route' => '/casos-veterinario',
+                'controller' => 'CasosVeterinarioController',
+                'action' => 'index',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: casos-veterinario\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['casos-veterinario-detalhes'])) {
+            $routes['casos-veterinario-detalhes'] = array(
+                'route' => '/casos-veterinario-detalhes',
+                'controller' => 'CasosVeterinarioController',
+                'action' => 'detalhes',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: casos-veterinario-detalhes\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['casos-veterinario-salvar'])) {
+            $routes['casos-veterinario-salvar'] = array(
+                'route' => '/casos-veterinario-salvar',
+                'controller' => 'CasosVeterinarioController',
+                'action' => 'salvar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: casos-veterinario-salvar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['enviar-caso-veterinario'])) {
+            $routes['enviar-caso-veterinario'] = array(
+                'route' => '/enviar-caso-veterinario',
+                'controller' => 'EnviarCasoVeterinarioController',
+                'action' => 'index',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: enviar-caso-veterinario\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['enviar-caso-veterinario-salvar'])) {
+            $routes['enviar-caso-veterinario-salvar'] = array(
+                'route' => '/enviar-caso-veterinario-salvar',
+                'controller' => 'EnviarCasoVeterinarioController',
+                'action' => 'salvar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: enviar-caso-veterinario-salvar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['historico-medico'])) {
+            $routes['historico-medico'] = array(
+                'route' => '/historico-medico',
+                'controller' => 'HistoricoMedicoController',
+                'action' => 'index',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: historico-medico\n", FILE_APPEND);
+        }
+
+        // ONGs routes
+        if (!isset($routes['ongs'])) {
+            $routes['ongs'] = array(
+                'route' => '/ongs',
+                'controller' => 'ONGsController',
+                'action' => 'index',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: ongs\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['ongs-cadastrar'])) {
+            $routes['ongs-cadastrar'] = array(
+                'route' => '/ongs-cadastrar',
+                'controller' => 'ONGsController',
+                'action' => 'cadastrar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: ongs-cadastrar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['ongs-salvar'])) {
+            $routes['ongs-salvar'] = array(
+                'route' => '/ongs-salvar',
+                'controller' => 'ONGsController',
+                'action' => 'salvar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: ongs-salvar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['ongs-editar'])) {
+            $routes['ongs-editar'] = array(
+                'route' => '/ongs-editar',
+                'controller' => 'ONGsController',
+                'action' => 'editar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: ongs-editar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['ongs-atualizar'])) {
+            $routes['ongs-atualizar'] = array(
+                'route' => '/ongs-atualizar',
+                'controller' => 'ONGsController',
+                'action' => 'atualizar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: ongs-atualizar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['ongs-excluir'])) {
+            $routes['ongs-excluir'] = array(
+                'route' => '/ongs-excluir',
+                'controller' => 'ONGsController',
+                'action' => 'excluir',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: ongs-excluir\n", FILE_APPEND);
+        }
+
+        // Clinicas routes
+        if (!isset($routes['clinicas'])) {
+            $routes['clinicas'] = array(
+                'route' => '/clinicas',
+                'controller' => 'ClinicasController',
+                'action' => 'index',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: clinicas\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['clinicas-cadastrar'])) {
+            $routes['clinicas-cadastrar'] = array(
+                'route' => '/clinicas-cadastrar',
+                'controller' => 'ClinicasController',
+                'action' => 'cadastrar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: clinicas-cadastrar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['clinicas-salvar'])) {
+            $routes['clinicas-salvar'] = array(
+                'route' => '/clinicas-salvar',
+                'controller' => 'ClinicasController',
+                'action' => 'salvar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: clinicas-salvar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['clinicas-editar'])) {
+            $routes['clinicas-editar'] = array(
+                'route' => '/clinicas-editar',
+                'controller' => 'ClinicasController',
+                'action' => 'editar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: clinicas-editar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['clinicas-atualizar'])) {
+            $routes['clinicas-atualizar'] = array(
+                'route' => '/clinicas-atualizar',
+                'controller' => 'ClinicasController',
+                'action' => 'atualizar',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: clinicas-atualizar\n", FILE_APPEND);
+        }
+
+        if (!isset($routes['clinicas-excluir'])) {
+            $routes['clinicas-excluir'] = array(
+                'route' => '/clinicas-excluir',
+                'controller' => 'ClinicasController',
+                'action' => 'excluir',
+                'is_dynamic' => 0,
+                'pattern' => null
+            );
+            file_put_contents($logFile, "[$timestamp] Added route: clinicas-excluir\n", FILE_APPEND);
+        }
 
         if (!isset($routes['migrate'])) {
             $routes['migrate'] = array(
