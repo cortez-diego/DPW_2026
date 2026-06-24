@@ -276,7 +276,7 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
                 <i data-lucide="activity"></i> <span>Acompanhar Denúncias</span>
             </a>
             <div class="sidebar-heading">Configurações</div>
-            <a href="/App/View/perfil.php" class="nav-item-amigopet <?php echo $isPerfil ? 'active' : ''; ?>">
+            <a href="/perfil" class="nav-item-amigopet <?php echo $isPerfil ? 'active' : ''; ?>">
                 <i data-lucide="user"></i> <span>Perfil</span>
             </a>
             <a href="/App/View/notificacoes.php" class="nav-item-amigopet">

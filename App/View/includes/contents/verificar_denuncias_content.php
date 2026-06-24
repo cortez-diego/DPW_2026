@@ -91,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                     <th>Assunto</th>
                                     <th>Local</th>
                                     <th>Enviado</th>
-                                 * Localização: ~/App/View/includes/contents/verificar_denuncias_content.php
                                     <th class="text-end">Ações</th>
                                 </tr>
                             </thead>

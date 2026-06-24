@@ -146,7 +146,7 @@ $animaisDisponiveis = $animalDao->listarDisponiveis();
                                     <i data-lucide="info" class="me-1" style="width: 14px;"></i> Info
                                 </button>
                             </div>
-                            <a href="adotar.php?id=<?php echo $pet['id']; ?>" class="btn btn-primary shadow-sm py-2 btn-sm" style="background-color: #6FCF97; border: none; font-weight: 600;">
+                            <a href="/adotar?id=<?php echo $pet['id']; ?>" class="btn btn-primary shadow-sm py-2 btn-sm" style="background-color: #6FCF97; border: none; font-weight: 600;">
                                 <i data-lucide="heart" class="me-1" style="width: 16px;"></i> Adotar
                             </a>
                         </div>
