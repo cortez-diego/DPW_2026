@@ -34,7 +34,7 @@ class PermissaoMiddleware
     }
 
 
-    public static function exigirNivel($nivelMinimo)
+    public static function exigirNivel($nivelNecessario)
     {
         $nivelAtual = self::obterNivelAtual();
 
@@ -43,7 +43,7 @@ class PermissaoMiddleware
             die();
         }
 
-        if ($nivelAtual < $nivelMinimo) {
+        if ($nivelAtual > $nivelNecessario) {
             header('Location: /error403');
             die();
         }
