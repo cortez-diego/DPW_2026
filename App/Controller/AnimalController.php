@@ -644,6 +644,10 @@ class AnimalController extends Action
             return;
         }
 
+        if (!function_exists('imagecreatefromjpeg') || !function_exists('imagecreatefrompng') || !function_exists('imagecreatefromwebp')) {
+            return;
+        }
+
         $info = getimagesize($caminho);
         if (!$info) {
             return;

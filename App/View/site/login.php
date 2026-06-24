@@ -227,7 +227,7 @@
                 <?php endif; ?>
             <?php endif; ?>
 
-            <form method="POST" action="/login">
+            <form method="POST" action="/autenticar">
                 <div class="mb-3">
                     <label for="email" class="form-label">E-mail</label>
                     <input

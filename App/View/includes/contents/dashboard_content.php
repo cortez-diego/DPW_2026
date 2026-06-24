@@ -272,7 +272,7 @@ $canCreateChamado = in_array($role, ['admin', 'ong']);
                                                     <span class="badge-category"><?php echo $pet['especie']; ?></span>
                                                 </div>
                                                 <div class="text-muted small">
-                                                    <?php if (strtolower($pet['sexo']) === 'm'): ?>
+                                                    <?php if (isset($pet['sexo']) && strtolower($pet['sexo']) === 'm'): ?>
                                                         <svg class="gender-icon gender-macho" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"/><path d="m17 7 3-3"/><path d="M16 4h4v4"/></svg>
                                                         Macho
                                                     <?php else: ?>

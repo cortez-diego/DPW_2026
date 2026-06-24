@@ -249,10 +249,8 @@ $isPerfil = ($currentPage === 'perfil.php' || $normalized === 'perfil');
             <a href="/historico-medico" class="nav-item-amigopet">
                 <i data-lucide="history"></i> <span>Histórico Médico</span>
             </a>
-            <a href="prescricoes.php" class="nav-item-amigopet">
-                <i data-lucide="pill"></i> <span>Prescrições</span>
-            </a>
-            <a href="procedimentos.php" class="nav-item-amigopet">
+            
+            <a href="/procedimentos" class="nav-item-amigopet">
                 <i data-lucide="calendar"></i> <span>Agendar Procedimentos</span>
             </a>
             <a href="/App/View/manage_animais.php" class="nav-item-amigopet">

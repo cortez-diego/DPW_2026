@@ -6,6 +6,17 @@ use FW\Controller\Action;
 
 class SiteController extends Action {
 
+    public function index() {
+        // Redirect to dashboard if logged in, otherwise to login
+        if (isset($_SESSION['id']) && $_SESSION['id'] != '') {
+            header('Location: /dashboard');
+            die();
+        } else {
+            header('Location: /login');
+            die();
+        }
+    }
+
     public function login() {
         $this->getView()->title = 'Login';
         $this->getView()->title_pagina = 'Login';

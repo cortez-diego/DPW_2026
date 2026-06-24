@@ -5,7 +5,7 @@
 
 // Configurações Globais do Sistema
 $configGeralMock = array (
-  'dashboard_titulo' => 'Painel de Adoção 🐾',
+  'dashboard_titulo' => 'Bem vindo ao Painel de Adoção 🐾',
   'dashboard_subtitulo' => 'Bem-vindo ao painel de adoção do AmigoPet.',
 );
 

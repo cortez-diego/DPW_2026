@@ -21,11 +21,26 @@ class RouteManager {
     
     private function loadRoutesFromDatabase() {
         $conexao = new Connection();
-        // Conecta ao banco e busca a rota
-        $sql = "SELECT * FROM routes WHERE status = 1";
-        $stmt = $conexao->getConn()->prepare($sql);
-        $stmt->execute();
-        $this->routes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $conn = $conexao->getConn();
+        
+        // If database connection failed, return empty routes array
+        if ($conn === null) {
+            error_log("Database connection failed in RouteManager - using empty routes");
+            $this->routes = [];
+            return;
+        }
+        
+        try {
+            // Conecta ao banco e busca a rota
+            $sql = "SELECT * FROM routes WHERE status = 1";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $this->routes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            // If routes table doesn't exist, use empty routes array
+            error_log("Routes table not found in RouteManager - using empty routes: " . $e->getMessage());
+            $this->routes = [];
+        }
     }
     
     

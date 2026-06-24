@@ -22,11 +22,23 @@ class Connection
                 require_once $autoload;
             }
         }
+        
+        // Tenta carregar .env primeiro (base configuration)
         if ($root && file_exists($root . '/.env') && class_exists('Dotenv\Dotenv')) {
             try {
                 \Dotenv\Dotenv::createImmutable($root)->safeLoad();
             } catch (\Throwable $e) {
-                // ignore: se falhar, usaremos getenv/$_ENV abaixo
+                // ignore: se falhar, tentará .env.local abaixo
+            }
+        }
+        
+        // Tenta carregar .env.local depois (para sobrescrever configurações locais)
+        // Usamos createMutable() para permitir sobrescrita de variáveis
+        if ($root && file_exists($root . '/.env.local') && class_exists('Dotenv\Dotenv')) {
+            try {
+                \Dotenv\Dotenv::createMutable($root, '.env.local')->load();
+            } catch (\Throwable $e) {
+                // ignore: se falhar, usará valores do .env ou getenv/$_ENV abaixo
             }
         }
 

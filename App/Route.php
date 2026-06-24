@@ -24,6 +24,13 @@ class Route extends Boostrap
             'action' => 'error404'
         );
 
+        // Root route - redirect to dashboard
+        $routes['root'] = array(
+            'route' => '/',
+            'controller' => 'SiteController',
+            'action' => 'index'
+        );
+
         // Force dashboard route to override any database route
         $routes['dashboard'] = array(
             'route' => '/dashboard',
@@ -33,6 +40,46 @@ class Route extends Boostrap
             'pattern' => null
         );
         file_put_contents($logFile, "[$timestamp] Forced dashboard route\n", FILE_APPEND);
+
+        // Add logout route
+        $routes['logout'] = array(
+            'route' => '/logout',
+            'controller' => 'LoginController',
+            'action' => 'logout',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added logout route\n", FILE_APPEND);
+
+        // Add login route
+        $routes['login'] = array(
+            'route' => '/login',
+            'controller' => 'SiteController',
+            'action' => 'login',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added login route\n", FILE_APPEND);
+
+        // Add autenticar route for login POST
+        $routes['autenticar'] = array(
+            'route' => '/autenticar',
+            'controller' => 'LoginController',
+            'action' => 'autenticar',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added autenticar route\n", FILE_APPEND);
+
+        // Add adotar route for animal profile
+        $routes['adotar'] = array(
+            'route' => '/adotar',
+            'controller' => 'AdotarController',
+            'action' => 'index',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added adotar route\n", FILE_APPEND);
 
         $routeManager = RouteManager::getInstance();
         $dbRoutes = $routeManager->getAllRoutes();
@@ -315,6 +362,116 @@ class Route extends Boostrap
             'pattern' => null
         );
         file_put_contents($logFile, "[$timestamp] Added route: migrate-add-fk-ong-id\n", FILE_APPEND);
+
+        // Add route for full database schema migration
+        $routes['migrate-full-schema'] = array(
+            'route' => '/migrate-full-schema',
+            'controller' => 'MigrationController',
+            'action' => 'fullDatabaseSchema',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: migrate-full-schema\n", FILE_APPEND);
+
+        // Add route for create admin user migration
+        $routes['migrate-create-admin'] = array(
+            'route' => '/migrate-create-admin',
+            'controller' => 'MigrationController',
+            'action' => 'createAdminUser',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: migrate-create-admin\n", FILE_APPEND);
+
+        // Add route for populate animals migration
+        $routes['migrate-populate-animals'] = array(
+            'route' => '/migrate-populate-animals',
+            'controller' => 'MigrationController',
+            'action' => 'populateAnimals',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: migrate-populate-animals\n", FILE_APPEND);
+
+        // Add route for add chamado columns migration
+        $routes['migrate-add-chamado-columns'] = array(
+            'route' => '/migrate-add-chamado-columns',
+            'controller' => 'MigrationController',
+            'action' => 'addChamadoColumns',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: migrate-add-chamado-columns\n", FILE_APPEND);
+
+        // Add route for add caso veterinario columns migration
+        $routes['migrate-add-caso-veterinario-columns'] = array(
+            'route' => '/migrate-add-caso-veterinario-columns',
+            'controller' => 'MigrationController',
+            'action' => 'addCasoVeterinarioColumns',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: migrate-add-caso-veterinario-columns\n", FILE_APPEND);
+
+        // Add route for populate ONG migration
+        $routes['migrate-populate-ong'] = array(
+            'route' => '/migrate-populate-ong',
+            'controller' => 'MigrationController',
+            'action' => 'populateOng',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: migrate-populate-ong\n", FILE_APPEND);
+
+        // Add route for procedimentos
+        $routes['procedimentos'] = array(
+            'route' => '/procedimentos',
+            'controller' => 'ProcedimentosController',
+            'action' => 'index',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: procedimentos\n", FILE_APPEND);
+
+        // Add route for criar procedimento
+        $routes['procedimentos-criar'] = array(
+            'route' => '/procedimentos/criar',
+            'controller' => 'ProcedimentosController',
+            'action' => 'criar',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: procedimentos/criar\n", FILE_APPEND);
+
+        // Add route for atualizar procedimento
+        $routes['procedimentos-atualizar'] = array(
+            'route' => '/procedimentos/atualizar',
+            'controller' => 'ProcedimentosController',
+            'action' => 'atualizar',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: procedimentos/atualizar\n", FILE_APPEND);
+
+        // Add route for excluir procedimento
+        $routes['procedimentos-excluir'] = array(
+            'route' => '/procedimentos/excluir',
+            'controller' => 'ProcedimentosController',
+            'action' => 'excluir',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: procedimentos/excluir\n", FILE_APPEND);
+
+        // Add route for create procedimentos table migration
+        $routes['migrate-create-procedimentos-table'] = array(
+            'route' => '/migrate-create-procedimentos-table',
+            'controller' => 'MigrationController',
+            'action' => 'createProcedimentosTable',
+            'is_dynamic' => 0,
+            'pattern' => null
+        );
+        file_put_contents($logFile, "[$timestamp] Added route: migrate-create-procedimentos-table\n", FILE_APPEND);
 
         // Add route for chamados
         $routes['chamados'] = array(
