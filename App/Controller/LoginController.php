@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DAO\LoginDAO;
+use App\Middleware\PermissaoMiddleware;
 use App\Model\LoginModel;
 use FW\Controller\Action;
 
@@ -45,11 +46,20 @@ class LoginController extends Action
         }
 
         session_regenerate_id(true);
+        
+        $tipo_usuario = $login->__get('tipo_usuario');
+        $id = $login->__get('id');
+        $email = $login->__get('email');
+        $status = $login->__get('status');
+        
+        $_SESSION['id'] = $id;
+        $_SESSION['email'] = $email;
+        $_SESSION['tipo_usuario'] = $tipo_usuario;
+        $_SESSION['status'] = $status;
 
-        $_SESSION['id'] = $login->__get('id');
-        $_SESSION['email'] = $login->__get('email');
-        $_SESSION['tipo_usuario'] = $login->__get('tipo_usuario');
-        $_SESSION['status'] = $login->__get('status');
+        $nivel = PermissaoMiddleware::obterNivelPorTipo($tipo_usuario);
+
+        $_SESSION['nivel_permissao'] = $nivel;
 
         header('Location: /dashboard');
         die();
