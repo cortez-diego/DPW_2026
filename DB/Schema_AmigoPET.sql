@@ -131,9 +131,10 @@ create table procedimento {
     nome varchar(100),
     tipo enum('consulta', 'cirurgia', 'exame', 'castracao', 'outro')
     data_realizacao date,
-    veterinario,
     observacoes varchar(500),
-    anexo varchar(500)
+    anexo varchar(500),
+    fk_veterinario_id int(11),
+    fk_animal_id int(11)
 }
 
 create table animal_raca (
@@ -216,6 +217,16 @@ alter table historico_animal add constraint fk_historico_animal_3
 alter table historico_animal add constraint fk_historico_animal_4
     foreign key (fk_veterinario_id)
     references veterinario (id)
+    on delete cascade;
+
+alter table procedimento add constraint fk_procedimento_1
+    foreign key (fk_veterinario_id)
+    references veterinario (id)
+    on delete cascade;
+
+alter table procedimento add constraint fk_procedimento_1
+    foreign key (fk_animal_id)
+    references animal (id)
     on delete cascade;
  
 alter table animal_raca add constraint fk_animal_raca_2
