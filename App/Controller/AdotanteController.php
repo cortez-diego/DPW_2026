@@ -22,6 +22,39 @@ class AdotanteController extends Action
 
     public function cadastro()
     {
+        // Se houver dados via POST, o Controller intercepta e salva na hora!
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' || !empty($_POST)) {
+            try {
+                $model = new AdotanteModel();
+                
+                $model->__set('nome',            $_POST['nome']            ?? '');
+                $model->__set('cpf',             $_POST['cpf']             ?? '');
+                $model->__set('data_nascimento', $_POST['data_nascimento'] ?? null);
+                $model->__set('cep',             $_POST['cep']             ?? '');
+                $model->__set('estado',          $_POST['estado']          ?? '');
+                $model->__set('cidade',          $_POST['cidade']          ?? '');
+                $model->__set('bairro',          $_POST['bairro']          ?? '');
+                $model->__set('logradouro',      $_POST['logradouro']      ?? '');
+                $model->__set('numero',          $_POST['numero']          ?? '');
+                $model->__set('complemento',     $_POST['complemento']     ?? '');
+                $model->__set('telefone_1',      $_POST['telefone_1']      ?? '');
+                $model->__set('telefone_2',      $_POST['telefone_2']      ?? '');
+                $model->__set('status',          $_POST['status']          ?? 'bom');
+                $model->__set('fk_login_id', 1);
+
+                $dao = new AdotanteDAO();
+                $dao->inserir($model);
+
+                // O pulo do gato: cospe o script de saída limpa antes do layout do professor renderizar
+                echo "<script>window.location.href = '/dashboard/adotante/listar';</script>";
+                exit();
+            } catch (\Exception $e) {
+                echo "<h3>Erro ao salvar no banco de dados:</h3><pre>" . $e->getMessage() . "</pre>";
+                die();
+            }
+        }
+
+        // Se for acesso normal (GET), renderiza o formulário padrão
         $this->getView()->title       = 'Cadastro de Adotante';
         $this->getView()->title_pagina = 'Cadastro de Adotante';
 
@@ -30,26 +63,8 @@ class AdotanteController extends Action
 
     public function cadastrar()
     {
-        $model = new AdotanteModel();
-        $model->__set('nome',   $_POST['nome']            ?? '');
-        $model->__set('cpf',    $_POST['cpf']             ?? '');
-        $model->__set('data_nascimento',     $_POST['data_nascimento'] ?? null);
-        $model->__set('cep',    $_POST['cep']             ?? '');
-        $model->__set('estado', $_POST['estado']          ?? '');
-        $model->__set('cidade', $_POST['cidade']          ?? '');
-        $model->__set('bairro', $_POST['bairro']          ?? '');
-        $model->__set('logradouro',  $_POST['logradouro']  ?? '');
-        $model->__set('numero',      $_POST['numero']      ?? '');
-        $model->__set('complemento', $_POST['complemento'] ?? '');
-        $model->__set('telefone_1',   $_POST['telefone_1'] ?? '');
-        $model->__set('telefone_2',   $_POST['telefone_2'] ?? '');
-        $model->__set('status', $_POST['status']     ?? 'bom');
-
-        $dao = new AdotanteDAO();
-        $dao->inserir($model);
-
-        header('Location: /dashboard/adotante/listar');
-        die();
+        // Garante suporte se o roteador chamar o método no infinitivo
+        $this->cadastro();
     }
 
     public function editar($params)
