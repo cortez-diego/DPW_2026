@@ -126,6 +126,16 @@ create table animal (
     sexo enum('m', 'f')
 );
 
+create table procedimento {
+    id int(11) AUTO_INCREMENT primary key,
+    nome varchar(100),
+    tipo enum('consulta', 'cirurgia', 'exame', 'castracao', 'outro')
+    data_realizacao date,
+    veterinario,
+    observacoes varchar(500),
+    anexo varchar(500)
+}
+
 create table animal_raca (
     id int(11) AUTO_INCREMENT primary key ,
     fk_raca_id int(11),
