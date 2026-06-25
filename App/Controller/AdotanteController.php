@@ -65,28 +65,28 @@ class AdotanteController extends Action
         $status = trim($_POST['status'] ?? 'bom');
         
         if (empty($nome) || empty($cpf) || empty($email)) {
-            header("Location: /cadastro?erro=1");
+            header("Location: /cadastro?erro=cpf-nome-email-vazio");
             die();
         }
 
         if (empty($senha) || empty($senha_confirmacao)) {
-            header("Location: /cadastro?erro=2");
+            header("Location: /cadastro?erro=senha-vazia");
             die();
         }
 
         if ($senha !== $senha_confirmacao) {
-            header('Location: /cadastro?erro=3');
+            header('Location: /cadastro?erro=senhas-diferentes');
             die();
         }
 
     
         if (empty($data_nascimento)) {
-            header('Location: /cadastro?erro=4');
+            header('Location: /cadastro?erro=data-vazia');
             die();
         }
 
         if (empty($telefone_limpo_1)) {
-            header('Location: /cadastro?erro=5');
+            header('Location: /cadastro?erro=telefone-vazio');
             die();
         }
 
@@ -96,7 +96,7 @@ class AdotanteController extends Action
 
         $cpfValido = $global->cpfValido($cpf);
         if (!$cpfValido) {
-            header('Location: /cadastro?erro=7');
+            header('Location: /cadastro?erro=cpf-invalido');
             die();
         }
 
@@ -124,17 +124,17 @@ class AdotanteController extends Action
         try {
             CadastroService::cadastrarAdotante($loginModel, $adotanteModel);
         } catch(EmailJaCadastradoException $ex) {
-            header('Location: /adotante/cadastro?erro=email-cadastrado');
+            header('Location: /dashboard/adotante/cadastro?erro=email-cadastrado');
             die();
         } catch(CpfJaCadastradoException $ex) {
-            header('Location: /adotante/cadastro?erro=cpf-cadastrado');
+            header('Location: /dashboard/adotante/cadastro?erro=cpf-cadastrado');
             die();
         } catch(\PDOException $ex) {
-            header('Location: /adotante/cadastro?erro=cadastro');
+            header('Location: /dashboard/adotante/cadastro?erro=cadastro');
             die();
         }
 
-        header('Location: /');
+        header('Location: /dashboard/adotante/listar');
         die();
     }
 
