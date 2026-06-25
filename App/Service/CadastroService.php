@@ -6,10 +6,12 @@ use App\DAO\AdotanteDAO;
 use App\DAO\LoginDAO;
 use App\Exception\CpfJaCadastradoException;
 use App\Exception\EmailJaCadastradoException;
+use App\Model\AdotanteModel;
+use App\Model\LoginModel;
 
 class CadastroService {
 
-    public static function cadastrarAdotante($loginModel, $adotanteModel) {
+    public static function cadastrarAdotante(LoginModel $loginModel,AdotanteModel $adotanteModel) {
         $loginDao = new LoginDAO();
         $adotanteDao = new AdotanteDAO();
         
@@ -28,8 +30,8 @@ class CadastroService {
         $adotanteModel->__set('fk_login_id', $loginId);
 
         try {
-            $adotanteDao->inserirComExcecao($adotanteModel);
-        } catch (\PDOException $ex) {
+            return (int) $adotanteDao->inserirComExcecao($adotanteModel);
+        } catch (\Throwable $ex) {
            $loginDao->excluir($loginId);
            throw $ex;
         }

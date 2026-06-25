@@ -119,8 +119,8 @@ class CadastroController extends Action
         } catch(CpfJaCadastradoException $ex) {
             header('Location: /cadastro?erro=cpf-cadastrado');
             die();
-        } catch(\PDOException $ex) {
-            header('Location: /cadastro?erro=cadastro');
+        } catch(\Throwable $ex) {
+            header('Location: /cadastro?erro=inesperado');
             die();
         }
 
