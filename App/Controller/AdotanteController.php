@@ -62,7 +62,7 @@ class AdotanteController extends Action
 
         $telefone_limpo_1 = $global->limparTelefone($telefone_1);
         $telefone_limpo_2 = $global->limparTelefone($telefone_2);
-        $status = trim($_POST['status'] ?? 'a');
+        $status = trim($_POST['status'] ?? 'bom');
         
         if (empty($nome) || empty($cpf) || empty($email)) {
             header("Location: /cadastro?erro=1");
@@ -119,6 +119,7 @@ class AdotanteController extends Action
         $adotanteModel->__set('complemento', $complemento);
         $adotanteModel->__set('telefone_1', $telefone_limpo_1);
         $adotanteModel->__set('telefone_2', $telefone_limpo_2);
+        $adotanteModel->__set('status', $status);
         
         try {
             CadastroService::cadastrarAdotante($loginModel, $adotanteModel);
