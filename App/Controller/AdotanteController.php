@@ -183,7 +183,7 @@ class AdotanteController extends Action
 
     public function excluir()
     {
-        $this->validaAutenticacao();
+        PermissaoMiddleware::exigirNivel(PermissaoMiddleware::ADMIN);
         $id  = $_POST['id'] ?? null;
         $dao = new AdotanteDAO();
         $dao->excluir($id);
