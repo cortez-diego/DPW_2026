@@ -19,12 +19,23 @@ if (isset($_GET['sim_role'])) {
 
 $userRole = $_SESSION['sim_user_role'] ?? 'usuario';
 
+function filterNotificationsForRole(array $notifications, string $role): array {
+    return array_values(array_filter($notifications, function($notification) use ($role) {
+        if (!isset($notification['roles']) || empty($notification['roles'])) {
+            return true;
+        }
+        return in_array($role, $notification['roles'], true);
+    }));
+}
+
 // Carrega notificações para o resumo do sino da navbar
 $notificacoesMock = [];
 $mockFile = __DIR__ . '/../../../Data/notificacoes_mock.php';
 if (file_exists($mockFile)) {
     include $mockFile;
 }
+
+$notificacoesMock = filterNotificationsForRole($notificacoesMock, $userRole);
 
 // Ordena as notificações mais recentes primeiro
 usort($notificacoesMock, function($a, $b) {
@@ -82,24 +93,62 @@ $unreadCount = count(array_filter($notificacoesMock, function($n) { return !$n['
                             <span class="notification-badge"><?php echo $unreadCount; ?></span>
                         <?php endif; ?>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end py-2 shadow" aria-labelledby="notificationDropdown" style="min-width: 320px;">
+                    <ul class="dropdown-menu dropdown-menu-end py-2 shadow" aria-labelledby="notificationDropdown" style="min-width: 320px;" data-bs-auto-close="outside">
                         <li class="px-3 py-2 d-flex justify-content-between align-items-center border-bottom">
                             <span class="fw-bold">Notificações recentes</span>
-                            <small class="text-muted"><?php echo $unreadCount > 0 ? $unreadCount . ' não lidas' : 'Sem novas'; ?></small>
+                            <small class="text-muted notification-summary"><?php echo $unreadCount > 0 ? $unreadCount . ' não lidas' : 'Sem novas'; ?></small>
                         </li>
+                        <li class="px-3 py-3 d-none" id="bellSelectedPreview">
+                            <div class="border rounded-3 p-3 mb-2">
+                                <div class="fw-semibold" id="bellPreviewTitle"></div>
+                                <div class="text-muted small" id="bellPreviewType"></div>
+                                <p class="mb-1 text-muted small" id="bellPreviewMessage"></p>
+                                <div class="text-end text-muted small" id="bellPreviewDate"></div>
+                                <div class="text-end mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="bellPreviewOpen">Ver detalhes</button>
+                                </div>
+                            </div>
+                        </li>
+                        <style>
+                            #bellSelectedPreview {
+                                opacity: 0;
+                                transform: translateY(8px);
+                                transition: opacity 0.25s ease, transform 0.25s ease;
+                            }
+
+                            #bellSelectedPreview.visible {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+
+                            .notification-dropdown-item {
+                                transition: transform 0.2s ease, background-color 0.2s ease;
+                            }
+
+                            .notification-dropdown-item.click-animate {
+                                transform: translateX(4px);
+                                background-color: rgba(111, 207, 151, 0.06);
+                            }
+                        </style>
                         <?php if (empty($latestNotifications)): ?>
                             <li class="px-3 py-3 text-center text-muted">Nenhuma notificação disponível.</li>
                         <?php else: ?>
                             <?php foreach ($latestNotifications as $notif): ?>
                                 <li>
-                                    <a href="notificacoes.php" class="dropdown-item py-2">
+                                    <a href="notificacoes.php?notif=<?php echo urlencode($notif['id']); ?>" class="dropdown-item py-2 notification-dropdown-item"
+                                       data-notif-id="<?php echo htmlspecialchars($notif['id']); ?>"
+                                       data-notif-title="<?php echo htmlspecialchars($notif['titulo']); ?>"
+                                       data-notif-message="<?php echo htmlspecialchars($notif['mensagem']); ?>"
+                                       data-notif-type="<?php echo htmlspecialchars($notif['tipo']); ?>"
+                                       data-notif-date="<?php echo date('d/m H:i', strtotime($notif['data'])); ?>"
+                                       data-notif-read="<?php echo $notif['lida'] ? 'true' : 'false'; ?>">
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div>
                                                 <div class="fw-semibold"><?php echo htmlspecialchars($notif['titulo']); ?></div>
                                                 <div class="text-muted small"><?php echo htmlspecialchars($notif['mensagem']); ?></div>
                                             </div>
                                             <?php if (!$notif['lida']): ?>
-                                                <span class="badge bg-success rounded-pill ms-2" style="font-size: 0.6rem;">Nova</span>
+                                                <span class="badge bg-success rounded-pill ms-2 notif-new-badge" style="font-size: 0.6rem;">Nova</span>
                                             <?php endif; ?>
                                         </div>
                                         <div class="text-end text-muted small mt-1"><?php echo date('d/m H:i', strtotime($notif['data'])); ?></div>
@@ -111,6 +160,137 @@ $unreadCount = count(array_filter($notificacoesMock, function($n) { return !$n['
                         <li><a class="dropdown-item text-center" href="notificacoes.php">Ver todas as notificações</a></li>
                     </ul>
                 </div>
+                
+                <script>
+                    (function() {
+                        const storageKey = 'amigopetReadNotifications';
+                        const notificationData = <?php echo json_encode($notificacoesMock, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+
+                        function getReadIds() {
+                            try {
+                                const raw = localStorage.getItem(storageKey);
+                                return raw ? JSON.parse(raw) : [];
+                            } catch (e) {
+                                return [];
+                            }
+                        }
+
+                        function setReadIds(ids) {
+                            localStorage.setItem(storageKey, JSON.stringify(ids));
+                        }
+
+                        function addReadId(id) {
+                            const ids = getReadIds();
+                            if (!ids.includes(String(id))) {
+                                ids.push(String(id));
+                                setReadIds(ids);
+                            }
+                        }
+
+                        function getUnreadCount() {
+                            const readIds = getReadIds();
+                            return notificationData.filter(notif => {
+                                const isManuallyRead = readIds.includes(String(notif.id));
+                                return !notif.lida && !isManuallyRead;
+                            }).length;
+                        }
+
+                        function updateBadge() {
+                            const count = getUnreadCount();
+                            const badge = document.querySelector('.notification-btn .notification-badge');
+                            const summary = document.querySelector('.notification-summary');
+
+                            if (count > 0) {
+                                if (badge) {
+                                    badge.textContent = count;
+                                } else {
+                                    const span = document.createElement('span');
+                                    span.className = 'notification-badge';
+                                    span.textContent = count;
+                                    document.querySelector('.notification-btn').appendChild(span);
+                                }
+                                if (summary) summary.textContent = count + ' não lidas';
+                            } else {
+                                if (badge) badge.remove();
+                                if (summary) summary.textContent = 'Sem novas';
+                            }
+
+                            document.querySelectorAll('.notification-dropdown-item').forEach(item => {
+                                const notifId = item.dataset.notifId;
+                                if (notifId && getReadIds().includes(String(notifId))) {
+                                    const newBadge = item.querySelector('.notif-new-badge');
+                                    if (newBadge) newBadge.remove();
+                                }
+                            });
+                        }
+
+                        function renderBellPreview(item) {
+                            if (!item) return;
+                            const title = item.dataset.notifTitle || '';
+                            const message = item.dataset.notifMessage || '';
+                            const date = item.dataset.notifDate || '';
+                            const type = item.dataset.notifType || '';
+                            document.getElementById('bellPreviewTitle').textContent = title;
+                            document.getElementById('bellPreviewType').textContent = type ? 'Tipo: ' + type : '';
+                            document.getElementById('bellPreviewMessage').textContent = message;
+                            document.getElementById('bellPreviewDate').textContent = date;
+                            const preview = document.getElementById('bellSelectedPreview');
+                            preview.classList.remove('d-none');
+                            setTimeout(() => preview.classList.add('visible'), 20);
+                        }
+
+                        function hideBellPreview() {
+                            const preview = document.getElementById('bellSelectedPreview');
+                            preview.classList.remove('visible');
+                            setTimeout(() => preview.classList.add('d-none'), 250);
+                        }
+
+                        function selectBellNotification(item) {
+                            if (!item) return;
+                            addReadId(item.dataset.notifId);
+                            updateBadge();
+                            document.querySelectorAll('.notification-dropdown-item').forEach(i => i.classList.remove('active'));
+                            item.classList.add('active');
+                            item.classList.add('click-animate');
+                            setTimeout(() => item.classList.remove('click-animate'), 220);
+                            renderBellPreview(item);
+                        }
+
+                        function initNotificationLinks() {
+                            document.querySelectorAll('.notification-dropdown-item').forEach(item => {
+                                item.addEventListener('click', function(event) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    selectBellNotification(this);
+                                });
+                            });
+                        }
+
+                        function initBellPreviewButton() {
+                            const openBtn = document.getElementById('bellPreviewOpen');
+                            if (!openBtn) return;
+                            openBtn.addEventListener('click', function() {
+                                const activeItem = document.querySelector('.notification-dropdown-item.active');
+                                if (activeItem) {
+                                    window.location.href = activeItem.href;
+                                }
+                            });
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            updateBadge();
+                            initNotificationLinks();
+                            initBellPreviewButton();
+                        });
+
+                        window.AmigoPetNotificationUtils = {
+                            addReadId,
+                            updateBadge,
+                            getReadIds,
+                            notificationData
+                        };
+                    })();
+                </script>
                 
                 <div class="d-flex align-items-center">
                     <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">

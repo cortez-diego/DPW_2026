@@ -12,46 +12,97 @@ $notificacoesMock = [
         'mensagem' => 'Sua entrevista para adotar o Max foi agendada para o dia 15/05.',
         'data' => '2026-05-08 10:30:00',
         'tipo' => 'adocao',
-        'lida' => false
+        'lida' => false,
+        'roles' => ['usuario']
     ],
     [
         'id' => 2,
-        'titulo' => 'Novo Reporte Próximo',
-        'mensagem' => 'Um novo caso de animal abandonado foi reportado a 2km de sua localização.',
+        'titulo' => 'Nova solicitação de coleta',
+        'mensagem' => 'Um animal foi reportado e precisa de recolhimento. Verifique a solicitação.',
         'data' => '2026-05-07 14:20:00',
         'tipo' => 'reporte',
-        'lida' => true
+        'lida' => false,
+        'roles' => ['ong']
     ],
     [
         'id' => 3,
+        'titulo' => 'Visita agendada',
+        'mensagem' => 'Você tem uma consulta marcada com o pet Amora amanhã às 09h.',
+        'data' => '2026-05-09 08:00:00',
+        'tipo' => 'sistema',
+        'lida' => false,
+        'roles' => ['vet']
+    ],
+    [
+        'id' => 4,
+        'titulo' => 'Nova denúncia para revisão',
+        'mensagem' => 'Uma denúncia foi enviada e aguarda análise da equipe moderadora.',
+        'data' => '2026-05-06 18:40:00',
+        'tipo' => 'alerta',
+        'lida' => true,
+        'roles' => ['moderador', 'campo']
+    ],
+    [
+        'id' => 5,
+        'titulo' => 'Atualização de segurança',
+        'mensagem' => 'O painel recebeu uma atualização de segurança. Verifique as ações pendentes.',
+        'data' => '2026-05-05 12:00:00',
+        'tipo' => 'sistema',
+        'lida' => true,
+        'roles' => ['admin']
+    ],
+    [
+        'id' => 6,
         'titulo' => 'Perfil Atualizado',
         'mensagem' => 'As alterações no seu perfil foram salvas com sucesso.',
         'data' => '2026-04-20 09:00:00',
         'tipo' => 'sistema',
-        'lida' => true
+        'lida' => true,
+        'roles' => ['usuario', 'ong', 'vet', 'moderador', 'campo', 'admin']
     ],
     [
-        'id' => 4,
-        'titulo' => 'Campanha de Vacinação 2025',
-        'mensagem' => 'Recordamos que a campanha de vacinação do ano passado foi um sucesso!',
-        'data' => '2025-06-12 08:00:00',
-        'tipo' => 'sistema',
-        'lida' => true
-    ],
-    [
-        'id' => 5,
-        'titulo' => 'Início da Jornada AmigoPet',
-        'mensagem' => 'Bem-vindo à nossa plataforma! Sua conta foi criada em 2024.',
+        'id' => 7,
+        'titulo' => 'Boas-vindas ao AmigoPet',
+        'mensagem' => 'Sua conta foi criada com sucesso. Explore o painel e acompanhe as notificações.',
         'data' => '2024-01-15 11:00:00',
         'tipo' => 'sistema',
-        'lida' => true
+        'lida' => true,
+        'roles' => ['usuario']
     ],
     [
-        'id' => 6,
-        'titulo' => 'Evento Histórico 2023',
-        'mensagem' => 'Relatório de impacto da feira de adoção de 3 anos atrás.',
-        'data' => '2023-09-10 16:45:00',
+        'id' => 8,
+        'titulo' => 'Relatório mensal disponível',
+        'mensagem' => 'O relatório de adoções do mês já está disponível para administradores.',
+        'data' => '2026-05-01 09:30:00',
         'tipo' => 'sistema',
-        'lida' => true
+        'lida' => true,
+        'roles' => ['admin']
+    ],
+    [
+        'id' => 9,
+        'titulo' => 'Adoção pendente',
+        'mensagem' => 'Há uma nova solicitação de adoção aguardando sua confirmação.',
+        'data' => '2026-06-22 11:15:00',
+        'tipo' => 'adocao',
+        'lida' => false,
+        'roles' => ['usuario', 'admin']
+    ],
+    [
+        'id' => 10,
+        'titulo' => 'Revisão de denúncia',
+        'mensagem' => 'Nova denúncia chegada para revisão da equipe moderadora.',
+        'data' => '2026-06-23 16:45:00',
+        'tipo' => 'reporte',
+        'lida' => false,
+        'roles' => ['moderador']
+    ],
+    [
+        'id' => 11,
+        'titulo' => 'Consulta agendada',
+        'mensagem' => 'Nova consulta marcada para um animal sob sua responsabilidade.',
+        'data' => '2026-06-24 08:30:00',
+        'tipo' => 'sistema',
+        'lida' => false,
+        'roles' => ['vet']
     ]
 ];
