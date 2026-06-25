@@ -129,6 +129,9 @@ class AdotanteController extends Action
         } catch(CpfJaCadastradoException $ex) {
             header('Location: /dashboard/adotante/cadastro?erro=cpf-cadastrado');
             die();
+        }catch(\PDOException $ex) {
+            header('Location: /dashboard/adotante/cadastro?erro=cadastro');
+            die();
         } catch(\Throwable $ex) {
             header('Location: /dashboard/adotante/cadastro?erro=inesperado');
             die();
