@@ -81,7 +81,8 @@ class LoginDAO extends DAO
         }
     }
 
-    public function alterarSenha($obj) {
+    public function alterarSenha($obj)
+    {
         try {
 
             $id = $obj->__get('id');
@@ -98,9 +99,7 @@ class LoginDAO extends DAO
             $stmt->bindValue('id', $id);
             $stmt->bindValue('senha', password_hash($senha, PASSWORD_DEFAULT));
             $stmt->execute();
-
-
-        }catch(\PDOException $ex) {
+        } catch (\PDOException $ex) {
             header('Location:/error103');
             die();
         }
@@ -109,7 +108,14 @@ class LoginDAO extends DAO
     public  function buscarPorEmail($email)
     {
         try {
-            $sql = "SELECT * 
+            $sql = "SELECT 
+                id,
+                email,
+                senha,
+                status,
+                tipo_usuario,
+                data_cadastro,
+                data_atualizacao
             FROM 
                 login
             WHERE 
@@ -137,7 +143,14 @@ class LoginDAO extends DAO
     public  function buscarPorId($id)
     {
         try {
-            $sql = "SELECT * 
+            $sql = "SELECT 
+                id,
+                email,
+                senha,
+                status,
+                tipo_usuario,
+                data_cadastro,
+                data_atualizacao 
             FROM login
             WHERE id = :id";
 

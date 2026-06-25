@@ -7,6 +7,9 @@ use App\Model\AdotanteModel;
 use App\Model\LoginModel;
 use App\DAO\AdotanteDAO;
 use App\DAO\LoginDAO;
+use App\Exception\CpfJaCadastradoException;
+use App\Exception\EmailJaCadastradoException;
+use App\Service\CadastroService;
 use FW\Controller\FuncoesGlobais;
 
 class CadastroController extends Action
@@ -46,28 +49,28 @@ class CadastroController extends Action
         $telefone_limpo_2 = $global->limparTelefone($telefone_2);
 
         if (empty($nome) || empty($cpf) || empty($email)) {
-            header("Location: /cadastro?erro=1");
+            header("Location: /cadastro?erro=nome-cpf-email-vazio");
             die();
         }
 
         if (empty($senha) || empty($senha_confirmacao)) {
-            header("Location: /cadastro?erro=2");
+            header("Location: /cadastro?erro=senha-vazia");
             die();
         }
 
         if ($senha !== $senha_confirmacao) {
-            header('Location: /cadastro?erro=3');
+            header('Location: /cadastro?erro=senhas-diferentes');
             die();
         }
 
     
         if (empty($data_nascimento)) {
-            header('Location: /cadastro?erro=4');
+            header('Location: /cadastro?erro=data-nascimento-vazia');
             die();
         }
 
         if (empty($telefone_limpo_1)) {
-            header('Location: /cadastro?erro=5');
+            header('Location: /cadastro?erro=telefone-vazio');
             die();
         }
 
@@ -75,21 +78,11 @@ class CadastroController extends Action
             $numero = null;
         }
 
-        $loginDao = new LoginDAO();
-        $verificacaoSeExisteEmail = $loginDao->buscarPorEmail($email);
-
-        if ($verificacaoSeExisteEmail) {
-            header('Location: /cadastro?erro=6');
-            die();
-        }
-
-
         $cpfValido = $global->cpfValido($cpf);
         if (!$cpfValido) {
-            header('Location: /cadastro?erro=7');
+            header('Location: /cadastro?erro=cpf-invalido');
             die();
         }
-
         $cpfLimpo = $global->limparCpf($cpf);
 
         $adotanteDao = new AdotanteDAO();
@@ -104,8 +97,6 @@ class CadastroController extends Action
         $loginModel->__set('email', $email);
         $loginModel->__set('senha', $senha);
 
-        $loginId = $loginDao->inserir($loginModel);
-
         $adotanteModel = new AdotanteModel();
         $adotanteModel->__set('nome',   $nome);
         $adotanteModel->__set('cpf',    $cpfLimpo);
@@ -119,13 +110,17 @@ class CadastroController extends Action
         $adotanteModel->__set('complemento', $complemento);
         $adotanteModel->__set('telefone_1', $telefone_limpo_1);
         $adotanteModel->__set('telefone_2', $telefone_limpo_2);
-        $adotanteModel->__set('fk_login_id', $loginId);
 
         try {
-            $adotanteDao->inserirComExcecao($adotanteModel);
-        } catch (\PDOException $ex) {
-            $loginDao->excluir($loginId);
-            header('Location: /cadastro?erro=9');
+            CadastroService::cadastrarAdotante($loginModel, $adotanteModel);
+        } catch(EmailJaCadastradoException $ex) {
+            header('Location: /cadastro?erro=email-cadastrado');
+            die();
+        } catch(CpfJaCadastradoException $ex) {
+            header('Location: /cadastro?erro=cpf-cadastrado');
+            die();
+        } catch(\Throwable $ex) {
+            header('Location: /cadastro?erro=inesperado');
             die();
         }
 

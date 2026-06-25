@@ -296,7 +296,21 @@ class AdotanteDAO extends DAO
     public  function buscarPorId($id)
     {
         try {
-            $sql = "SELECT * 
+            $sql = "SELECT 
+                id,
+                nome,
+                cpf,
+                data_nascimento,
+                cep,
+                estado,
+                cidade,
+                bairro,
+                logradouro,
+                numero,
+                complemento,
+                telefone_1,
+                telefone_2,
+                fk_login_id 
             FROM adotante
             WHERE id = :id";
 
@@ -323,7 +337,21 @@ class AdotanteDAO extends DAO
     public  function buscarPorCpf($cpf)
     {
         try {
-            $sql = "SELECT * 
+            $sql = "SELECT 
+                id,
+                nome,
+                cpf,
+                data_nascimento,
+                cep,
+                estado,
+                cidade,
+                bairro,
+                logradouro,
+                numero,
+                complemento,
+                telefone_1,
+                telefone_2,
+                fk_login_id 
             FROM adotante
             WHERE cpf = :cpf";
 
@@ -353,7 +381,20 @@ class AdotanteDAO extends DAO
             $adotantes = array();
 
             $sql = "SELECT 
-                a.*,
+                a.id,
+                a.nome,
+                a.cpf,
+                a.data_nascimento,
+                a.cep,
+                a.estado,
+                a.cidade,
+                a.bairro,
+                a.logradouro,
+                a.numero,
+                a.complemento,
+                a.telefone_1,
+                a.telefone_2,
+                a.fk_login_id,
                 l.email
             FROM 
                 adotante a
